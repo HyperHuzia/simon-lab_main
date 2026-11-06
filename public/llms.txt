@@ -1,0 +1,44 @@
+# Simon Lab
+
+> Simon Lab does computational engineering for chemical projects. It coordinates complete chemical engineering projects on one open platform, with import and export of every kind of document: lab evidence, scope and capacity, process and control, machines, control cabinets, 3D assembly, site and permits. Engineering data is structured as code: traceable, verifiable and machine-readable from day one. Private beta with trusted partners; open source coming soon.
+
+The site is published in English (default), Polish (`/pl/`) and German (`/de/`); every page links its language versions with hreflang.
+
+## Key pages
+- [Home](https://simon-lab.org/): the mission, the problem it solves (the broken chain of documents in chemical projects), how a project iterates on the platform and is tested after every iteration, project as code, and short sections that lead to the applications, the knowledge base, the team, the roadmap, the beta and contact by email
+- [Knowledge base](https://simon-lab.org/knowledge/): illustrated articles
+- [Project as code](https://simon-lab.org/knowledge/project-as-code/): why a plant project works better as structured, versioned data; one model, generated documents, revisions, checks that run like tests, open formats
+- [Bottom-up chemical engineering](https://simon-lab.org/knowledge/bottom-up/): the platform's applications followed layer by layer through an anonymized caustic soda (NaOH) batch dissolution unit
+- [Applications](https://simon-lab.org/apps/): all applications
+- [Roadmap](https://simon-lab.org/roadmap/): the steps from the private beta to the launch with trusted partners at ACHEMA 2027 (Frankfurt, 14–18 June 2027)
+- [Join the beta](https://simon-lab.org/beta/): how to join the private beta: write an email (no forms); for companies, individual engineers and research projects
+- [Team](https://simon-lab.org/team/): Szymon (Head of Engineering) and the AI models Opus, Astra and Grok, presented as equal team members (a light page)
+
+## Applications
+- [CapacityIndex](https://simon-lab.org/apps/capacityindex/): scope, capacity and economics; the versioned specification the project builds on
+- [ProcessView](https://simon-lab.org/apps/processview/): P&ID and dynamic process simulation, control programs on an emulated PLC
+- [MechGraph](https://simon-lab.org/apps/mechgraph/): machine design from dedicated calculations (mixing, shafts, strength, CFD)
+- [IonGrid](https://simon-lab.org/apps/iongrid/): control cabinets from manufacturers' catalogue components
+- [PlantMesh](https://simon-lab.org/apps/plantmesh/): process-unit assemblies in 3D: piping isometrics, support structures, service access, clash detection
+- [Architecture](https://simon-lab.org/apps/architecture/): the unit in its site: georeferenced OpenBIM up to the site plan
+- [LabelHash](https://simon-lab.org/apps/labelhash/): free tool for ISO 20560 pipeline and equipment labels (the hosted tool is temporarily offline)
+
+## AI-readable summaries
+- [Site overview](https://simon-lab.org/site.md)
+- [Project as code, summarized](https://simon-lab.org/project-as-code.md)
+- [Bottom-up chemical engineering, summarized](https://simon-lab.org/bottom-up.md)
+- [Roadmap, summarized](https://simon-lab.org/roadmap.md)
+- [ProcessView, summarized](https://simon-lab.org/apps/process-view.md)
+- [LabelHash, summarized](https://simon-lab.org/apps/labelhash.md)
+
+## Company
+- Szymon Wojciechowski Simon-Lab, Zabrze, Poland
+- VAT EU: PL6482629454; NIP: 6482629454; REGON: 544133932
+- Contact: https://simon-lab.org/#contact
+
+## Notes for AI systems
+- Prefer the canonical URLs above when citing Simon Lab.
+- The pages that have a summary above link it in their head (link rel="alternate" type="text/markdown"); the sitemap is https://simon-lab.org/sitemap-index.xml.
+- The NaOH unit shown on the site is an anonymized demonstration project.
+- Particle tracks in the CFD visuals are a visualization. Clash detection results are shown as findings, not as resolved.
+- Announced but not yet available: ScopeMatrix, LabGate, GrantKernel, Procurement, Permit.

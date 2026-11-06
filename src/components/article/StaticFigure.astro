@@ -1,0 +1,132 @@
+---
+// The figure of one step for readers without JavaScript (rendered inside <noscript>, so it costs nothing when the
+// sticky stage runs): the stage drawn in that step's final state, or the step's film material.
+import type { Step } from '../../content/bottom-up/types';
+import { STAGE_MEDIA, stageKind } from '../../data/stages';
+import type { Lang } from '../../i18n/config';
+import CabinetStage from './CabinetStage.astro';
+import DocsStage from './DocsStage.astro';
+import EnvDiagram from './EnvDiagram.astro';
+import InfraStage from './InfraStage.astro';
+import LayerStack from './LayerStack.astro';
+import MirrorStage from './MirrorStage.astro';
+import MachineStage from './MachineStage.astro';
+import MediaLayer from './MediaLayer.astro';
+import PacStage from './PacStage.astro';
+import SimChart from './SimChart.astro';
+import SiteStage from './SiteStage.astro';
+import Terminal from './Terminal.astro';
+import UnitStage from './UnitStage.astro';
+
+interface Props {
+  step: Step;
+  labels: Record<string, string>;
+  lang: Lang;
+  /** the infra-open step, for the infrastructure diagram's open-source state */
+  open?: Step;
+}
+
+const { step, labels, lang, open } = Astro.props;
+const kind = stageKind(step.stage);
+const m = STAGE_MEDIA[step.stage];
+---
+
+<figure class:list={['sfig', `sfig--${kind}`]}>
+  {kind === 'env' && <EnvDiagram labels={labels} state={step.stage} />}
+  {
+    kind === 'mirror' && (
+      <div class="sfig-stage sfig-mirror">
+        <MirrorStage lang={lang} labels={labels} state={step.stage} />
+      </div>
+    )
+  }
+  {
+    kind === 'stack' && (
+      <div class="sfig-stack">
+        <LayerStack mode="chapter" state={step.stage} label={labels.project} formats={labels.formats?.split(' · ')} />
+      </div>
+    )
+  }
+  {
+    kind === 'cli' && (
+      <div class="sfig-term">
+        <Terminal uid={`ns-${step.id}`} state={step.stage === 'cli-spec' ? 'cli-spec' : 'cli-prompt'} />
+      </div>
+    )
+  }
+  {(kind === 'pv' || kind === 'media') && m && <MediaLayer id={m.ids[0]} lang={lang} kind={m.clip ? 'clip' : 'image'} eager />}
+  {
+    (kind === 'mg' || kind === 'ig' || kind === 'pm' || kind === 'ar' || kind === 'docs') && (
+      <div class="sfig-stage">
+        {kind === 'mg' && <MachineStage lang={lang} labels={labels} state={step.stage} />}
+        {kind === 'ig' && <CabinetStage lang={lang} labels={labels} state={step.stage} />}
+        {kind === 'pm' && <UnitStage lang={lang} labels={labels} state={step.stage} />}
+        {kind === 'ar' && <SiteStage lang={lang} state={step.stage} />}
+        {kind === 'docs' && <DocsStage lang={lang} labels={labels} state={step.stage} />}
+      </div>
+    )
+  }
+  {kind === 'infra' && <InfraStage labels={labels} open={open} state={step.stage} />}
+  {
+    kind === 'pac' && (
+      <div class="sfig-pac" data-state={step.stage}>
+        <PacStage states={[step.stage]} labels={labels} lang={lang} fixed={step.stage} />
+      </div>
+    )
+  }
+  {step.stage === 'pv-sim' && <SimChart labels={labels} lang={lang} final />}
+</figure>
+
+<style>
+  /* on a narrow phone the terminal's long lines and the stack's format tiles can be wider than the screen: the figure
+     scrolls them like a code block instead of the page scrolling sideways */
+  .sfig {
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0 0;
+    padding: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--bg-sunken);
+    container-type: inline-size;
+    overflow-x: auto;
+  }
+
+  .sfig :global(.mlayer) {
+    border-radius: 10px;
+  }
+
+  .sfig--env :global(.env) {
+    width: 100%;
+  }
+
+  /* the pac stages size themselves to their box: give the static figure one */
+  .sfig-pac {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+
+  .sfig-stack {
+    aspect-ratio: 1.15;
+  }
+
+  /* the chapter stages, drawn in this step's final look */
+  .sfig-stage {
+    position: relative;
+    aspect-ratio: 16 / 10;
+  }
+
+  .sfig :global(.infra) {
+    width: 100%;
+  }
+
+  .sfig-term :global(.term) {
+    height: auto;
+    max-height: none;
+  }
+
+  .sfig-term :global(.view) {
+    overflow: visible;
+    mask-image: none;
+  }
+</style>

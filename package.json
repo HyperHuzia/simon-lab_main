@@ -1,0 +1,31 @@
+{
+  "name": "simon-lab-site",
+  "private": true,
+  "type": "module",
+  "version": "2.0.0",
+  "description": "simon-lab.org: static site built with Astro, deployed to GitHub Pages",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "check:copy": "node scripts/check-copy.mjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "8.1.2",
+    "@astrojs/sitemap": "3.7.4",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@fontsource-variable/montserrat": "5.3.0",
+    "@fontsource-variable/noto-sans": "5.3.0",
+    "astro": "7.4.5",
+    "lucide-static": "1.56.0",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}

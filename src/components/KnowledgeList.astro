@@ -1,0 +1,176 @@
+---
+// The knowledge base as a list of topics (/knowledge/): one row each, a small drawn thumbnail (KnowledgeArt) beside
+// the reading time, the title and the standfirst, with a link stretched over the row. Drafts are left out
+// (src/data/knowledge.ts); an entry without a route would be a quieter row without a link.
+import { PUBLISHED, knowledgeFor } from '../data/knowledge';
+import { path, type Lang } from '../i18n/config';
+import Icon from './Icon.astro';
+import KnowledgeArt from './KnowledgeArt.astro';
+
+interface Props {
+  lang: Lang;
+  /** heading level of the titles */
+  level?: 'h2' | 'h3';
+}
+
+const { lang, level = 'h3' } = Astro.props;
+const copy = knowledgeFor(lang);
+const Title = level;
+---
+
+<ul class="kl">
+  {
+    PUBLISHED.map((entry) => {
+      const text = copy.entries[entry.id];
+      return (
+        <li class:list={['kl-row', { 'kl-row--soon': !entry.route }]}>
+          <div class="kl-art">
+            <KnowledgeArt kind={entry.art} />
+          </div>
+          <div class="kl-body">
+            <p class="kl-meta">
+              <Icon name={entry.icon} size={15} />
+              {entry.route ? (
+                entry.minutes && copy.labels.minutes.replace('{n}', String(entry.minutes))
+              ) : (
+                <span class="tag" data-tone="soon">
+                  {copy.labels.soon}
+                </span>
+              )}
+            </p>
+            <Title class="kl-title">
+              {entry.route ? (
+                <a class="kl-link" href={path(entry.route, lang)}>
+                  {text.title}
+                </a>
+              ) : (
+                text.title
+              )}
+            </Title>
+            <p class="kl-text">{text.standfirst}</p>
+            {entry.route && (
+              <p class="kl-more" aria-hidden="true">
+                {copy.labels.read} <Icon name="arrow-right" size={15} />
+              </p>
+            )}
+          </div>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .kl {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .kl-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 13.75rem minmax(0, 1fr);
+    gap: 1.25rem clamp(1.5rem, 3vw, 2.5rem);
+    align-items: start;
+    padding-block: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    border-top: 1px solid var(--line);
+  }
+
+  /* the thumbnail: a small plain panel */
+  .kl-art {
+    aspect-ratio: 220 / 138;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-raised);
+    overflow: hidden;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .kl-row--soon .kl-art {
+    opacity: 0.6;
+  }
+
+  .kl-body {
+    max-width: 44rem;
+  }
+
+  .kl-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0.15rem 0 0.6rem;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .kl-title {
+    font-size: var(--fs-xl);
+    margin-bottom: 0.5rem;
+  }
+
+  .kl-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* the whole row is the link's target area */
+  .kl-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .kl-link:focus-visible {
+    outline: none;
+  }
+
+  .kl-row:has(.kl-link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .kl-row:has(.kl-link:hover) .kl-art {
+    border-color: var(--line-strong);
+  }
+
+  .kl-text {
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  .kl-row--soon .kl-text {
+    color: var(--text-3);
+  }
+
+  .kl-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font: 600 var(--fs-sm) / 1 var(--font-display);
+    color: var(--text);
+  }
+
+  .kl-more :global(svg) {
+    color: var(--text-3);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .kl-row:has(.kl-link:hover) .kl-more :global(svg) {
+    transform: translateX(3px);
+  }
+
+  /* phones: a smaller drawing beside the text */
+  @media (max-width: 640px) {
+    .kl-row {
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+      gap: 1rem;
+    }
+
+    .kl-art {
+      border-radius: 8px;
+    }
+  }
+</style>

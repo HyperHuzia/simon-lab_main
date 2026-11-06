@@ -1,0 +1,2593 @@
+{
+  "version": 1,
+  "note": "Written by simon-lab-media/tools/web-export.mjs. Do not edit by hand.",
+  "items": {
+    "pv-build": {
+      "kind": "video",
+      "width": 1600,
+      "height": 900,
+      "duration": 8,
+      "sources": [
+        {
+          "src": "/media/processview/pv-build.webm",
+          "type": "video/webm; codecs=\"av01.0.08M.10\""
+        },
+        {
+          "src": "/media/processview/pv-build.mp4",
+          "type": "video/mp4; codecs=\"avc1.640028\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1600,
+        "height": 900,
+        "avif": [
+          {
+            "w": 960,
+            "src": "/media/processview/pv-build-poster-960.avif"
+          },
+          {
+            "w": 1600,
+            "src": "/media/processview/pv-build-poster-1600.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 960,
+            "src": "/media/processview/pv-build-poster-960.webp"
+          },
+          {
+            "w": 1600,
+            "src": "/media/processview/pv-build-poster-1600.webp"
+          }
+        ],
+        "bg": "#030719"
+      }
+    },
+    "pv-sim": {
+      "kind": "video",
+      "width": 1600,
+      "height": 900,
+      "duration": 12.667,
+      "sources": [
+        {
+          "src": "/media/processview/pv-sim.webm",
+          "type": "video/webm; codecs=\"av01.0.08M.10\""
+        },
+        {
+          "src": "/media/processview/pv-sim.mp4",
+          "type": "video/mp4; codecs=\"avc1.640028\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1600,
+        "height": 900,
+        "avif": [
+          {
+            "w": 960,
+            "src": "/media/processview/pv-sim-poster-960.avif"
+          },
+          {
+            "w": 1600,
+            "src": "/media/processview/pv-sim-poster-1600.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 960,
+            "src": "/media/processview/pv-sim-poster-960.webp"
+          },
+          {
+            "w": 1600,
+            "src": "/media/processview/pv-sim-poster-1600.webp"
+          }
+        ],
+        "bg": "#030719"
+      }
+    },
+    "pv-sim-canvas": {
+      "kind": "video",
+      "width": 1600,
+      "height": 1170,
+      "duration": 12.667,
+      "sources": [
+        {
+          "src": "/media/processview/pv-sim-canvas.webm",
+          "type": "video/webm; codecs=\"av01.0.08M.10\""
+        },
+        {
+          "src": "/media/processview/pv-sim-canvas.mp4",
+          "type": "video/mp4; codecs=\"avc1.640032\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1600,
+        "height": 1171,
+        "avif": [
+          {
+            "w": 960,
+            "src": "/media/processview/pv-sim-canvas-poster-960.avif"
+          },
+          {
+            "w": 1600,
+            "src": "/media/processview/pv-sim-canvas-poster-1600.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 960,
+            "src": "/media/processview/pv-sim-canvas-poster-960.webp"
+          },
+          {
+            "w": 1600,
+            "src": "/media/processview/pv-sim-canvas-poster-1600.webp"
+          }
+        ],
+        "bg": "#030719"
+      }
+    },
+    "pv-infobox-nozzles": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-infobox-nozzles-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-infobox-nozzles-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-infobox-nozzles-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-infobox-nozzles-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-infobox-nozzles-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-infobox-nozzles-2400.webp"
+        }
+      ],
+      "bg": "#030719"
+    },
+    "pv-infobox-pressure": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-infobox-pressure-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-infobox-pressure-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-infobox-pressure-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-infobox-pressure-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-infobox-pressure-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-infobox-pressure-2400.webp"
+        }
+      ],
+      "bg": "#030719"
+    },
+    "pv-tab-materials": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-tab-materials-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-tab-materials-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-tab-materials-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-tab-materials-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-tab-materials-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-tab-materials-2400.webp"
+        }
+      ],
+      "bg": "#030719"
+    },
+    "pv-tab-pipelines": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-tab-pipelines-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-tab-pipelines-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-tab-pipelines-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-tab-pipelines-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-tab-pipelines-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-tab-pipelines-2400.webp"
+        }
+      ],
+      "bg": "#030719"
+    },
+    "pv-tab-instrumentation": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-tab-instrumentation-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-tab-instrumentation-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-tab-instrumentation-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-tab-instrumentation-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-tab-instrumentation-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-tab-instrumentation-2400.webp"
+        }
+      ],
+      "bg": "#030719"
+    },
+    "pv-sim-dosing": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-sim-dosing-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-sim-dosing-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-sim-dosing-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-sim-dosing-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-sim-dosing-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-sim-dosing-2400.webp"
+        }
+      ],
+      "bg": "#030719"
+    },
+    "pv-sim-final": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-sim-final-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-sim-final-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-sim-final-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/processview/pv-sim-final-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/processview/pv-sim-final-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/processview/pv-sim-final-2400.webp"
+        }
+      ],
+      "bg": "#030719"
+    },
+    "pv-mirror": {
+      "kind": "image",
+      "width": 683,
+      "height": 768,
+      "avif": [
+        {
+          "w": 683,
+          "src": "/media/processview/pv-mirror-683.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 683,
+          "src": "/media/processview/pv-mirror-683.webp"
+        }
+      ],
+      "bg": "#020718"
+    },
+    "mg-master": {
+      "kind": "video",
+      "width": 1600,
+      "height": 900,
+      "duration": 14.5,
+      "sources": [
+        {
+          "src": "/media/mechgraph/mg-master.webm",
+          "type": "video/webm; codecs=\"av01.0.08M.10\""
+        },
+        {
+          "src": "/media/mechgraph/mg-master.mp4",
+          "type": "video/mp4; codecs=\"avc1.640028\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1600,
+        "height": 900,
+        "avif": [
+          {
+            "w": 640,
+            "src": "/media/mechgraph/mg-master-poster-640.avif"
+          },
+          {
+            "w": 1280,
+            "src": "/media/mechgraph/mg-master-poster-1280.avif"
+          },
+          {
+            "w": 1600,
+            "src": "/media/mechgraph/mg-master-poster-1600.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 640,
+            "src": "/media/mechgraph/mg-master-poster-640.webp"
+          },
+          {
+            "w": 1280,
+            "src": "/media/mechgraph/mg-master-poster-1280.webp"
+          },
+          {
+            "w": 1600,
+            "src": "/media/mechgraph/mg-master-poster-1600.webp"
+          }
+        ],
+        "bg": "#0b0e17"
+      }
+    },
+    "mg-turntable": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-turntable-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-turntable-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-turntable-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-turntable-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-turntable-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-turntable-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "nozzle-n1": {
+          "x": 0.4986,
+          "y": 0.2947
+        }
+      }
+    },
+    "mg-section": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-section-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-section-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-section-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-section-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-section-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-section-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "impeller": {
+          "x": 0.4474,
+          "y": 0.7979
+        },
+        "shaft": {
+          "x": 0.4458,
+          "y": 0.5405
+        },
+        "shell": {
+          "x": 0.6155,
+          "y": 0.845
+        },
+        "nozzle-n1": {
+          "x": 0.5738,
+          "y": 0.2931
+        },
+        "liquid-surface": {
+          "x": 0.5151,
+          "y": 0.4936
+        }
+      }
+    },
+    "mg-shaft": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-shaft-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-shaft-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-shaft-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-shaft-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-shaft-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-shaft-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "impeller": {
+          "x": 0.4469,
+          "y": 0.8006
+        },
+        "shaft": {
+          "x": 0.4451,
+          "y": 0.5365
+        },
+        "shell": {
+          "x": 0.6253,
+          "y": 0.8397
+        },
+        "nozzle-n1": {
+          "x": 0.5819,
+          "y": 0.2782
+        },
+        "liquid-surface": {
+          "x": 0.5193,
+          "y": 0.4862
+        }
+      }
+    },
+    "mg-pellets": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-pellets-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-pellets-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-pellets-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-pellets-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-pellets-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-pellets-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "impeller": {
+          "x": 0.4356,
+          "y": 0.7901
+        },
+        "shaft": {
+          "x": 0.4331,
+          "y": 0.4814
+        },
+        "shell": {
+          "x": 0.6514,
+          "y": 0.7983
+        },
+        "nozzle-n1": {
+          "x": 0.601,
+          "y": 0.1599
+        },
+        "tracks": {
+          "x": 0.6016,
+          "y": 0.4604
+        },
+        "liquid-surface": {
+          "x": 0.5247,
+          "y": 0.4098
+        }
+      }
+    },
+    "mg-tracks": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-tracks-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-tracks-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-tracks-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-tracks-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-tracks-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-tracks-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "impeller": {
+          "x": 0.4406,
+          "y": 0.7962
+        },
+        "shaft": {
+          "x": 0.438,
+          "y": 0.4838
+        },
+        "shell": {
+          "x": 0.66,
+          "y": 0.7923
+        },
+        "nozzle-n1": {
+          "x": 0.6104,
+          "y": 0.1529
+        },
+        "tracks": {
+          "x": 0.576,
+          "y": 0.4616
+        },
+        "liquid-surface": {
+          "x": 0.5322,
+          "y": 0.4073
+        }
+      }
+    },
+    "mg-contour": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-contour-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-contour-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-contour-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/mechgraph/mg-contour-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/mechgraph/mg-contour-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/mechgraph/mg-contour-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true
+    },
+    "mg-plate-default": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/mechgraph/mg-plate-default-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/mechgraph/mg-plate-default-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/mechgraph/mg-plate-default-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/mechgraph/mg-plate-default-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/mechgraph/mg-plate-default-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/mechgraph/mg-plate-default-2400.webp"
+        }
+      ],
+      "bg": "#dddedf"
+    },
+    "mg-plate-section": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/mechgraph/mg-plate-section-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/mechgraph/mg-plate-section-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/mechgraph/mg-plate-section-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/mechgraph/mg-plate-section-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/mechgraph/mg-plate-section-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/mechgraph/mg-plate-section-2400.webp"
+        }
+      ],
+      "bg": "#dddedf"
+    },
+    "mg-plate-dark": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/mechgraph/mg-plate-dark-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/mechgraph/mg-plate-dark-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/mechgraph/mg-plate-dark-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/mechgraph/mg-plate-dark-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/mechgraph/mg-plate-dark-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/mechgraph/mg-plate-dark-2400.webp"
+        }
+      ],
+      "bg": "#000005"
+    },
+    "ig-assembly": {
+      "kind": "video",
+      "width": 1600,
+      "height": 900,
+      "duration": 12,
+      "sources": [
+        {
+          "src": "/media/iongrid/ig-assembly.webm",
+          "type": "video/webm; codecs=\"av01.0.08M.10\""
+        },
+        {
+          "src": "/media/iongrid/ig-assembly.mp4",
+          "type": "video/mp4; codecs=\"avc1.640028\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1600,
+        "height": 900,
+        "avif": [
+          {
+            "w": 640,
+            "src": "/media/iongrid/ig-assembly-poster-640.avif"
+          },
+          {
+            "w": 1280,
+            "src": "/media/iongrid/ig-assembly-poster-1280.avif"
+          },
+          {
+            "w": 1600,
+            "src": "/media/iongrid/ig-assembly-poster-1600.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 640,
+            "src": "/media/iongrid/ig-assembly-poster-640.webp"
+          },
+          {
+            "w": 1280,
+            "src": "/media/iongrid/ig-assembly-poster-1280.webp"
+          },
+          {
+            "w": 1600,
+            "src": "/media/iongrid/ig-assembly-poster-1600.webp"
+          }
+        ],
+        "bg": "#0b0e17"
+      }
+    },
+    "ig-open": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/iongrid/ig-open-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/iongrid/ig-open-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/iongrid/ig-open-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/iongrid/ig-open-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/iongrid/ig-open-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/iongrid/ig-open-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "controller": {
+          "x": 0.5051,
+          "y": 0.5935
+        },
+        "io-modules": {
+          "x": 0.516,
+          "y": 0.5961
+        },
+        "drives": {
+          "x": 0.5152,
+          "y": 0.2931
+        },
+        "drive-m101": {
+          "x": 0.4993,
+          "y": 0.2917
+        },
+        "drive-p101": {
+          "x": 0.5201,
+          "y": 0.2847
+        },
+        "drive-sc101": {
+          "x": 0.5362,
+          "y": 0.2721
+        },
+        "power-supply": {
+          "x": 0.4993,
+          "y": 0.5475
+        },
+        "power-supply-logic": {
+          "x": 0.5127,
+          "y": 0.5489
+        },
+        "ups": {
+          "x": 0.521,
+          "y": 0.5506
+        },
+        "hmi": {
+          "x": 0.5778,
+          "y": 0.3529
+        },
+        "cooling-edge": {
+          "x": 0.6004,
+          "y": 0.5262
+        },
+        "cabinet-top": {
+          "x": 0.5595,
+          "y": 0.1956
+        },
+        "heat": {
+          "x": 0.5152,
+          "y": 0.2931
+        },
+        "pneumatic": {
+          "x": 0.516,
+          "y": 0.5961
+        },
+        "purchase": {
+          "x": 0.5595,
+          "y": 0.1956
+        }
+      }
+    },
+    "ig-closed": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/iongrid/ig-closed-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/iongrid/ig-closed-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/iongrid/ig-closed-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/iongrid/ig-closed-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/iongrid/ig-closed-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/iongrid/ig-closed-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "hmi": {
+          "x": 0.5414,
+          "y": 0.3556
+        },
+        "cooling-edge": {
+          "x": 0.583,
+          "y": 0.5429
+        },
+        "cabinet-top": {
+          "x": 0.5095,
+          "y": 0.1862
+        },
+        "purchase": {
+          "x": 0.5095,
+          "y": 0.1862
+        }
+      }
+    },
+    "ig-kit": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/iongrid/ig-kit-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/iongrid/ig-kit-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/iongrid/ig-kit-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/iongrid/ig-kit-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/iongrid/ig-kit-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/iongrid/ig-kit-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true
+    },
+    "ig-plate-default": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/iongrid/ig-plate-default-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/iongrid/ig-plate-default-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/iongrid/ig-plate-default-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/iongrid/ig-plate-default-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/iongrid/ig-plate-default-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/iongrid/ig-plate-default-2400.webp"
+        }
+      ],
+      "bg": "#b4bbc3"
+    },
+    "ig-register": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/iongrid/ig-register-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/iongrid/ig-register-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/iongrid/ig-register-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/iongrid/ig-register-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/iongrid/ig-register-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/iongrid/ig-register-2400.webp"
+        }
+      ],
+      "bg": "#f7fafc"
+    },
+    "ig-plate-panel": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/iongrid/ig-plate-panel-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/iongrid/ig-plate-panel-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/iongrid/ig-plate-panel-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/iongrid/ig-plate-panel-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/iongrid/ig-plate-panel-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/iongrid/ig-plate-panel-2400.webp"
+        }
+      ],
+      "bg": "#151c29"
+    },
+    "pm-assembly": {
+      "kind": "video",
+      "width": 1600,
+      "height": 900,
+      "duration": 13,
+      "sources": [
+        {
+          "src": "/media/plantmesh/pm-assembly.webm",
+          "type": "video/webm; codecs=\"av01.0.08M.10\""
+        },
+        {
+          "src": "/media/plantmesh/pm-assembly.mp4",
+          "type": "video/mp4; codecs=\"avc1.640028\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1600,
+        "height": 900,
+        "avif": [
+          {
+            "w": 640,
+            "src": "/media/plantmesh/pm-assembly-poster-640.avif"
+          },
+          {
+            "w": 1280,
+            "src": "/media/plantmesh/pm-assembly-poster-1280.avif"
+          },
+          {
+            "w": 1600,
+            "src": "/media/plantmesh/pm-assembly-poster-1600.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 640,
+            "src": "/media/plantmesh/pm-assembly-poster-640.webp"
+          },
+          {
+            "w": 1280,
+            "src": "/media/plantmesh/pm-assembly-poster-1280.webp"
+          },
+          {
+            "w": 1600,
+            "src": "/media/plantmesh/pm-assembly-poster-1600.webp"
+          }
+        ],
+        "bg": "#0b0e17"
+      }
+    },
+    "pm-orbit": {
+      "kind": "video",
+      "width": 1600,
+      "height": 900,
+      "duration": 4,
+      "sources": [
+        {
+          "src": "/media/plantmesh/pm-orbit.webm",
+          "type": "video/webm; codecs=\"vp09.00.40.08\""
+        },
+        {
+          "src": "/media/plantmesh/pm-orbit.mp4",
+          "type": "video/mp4; codecs=\"avc1.640028\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1600,
+        "height": 900,
+        "avif": [
+          {
+            "w": 640,
+            "src": "/media/plantmesh/pm-orbit-poster-640.avif"
+          },
+          {
+            "w": 1280,
+            "src": "/media/plantmesh/pm-orbit-poster-1280.avif"
+          },
+          {
+            "w": 1600,
+            "src": "/media/plantmesh/pm-orbit-poster-1600.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 640,
+            "src": "/media/plantmesh/pm-orbit-poster-640.webp"
+          },
+          {
+            "w": 1280,
+            "src": "/media/plantmesh/pm-orbit-poster-1280.webp"
+          },
+          {
+            "w": 1600,
+            "src": "/media/plantmesh/pm-orbit-poster-1600.webp"
+          }
+        ],
+        "bg": "#0b0e17"
+      },
+      "alpha": true
+    },
+    "pm-final": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-final-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-final-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-final-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-final-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-final-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-final-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "pipe-run": {
+          "x": 0.4474,
+          "y": 0.6279
+        },
+        "support-structure": {
+          "x": 0.453,
+          "y": 0.5612
+        },
+        "service-access": {
+          "x": 0.4564,
+          "y": 0.8649
+        },
+        "clash": {
+          "x": 0.4163,
+          "y": 0.2809
+        },
+        "mixer": {
+          "x": 0.3512,
+          "y": 0.299
+        },
+        "cabinet": {
+          "x": 0.5707,
+          "y": 0.4824
+        }
+      }
+    },
+    "pm-final-line": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-final-line-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-final-line-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-final-line-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-final-line-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-final-line-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-final-line-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "pipe-run": {
+          "x": 0.4474,
+          "y": 0.6279
+        },
+        "support-structure": {
+          "x": 0.453,
+          "y": 0.5612
+        },
+        "service-access": {
+          "x": 0.4564,
+          "y": 0.8649
+        },
+        "clash": {
+          "x": 0.4163,
+          "y": 0.2809
+        },
+        "mixer": {
+          "x": 0.3512,
+          "y": 0.299
+        },
+        "cabinet": {
+          "x": 0.5707,
+          "y": 0.4824
+        }
+      }
+    },
+    "pm-final-steel": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-final-steel-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-final-steel-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-final-steel-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-final-steel-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-final-steel-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-final-steel-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "pipe-run": {
+          "x": 0.4474,
+          "y": 0.6279
+        },
+        "support-structure": {
+          "x": 0.453,
+          "y": 0.5612
+        },
+        "service-access": {
+          "x": 0.4564,
+          "y": 0.8649
+        },
+        "clash": {
+          "x": 0.4163,
+          "y": 0.2809
+        },
+        "mixer": {
+          "x": 0.3512,
+          "y": 0.299
+        },
+        "cabinet": {
+          "x": 0.5707,
+          "y": 0.4824
+        }
+      }
+    },
+    "pm-wire": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-wire-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-wire-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-wire-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-wire-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-wire-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-wire-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true
+    },
+    "pm-clash": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-clash-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-clash-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-clash-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/plantmesh/pm-clash-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/plantmesh/pm-clash-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/plantmesh/pm-clash-1920.webp"
+        }
+      ],
+      "bg": "#0b0e17",
+      "alpha": true,
+      "anchors": {
+        "support-structure": {
+          "x": 0.5295,
+          "y": 0.9043
+        },
+        "clash": {
+          "x": 0.4826,
+          "y": 0.446
+        },
+        "mixer": {
+          "x": 0.3767,
+          "y": 0.4666
+        },
+        "cabinet": {
+          "x": 0.7165,
+          "y": 0.7737
+        }
+      }
+    },
+    "pm-plate-home": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/plantmesh/pm-plate-home-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/plantmesh/pm-plate-home-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/plantmesh/pm-plate-home-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/plantmesh/pm-plate-home-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/plantmesh/pm-plate-home-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/plantmesh/pm-plate-home-2400.webp"
+        }
+      ],
+      "bg": "#b3bac3"
+    },
+    "pm-plate-collisions": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/plantmesh/pm-plate-collisions-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/plantmesh/pm-plate-collisions-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/plantmesh/pm-plate-collisions-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/plantmesh/pm-plate-collisions-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/plantmesh/pm-plate-collisions-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/plantmesh/pm-plate-collisions-2400.webp"
+        }
+      ],
+      "bg": "#b3bac2"
+    },
+    "ar-site": {
+      "kind": "video",
+      "width": 1600,
+      "height": 900,
+      "duration": 11.5,
+      "sources": [
+        {
+          "src": "/media/architecture/ar-site.webm",
+          "type": "video/webm; codecs=\"av01.0.08M.10\""
+        },
+        {
+          "src": "/media/architecture/ar-site.mp4",
+          "type": "video/mp4; codecs=\"avc1.640028\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1600,
+        "height": 900,
+        "avif": [
+          {
+            "w": 640,
+            "src": "/media/architecture/ar-site-poster-640.avif"
+          },
+          {
+            "w": 1280,
+            "src": "/media/architecture/ar-site-poster-1280.avif"
+          },
+          {
+            "w": 1600,
+            "src": "/media/architecture/ar-site-poster-1600.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 640,
+            "src": "/media/architecture/ar-site-poster-640.webp"
+          },
+          {
+            "w": 1280,
+            "src": "/media/architecture/ar-site-poster-1280.webp"
+          },
+          {
+            "w": 1600,
+            "src": "/media/architecture/ar-site-poster-1600.webp"
+          }
+        ],
+        "bg": "#8b9b6a"
+      }
+    },
+    "ar-top-colour": {
+      "kind": "image",
+      "width": 1920,
+      "height": 2033,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/architecture/ar-top-colour-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/architecture/ar-top-colour-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/architecture/ar-top-colour-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/architecture/ar-top-colour-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/architecture/ar-top-colour-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/architecture/ar-top-colour-1920.webp"
+        }
+      ],
+      "bg": "#8b9c69",
+      "set": "ar-wipe"
+    },
+    "ar-top-lineart": {
+      "kind": "image",
+      "width": 1920,
+      "height": 2033,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/architecture/ar-top-lineart-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/architecture/ar-top-lineart-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/architecture/ar-top-lineart-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/architecture/ar-top-lineart-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/architecture/ar-top-lineart-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/architecture/ar-top-lineart-1920.webp"
+        }
+      ],
+      "bg": "#0b0e16",
+      "alpha": true,
+      "set": "ar-wipe"
+    },
+    "ar-pzt": {
+      "kind": "image",
+      "width": 1920,
+      "height": 2033,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/architecture/ar-pzt-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/architecture/ar-pzt-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/architecture/ar-pzt-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/architecture/ar-pzt-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/architecture/ar-pzt-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/architecture/ar-pzt-1920.webp"
+        }
+      ],
+      "bg": "#fdfdfd",
+      "set": "ar-wipe"
+    },
+    "ar-pzt-sheet": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1697,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/architecture/ar-pzt-sheet-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/architecture/ar-pzt-sheet-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/architecture/ar-pzt-sheet-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/architecture/ar-pzt-sheet-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/architecture/ar-pzt-sheet-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/architecture/ar-pzt-sheet-2400.webp"
+        }
+      ],
+      "bg": "#fcfcfc"
+    },
+    "ar-bim": {
+      "kind": "image",
+      "width": 2400,
+      "height": 1350,
+      "avif": [
+        {
+          "w": 960,
+          "src": "/media/architecture/ar-bim-960.avif"
+        },
+        {
+          "w": 1600,
+          "src": "/media/architecture/ar-bim-1600.avif"
+        },
+        {
+          "w": 2400,
+          "src": "/media/architecture/ar-bim-2400.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 960,
+          "src": "/media/architecture/ar-bim-960.webp"
+        },
+        {
+          "w": 1600,
+          "src": "/media/architecture/ar-bim-1600.webp"
+        },
+        {
+          "w": 2400,
+          "src": "/media/architecture/ar-bim-2400.webp"
+        }
+      ],
+      "bg": "#99a5b1"
+    },
+    "doc-01": {
+      "kind": "image",
+      "width": 960,
+      "height": 1358,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-01-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-01-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-01-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-01-960.webp"
+        }
+      ],
+      "bg": "#ffffff"
+    },
+    "doc-02": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-02-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-02-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-02-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-02-960.webp"
+        }
+      ],
+      "bg": "#ffffff"
+    },
+    "doc-03": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-03-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-03-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-03-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-03-960.webp"
+        }
+      ],
+      "bg": "#fdfdfe"
+    },
+    "doc-04": {
+      "kind": "image",
+      "width": 960,
+      "height": 1358,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-04-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-04-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-04-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-04-960.webp"
+        }
+      ],
+      "bg": "#feffff"
+    },
+    "doc-05": {
+      "kind": "image",
+      "width": 960,
+      "height": 1358,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-05-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-05-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-05-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-05-960.webp"
+        }
+      ],
+      "bg": "#fdfefe"
+    },
+    "doc-06": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-06-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-06-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-06-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-06-960.webp"
+        }
+      ],
+      "bg": "#fdfdfd"
+    },
+    "doc-07": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-07-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-07-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-07-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-07-960.webp"
+        }
+      ],
+      "bg": "#fefefe"
+    },
+    "doc-08": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-08-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-08-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-08-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-08-960.webp"
+        }
+      ],
+      "bg": "#ffffff"
+    },
+    "doc-09": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-09-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-09-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-09-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-09-960.webp"
+        }
+      ],
+      "bg": "#ffffff"
+    },
+    "doc-10": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-10-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-10-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-10-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-10-960.webp"
+        }
+      ],
+      "bg": "#fefefe"
+    },
+    "doc-11": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-11-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-11-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-11-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-11-960.webp"
+        }
+      ],
+      "bg": "#fdfdfd"
+    },
+    "doc-12": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-12-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-12-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-12-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-12-960.webp"
+        }
+      ],
+      "bg": "#fefefe"
+    },
+    "doc-13": {
+      "kind": "image",
+      "width": 960,
+      "height": 1358,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-13-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-13-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-13-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-13-960.webp"
+        }
+      ],
+      "bg": "#fefefe"
+    },
+    "doc-14": {
+      "kind": "image",
+      "width": 960,
+      "height": 1358,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-14-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-14-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-14-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-14-960.webp"
+        }
+      ],
+      "bg": "#fefefe"
+    },
+    "doc-15": {
+      "kind": "image",
+      "width": 960,
+      "height": 1358,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-15-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-15-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-15-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-15-960.webp"
+        }
+      ],
+      "bg": "#fbfcfd"
+    },
+    "doc-16": {
+      "kind": "image",
+      "width": 960,
+      "height": 1358,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-16-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-16-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-16-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-16-960.webp"
+        }
+      ],
+      "bg": "#ffffff"
+    },
+    "doc-17": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-17-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-17-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-17-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-17-960.webp"
+        }
+      ],
+      "bg": "#fefefe"
+    },
+    "doc-pzt": {
+      "kind": "image",
+      "width": 960,
+      "height": 679,
+      "avif": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-pzt-480.avif"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-pzt-960.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 480,
+          "src": "/media/documents/doc-pzt-480.webp"
+        },
+        {
+          "w": 960,
+          "src": "/media/documents/doc-pzt-960.webp"
+        }
+      ],
+      "bg": "#fcfcfc"
+    },
+    "team-portrait": {
+      "kind": "image",
+      "width": 760,
+      "height": 760,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/team/team-portrait-640.avif"
+        },
+        {
+          "w": 760,
+          "src": "/media/team/team-portrait-760.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/team/team-portrait-640.webp"
+        },
+        {
+          "w": 760,
+          "src": "/media/team/team-portrait-760.webp"
+        }
+      ],
+      "bg": "#f8f6f7"
+    },
+    "team-plant": {
+      "kind": "image",
+      "width": 1920,
+      "height": 686,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/team/team-plant-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/team/team-plant-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/team/team-plant-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/team/team-plant-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/team/team-plant-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/team/team-plant-1920.webp"
+        }
+      ],
+      "bg": "#797a76"
+    },
+    "team-homelab": {
+      "kind": "image",
+      "width": 1920,
+      "height": 1080,
+      "avif": [
+        {
+          "w": 640,
+          "src": "/media/team/team-homelab-640.avif"
+        },
+        {
+          "w": 1280,
+          "src": "/media/team/team-homelab-1280.avif"
+        },
+        {
+          "w": 1920,
+          "src": "/media/team/team-homelab-1920.avif"
+        }
+      ],
+      "webp": [
+        {
+          "w": 640,
+          "src": "/media/team/team-homelab-640.webp"
+        },
+        {
+          "w": 1280,
+          "src": "/media/team/team-homelab-1280.webp"
+        },
+        {
+          "w": 1920,
+          "src": "/media/team/team-homelab-1920.webp"
+        }
+      ],
+      "bg": "#272727"
+    }
+  },
+  "films": {
+    "film-en": {
+      "kind": "video",
+      "lang": "en",
+      "width": 1280,
+      "height": 720,
+      "duration": 134.25,
+      "sources": [
+        {
+          "src": "/media/film/film-en.mp4",
+          "type": "video/mp4; codecs=\"avc1.64001f, mp4a.40.2\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1280,
+        "height": 720,
+        "avif": [
+          {
+            "w": 640,
+            "src": "/media/film/film-en-poster-640.avif"
+          },
+          {
+            "w": 1280,
+            "src": "/media/film/film-en-poster-1280.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 640,
+            "src": "/media/film/film-en-poster-640.webp"
+          },
+          {
+            "w": 1280,
+            "src": "/media/film/film-en-poster-1280.webp"
+          }
+        ],
+        "bg": "#0b0d16"
+      },
+      "captions": [
+        {
+          "lang": "en",
+          "src": "/media/film/film-en.vtt"
+        },
+        {
+          "lang": "de",
+          "src": "/media/film/film-de.vtt"
+        }
+      ]
+    },
+    "film-pl": {
+      "kind": "video",
+      "lang": "pl",
+      "width": 1280,
+      "height": 720,
+      "duration": 128.448,
+      "sources": [
+        {
+          "src": "/media/film/film-pl.mp4",
+          "type": "video/mp4; codecs=\"avc1.64001f, mp4a.40.2\""
+        }
+      ],
+      "poster": {
+        "kind": "image",
+        "width": 1280,
+        "height": 720,
+        "avif": [
+          {
+            "w": 640,
+            "src": "/media/film/film-pl-poster-640.avif"
+          },
+          {
+            "w": 1280,
+            "src": "/media/film/film-pl-poster-1280.avif"
+          }
+        ],
+        "webp": [
+          {
+            "w": 640,
+            "src": "/media/film/film-pl-poster-640.webp"
+          },
+          {
+            "w": 1280,
+            "src": "/media/film/film-pl-poster-1280.webp"
+          }
+        ],
+        "bg": "#0b0d16"
+      },
+      "captions": [
+        {
+          "lang": "pl",
+          "src": "/media/film/film-pl.vtt"
+        }
+      ]
+    }
+  },
+  "data": {
+    "pv-hud": {
+      "src": "/media/processview/hud.json",
+      "clip": "pv-sim",
+      "fps": 30,
+      "frames": 380,
+      "fields": [
+        "clockS",
+        "step",
+        "level",
+        "tempC",
+        "massKg",
+        "concPct"
+      ]
+    }
+  },
+  "texts": {
+    "pv-model": "{\n  \"equipment\": [\"TK101\", \"P101\"],\n  \"junctions\": [\"J101\", \"J103\"],\n  \"pipes\": [\n    \"SEG-TK101-D1-HV101-N1\",\n    \"SEG-HV101-N2-WP103-N1\",\n    \"SEG-WP103-N2-J103-N1\",\n    \"SEG-J103-N2-P101-N1\",\n    \"SEG-P101-N2-J101-N1\",\n    \"SEG-J101-N3-XV102-N1\",\n    \"SEG-XV102-N2-TK101-C1\"\n  ],\n  \"valves\": [\"HV101\", \"XV102\"],\n  \"instruments\": [\"LT101\", \"PT101\", \"TT101\"]\n}",
+    "ig-netlist": "Q-P101-L1        Q-P101:L1-OUT   →  DRV:P101:L1            4 mm²\nQ-P101-L2        Q-P101:L2-OUT   →  DRV:P101:L2            4 mm²\nQ-P101-L3        Q-P101:L3-OUT   →  DRV:P101:L3            4 mm²\nM-P101-U         DRV:P101:U      →  P-101:MOTOR:U\nM-P101-V         DRV:P101:V      →  P-101:MOTOR:V\nM-P101-W         DRV:P101:W      →  P-101:MOTOR:W\nPE:DRV:P101      PE101:DRV:P101  →  DRV:P101:PE            2.5 mm²\nPE:PV:P101       PE101:PV:P101   →  P-101:PE\nIO:XV102.open    DIO1:DI14       →  XIO-XV102.open-S:IN    1.5 mm²\nIO:XV102.closed  DIO2:DI1        →  XIO-XV102.closed-S:IN  1.5 mm²"
+  },
+  "og": {
+    "default": {
+      "src": "/og/default.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "bottom-up": {
+      "src": "/og/bottom-up.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "app-processview": {
+      "src": "/og/app-processview.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "app-mechgraph": {
+      "src": "/og/app-mechgraph.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "app-iongrid": {
+      "src": "/og/app-iongrid.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "app-plantmesh": {
+      "src": "/og/app-plantmesh.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "app-architecture": {
+      "src": "/og/app-architecture.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "app-capacityindex": {
+      "src": "/og/app-capacityindex.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "knowledge": {
+      "src": "/og/knowledge.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "project-as-code": {
+      "src": "/og/project-as-code.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "roadmap": {
+      "src": "/og/roadmap.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "team": {
+      "src": "/og/team.jpg",
+      "width": 1200,
+      "height": 630
+    }
+  }
+}

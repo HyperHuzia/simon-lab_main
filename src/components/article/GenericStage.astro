@@ -1,0 +1,102 @@
+---
+// Interim stage for the chapters whose dedicated visuals come next (MechGraph, IonGrid, PlantMesh, Architecture,
+// documents, infrastructure): the state's main film material in a frame, crossfading per state (the scroll engine
+// marks the [data-look] matching the stage state with data-on). States without film material show a placeholder.
+import type { Chapter } from '../../content/bottom-up/types';
+import { STAGE_MEDIA } from '../../data/stages';
+import type { Lang } from '../../i18n/config';
+import MediaLayer from './MediaLayer.astro';
+
+interface Props {
+  chapter: Chapter;
+  lang: Lang;
+}
+
+const { chapter, lang } = Astro.props;
+const states = [...new Set(chapter.steps.map((s) => s.stage))];
+---
+
+<div class="gstage">
+  <div class="gframe">
+    {
+      states.map((state, i) => {
+        const m = STAGE_MEDIA[state];
+        return (
+          <div class="glayer" data-look={state} data-on={i === 0 ? '' : undefined}>
+            {m ? (
+              <MediaLayer id={m.ids[0]} lang={lang} kind={m.clip ? 'clip' : 'image'} />
+            ) : (
+              <div class="gph">
+                <span>{state}</span>
+              </div>
+            )}
+          </div>
+        );
+      })
+    }
+  </div>
+</div>
+
+<style>
+  .gstage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    container-type: size;
+    display: grid;
+    place-items: center;
+  }
+
+  .gframe {
+    position: relative;
+    width: min(100cqw, 100cqh * 16 / 9);
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--c, var(--text-3)) 30%, var(--line));
+  }
+
+  .glayer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--dur) var(--ease-out),
+      visibility 0s linear var(--dur);
+  }
+
+  .glayer[data-on] {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity var(--dur) var(--ease-out),
+      visibility 0s;
+  }
+
+  .glayer :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+    height: 100%;
+  }
+
+  .gph {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      linear-gradient(rgb(110 123 160 / 0.075) 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(90deg, rgb(110 123 160 / 0.075) 1px, transparent 1px) 0 0 / 32px 32px,
+      #0d111d;
+    font: 500 0.78rem/1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .gph span {
+    padding: 0.45em 0.8em;
+    border-radius: 999px;
+    border: 1px dashed rgb(140 155 190 / 0.3);
+  }
+</style>

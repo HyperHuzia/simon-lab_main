@@ -1,0 +1,86 @@
+/* Homepage (src/views/Home.astro) and the pages that borrow its section frame (/apps/, /knowledge/): section, header,
+   eyebrow, title, lede. Calm: neutral type, lines instead of glows, colour only in small marks. */
+
+.hp-sec {
+  position: relative;
+  width: min(100% - 2 * var(--gutter), var(--wide));
+  margin-inline: auto;
+  padding-top: clamp(4.5rem, 3rem + 5vw, 8rem);
+}
+
+.hp-head {
+  max-width: 46rem;
+  margin-bottom: clamp(1.75rem, 1.4rem + 1.6vw, 2.75rem);
+}
+
+.hp-eyebrow {
+  margin: 0 0 0.9rem;
+  font: 600 0.75rem / 1.4 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.hp-title {
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+}
+
+.hp-lede {
+  max-width: 40rem;
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  color: var(--text-2);
+  margin: 0;
+}
+
+.hp-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  font: 600 0.75rem / 1.4 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.hp-group::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.hp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 1rem;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.hp-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: 600 var(--fs-sm) / 1 var(--font-display);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.hp-more svg {
+  color: var(--text-3);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.hp-more:hover svg {
+  color: var(--text);
+  transform: translateX(3px);
+}

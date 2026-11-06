@@ -1,0 +1,154 @@
+---
+// One piece of film material inside a stage: a still (AVIF/WebP, loaded for the current chapter ±1 and decoded
+// before it fades in), a muted clip gated by its stage state, or — until the id exists in the media manifest — a
+// tasteful placeholder: a dark frame with a faint grid and the id. The frame always reserves its aspect ratio.
+import { BLANK_SRC, media, words, type ImageItem } from '../../data/media';
+import type { Lang } from '../../i18n/config';
+
+interface Props {
+  id: string;
+  lang: Lang;
+  /** CSS sizes for the responsive image */
+  sizes?: string;
+  /** clips: loop (default) or play once and hold the last frame */
+  loop?: boolean;
+  /** placeholder aspect ratio when the id is not exported yet (width / height) */
+  ratio?: number;
+  /** expected kind, for the placeholder glyph */
+  kind?: 'image' | 'clip';
+  class?: string;
+  /** render eagerly (no lazy data-* attributes), e.g. inside <noscript> */
+  eager?: boolean;
+}
+
+const { id, lang, sizes = '(min-width: 1000px) 62vw, 100vw', loop = true, ratio = 16 / 9, kind = 'image', class: className, eager = false } = Astro.props;
+const fig = media(id);
+const w = words(id, lang);
+const srcset = (list: { w: number; src: string }[]) => list.map((s) => `${s.src} ${s.w}w`).join(', ');
+const pick = (img: ImageItem, target = 1280) => [...img.webp].sort((a, b) => a.w - b.w).find((s) => s.w >= target) ?? img.webp[img.webp.length - 1];
+const item = fig?.item;
+const ar = item ? `${item.width} / ${item.height}` : `${ratio}`;
+const bg = item ? (item.kind === 'image' ? item.bg : item.poster.bg) : undefined;
+const alpha = item?.kind === 'image' && item.alpha;
+---
+
+<div
+  class:list={['mlayer', className, { 'is-alpha': alpha, 'is-missing': !item }]}
+  data-media={id}
+  data-ready={eager || !item ? '' : undefined}
+  style={`--ar:${ar};${bg ? `--ph:${bg};` : ''}`}
+>
+  {
+    item?.kind === 'image' ? (
+      <picture>
+        {eager ? (
+          <>
+            <source type="image/avif" srcset={srcset(item.avif)} sizes={sizes} />
+            <source type="image/webp" srcset={srcset(item.webp)} sizes={sizes} />
+            <img src={pick(item).src} alt={w.alt} width={item.width} height={item.height} loading="lazy" decoding="async" />
+          </>
+        ) : (
+          <>
+            <source type="image/avif" data-srcset={srcset(item.avif)} sizes={sizes} />
+            <source type="image/webp" data-srcset={srcset(item.webp)} sizes={sizes} />
+            <img src={BLANK_SRC} data-src={pick(item).src} data-srcset={srcset(item.webp)} sizes={sizes} alt={w.alt} width={item.width} height={item.height} decoding="async" />
+          </>
+        )}
+      </picture>
+    ) : item?.kind === 'video' ? (
+      eager ? (
+        <img src={pick(item.poster).src} alt={w.alt} width={item.width} height={item.height} loading="lazy" decoding="async" />
+      ) : (
+        <video
+          data-lazy-video="stage"
+          data-clip={id}
+          muted
+          playsinline
+          loop={loop}
+          preload="none"
+          width={item.width}
+          height={item.height}
+          data-poster={pick(item.poster).src}
+          aria-label={w.alt}
+        >
+          {item.sources.map((s) => (
+            <source data-src={s.src} type={s.type} />
+          ))}
+        </video>
+      )
+    ) : (
+      <div class="ph" role="img" aria-label={w.alt}>
+        <span class="ph-id" aria-hidden="true">
+          {kind === 'clip' && <i class="ph-play" />}
+          {id}
+        </span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .mlayer {
+    position: relative;
+    aspect-ratio: var(--ar);
+    width: 100%;
+    background: var(--ph, #0e1220);
+    overflow: hidden;
+  }
+
+  .mlayer.is-alpha {
+    background: transparent;
+  }
+
+  .mlayer img,
+  .mlayer video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* stills fade in once decoded */
+  .mlayer img {
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease-soft);
+  }
+
+  .mlayer[data-ready] img {
+    opacity: 1;
+  }
+
+  .ph {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(120% 90% at 50% 50%, transparent 40%, rgb(0 0 0 / 0.35)),
+      linear-gradient(rgb(110 123 160 / 0.075) 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(90deg, rgb(110 123 160 / 0.075) 1px, transparent 1px) 0 0 / 32px 32px,
+      #0d111d;
+    box-shadow: inset 0 0 0 1px rgb(120 135 170 / 0.12);
+  }
+
+  .ph-id {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.45em 0.8em;
+    border-radius: 999px;
+    border: 1px dashed rgb(140 155 190 / 0.3);
+    background: rgb(11 14 23 / 0.7);
+    font: 500 clamp(0.62rem, 0.5rem + 0.35vw, 0.8rem) / 1 var(--font-mono);
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+
+  .ph-play {
+    width: 0;
+    height: 0;
+    border-block: 0.38em solid transparent;
+    border-left: 0.6em solid currentColor;
+  }
+</style>

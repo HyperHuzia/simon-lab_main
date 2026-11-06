@@ -1,0 +1,204 @@
+---
+// Thumbnails of the knowledge base: one small vector drawing per topic, in the line style of the homepage's stage
+// (thin strokes on a grid, colour only on small marks; the layer colours of the applications). Decorative: the title
+// next to it says what the article is about.
+//   pac        a block of project code and the documents generated from it (PDF, XLSX, IFC)
+//   bottom-up  the stack of the applications as on the applications index, its layers named (StackThumb)
+//   agent      a terminal (the agent of your choice) plugged into a checklist (the engineering practice)
+//   hardware   a server rack and three meters: compute, storage, backups
+import type { KnowledgeArtKind } from '../data/knowledge';
+import { ICONS, type IconName } from './icons';
+import StackThumb from './StackThumb.astro';
+
+interface Props {
+  kind: KnowledgeArtKind;
+}
+
+const { kind } = Astro.props;
+const icon = (name: IconName) => ICONS[name].replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+/** a document with a folded corner, 30 × 36, at x, y */
+const docAt = (x: number, y: number) => `M${x} ${y}h20l10 10v26h-30z M${x + 20} ${y}v10h10`;
+const METERS: { icon: IconName; fill: number; c: string }[] = [
+  { icon: 'cpu', fill: 56, c: 'var(--l-mechgraph)' },
+  { icon: 'hard-drive', fill: 38, c: 'var(--l-processview)' },
+  { icon: 'database', fill: 64, c: 'var(--l-capacity)' },
+];
+---
+
+{
+  kind === 'bottom-up' && (
+    <div class="ka ka-stack" aria-hidden="true">
+      <StackThumb />
+    </div>
+  )
+}
+{
+  kind !== 'bottom-up' && (
+    <svg class="ka" viewBox="0 0 220 138" aria-hidden="true">
+      {
+        kind === 'pac' && (
+          <>
+            <rect class="box" x="18" y="24" width="80" height="90" rx="6" />
+            <path class="ln" d="M28 40h14M28 106h8" />
+            <path class="ln" d="M36 52h12M36 64h18M36 76h10M36 88h16" />
+            <path class="val" d="M46 40h26M52 52h30M58 64h18M50 76h32M56 88h22" />
+            <path class="wire" d="M98 69L128 36M98 69H128M98 69L128 102" />
+            <path class="tip" d="M123 37l5-1-1 5M123 65l5 4-5 4M127 97l1 5-5-1" />
+            <path class="doc" d={docAt(132, 18)} />
+            <path class="doc" d={docAt(132, 51)} />
+            <path class="doc" d={docAt(132, 84)} />
+            <circle class="mark" style="--c:var(--l-processview)" cx="141" cy="40" r="3.5" />
+            <path class="mark-ln" style="--c:var(--l-processview)" d="M144.5 40h11M151 36v8" />
+            <path class="mark-ln" style="--c:var(--l-capacity)" d="M137 66h20" />
+            <path class="ln thin" d="M137 72h20M137 78h20M147 66v14" />
+            <path class="mark-ln" style="--c:var(--l-plantmesh)" d="M147 96l8 4v8l-8 4l-8-4v-8z M139 100l8 4l8-4 M147 104v8" />
+            <text class="lab" x="170" y="40">PDF</text>
+            <text class="lab" x="170" y="73">XLSX</text>
+            <text class="lab" x="170" y="106">IFC</text>
+          </>
+        )
+      }
+      {
+        kind === 'agent' && (
+          <>
+            <rect class="box" x="16" y="30" width="104" height="74" rx="6" />
+            <path class="ln thin" d="M16 42h104" />
+            <circle class="pin" cx="24" cy="36" r="1.7" />
+            <circle class="pin" cx="31" cy="36" r="1.7" />
+            <circle class="pin" cx="38" cy="36" r="1.7" />
+            <path class="mark-ln" style="--c:var(--l-processview)" d="M26 54l6 4-6 4M36 64h9" />
+            <path class="ln" d="M26 78h50M26 90h34" />
+            <path class="wire" d="M120 67h18" />
+            <circle class="mark" style="--c:var(--text-3)" cx="138" cy="67" r="2.5" />
+            <rect class="box" x="140" y="24" width="66" height="86" rx="6" />
+            <rect class="check" x="149" y="39" width="10" height="10" rx="2" />
+            <rect class="check" x="149" y="62" width="10" height="10" rx="2" />
+            <rect class="check" x="149" y="85" width="10" height="10" rx="2" />
+            <path class="mark-ln" style="--c:var(--ok)" d="M151 44l2.5 2.5 4-5M151 67l2.5 2.5 4-5" />
+            <path class="ln" d="M166 44h30M166 67h24M166 90h28" />
+          </>
+        )
+      }
+      {
+        kind === 'hardware' && (
+          <>
+            <rect class="box" x="18" y="18" width="66" height="102" rx="5" />
+            {[28, 50, 72, 94].map((y, i) => (
+              <>
+                <rect class="unit" x="26" y={y} width="50" height="16" rx="2" />
+                <circle class="mark" style={`--c:${i % 2 ? 'var(--l-processview)' : 'var(--ok)'}`} cx="33" cy={y + 8} r="1.9" />
+                <path class="ln thin" d={`M41 ${y + 8}h28`} />
+              </>
+            ))}
+            {METERS.map((m, i) => (
+              <g style={`--c:${m.c}`}>
+                <svg class="ico" x="98" y={30 + i * 32} width="16" height="16" viewBox="0 0 24 24" set:html={icon(m.icon)} />
+                <rect class="track" x="122" y={35 + i * 32} width="80" height="6" rx="3" />
+                <rect class="meter" x="122" y={35 + i * 32} width={m.fill} height="6" rx="3" />
+              </g>
+            ))}
+          </>
+        )
+      }
+    </svg>
+  )
+}
+
+<style>
+  .ka {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ka-stack {
+    padding: 8% 6%;
+  }
+
+  path,
+  rect,
+  circle {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .box,
+  .unit {
+    fill: var(--bg);
+    stroke: var(--line-strong);
+    stroke-width: 1;
+  }
+
+  .ln,
+  .wire,
+  .tip,
+  .doc {
+    fill: none;
+    stroke: var(--text-3);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .ln.thin,
+  .wire,
+  .tip,
+  .doc {
+    stroke-width: 1.2;
+  }
+
+  .doc {
+    fill: var(--bg);
+  }
+
+  .val {
+    fill: none;
+    stroke: color-mix(in oklab, var(--l-processview) 70%, transparent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .mark {
+    fill: var(--c);
+  }
+
+  .mark-ln {
+    fill: none;
+    stroke: var(--c);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .pin {
+    fill: var(--text-4);
+  }
+
+  .check {
+    fill: none;
+    stroke: var(--text-3);
+    stroke-width: 1;
+  }
+
+  .ico {
+    color: var(--text-3);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .track {
+    fill: var(--line);
+  }
+
+  .meter {
+    fill: color-mix(in oklab, var(--c) 80%, transparent);
+  }
+
+  .lab {
+    font: 600 9px var(--font-mono);
+    letter-spacing: 0.04em;
+    fill: var(--text-3);
+  }
+</style>

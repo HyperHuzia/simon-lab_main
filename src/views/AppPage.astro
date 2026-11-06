@@ -1,0 +1,416 @@
+---
+// One application page: the stack of the applications as a navigator (StackExplorer, navigate mode: the same size as
+// on the index, this page's slab lifted) beside the name, role and summary; then its slides (AppSlides) beside what it
+// does, its project responsibilities, the rest of its screens, and the neighbouring layers by number. Copy comes from src/data/apps.ts; screens from the
+// reviewed film material (src/data/media.ts, filled by simon-lab-media/tools/web-export.mjs).
+import AppCard from '../components/AppCard.astro';
+import AppSlides from '../components/AppSlides.astro';
+import StackExplorer from '../components/StackExplorer.astro';
+import { APPS, STACK, appById } from '../data/apps';
+import { APP_SLIDES, mediaFor } from '../data/media';
+import { path, type Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+import Base from '../layouts/Base.astro';
+import Figure from '../components/Figure.astro';
+
+interface Props {
+  lang: Lang;
+  appId: string;
+}
+
+const { lang, appId } = Astro.props;
+const app = appById(appId)!;
+const copy = app.copy[lang];
+const ui = t(lang);
+const media = mediaFor(app.id);
+const index = STACK.findIndex((a) => a.id === app.id);
+const prev = index > 0 ? STACK[index - 1] : undefined;
+const next = index >= 0 && index < STACK.length - 1 ? STACK[index + 1] : undefined;
+const LABELS = {
+  en: { layer: 'Layer', of: 'of the application stack', what: 'What it does', responsibilities: 'Project responsibilities', screens: 'From the demo project', layers: 'Layers', tool: 'The hosted tool is temporarily offline while the platform is rebuilt. Write to us and we will tell you when it is back.' },
+  pl: { layer: 'Warstwa', of: 'stosu aplikacji', what: 'Co robi', responsibilities: 'Odpowiedzialność w projekcie', screens: 'Z projektu demonstracyjnego', layers: 'Warstwy', tool: 'Narzędzie online jest chwilowo niedostępne na czas przebudowy platformy. Napisz do nas, a damy znać, gdy wróci.' },
+  de: { layer: 'Ebene', of: 'des Anwendungsstapels', what: 'Was sie leistet', responsibilities: 'Aufgaben im Projekt', screens: 'Aus dem Demonstrationsprojekt', layers: 'Ebenen', tool: 'Das Online-Tool ist während des Plattformumbaus vorübergehend nicht erreichbar. Schreiben Sie uns, wir melden uns, sobald es wieder läuft.' },
+}[lang];
+const title = `${app.name}: ${copy.role} | Simon Lab`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: app.name,
+  applicationCategory: 'EngineeringApplication',
+  operatingSystem: 'Web',
+  description: copy.summary,
+  publisher: { '@type': 'Organization', name: 'Simon Lab', url: 'https://simon-lab.org' },
+};
+const others = APPS.filter((a) => a.status === 'soon');
+/** the applications with a Markdown summary for AI agents (public/apps/*.md, named as on the old site) */
+const MARKDOWN: Record<string, string> = { processview: '/apps/process-view.md', labelhash: '/apps/labelhash.md' };
+const slides = Boolean(APP_SLIDES[app.id]?.length);
+---
+
+<Base lang={lang} route={`/apps/${app.id}/`} title={title} description={copy.summary} ogImage={media.og ?? undefined} jsonLd={jsonLd} markdown={MARKDOWN[app.id]}>
+  <section class="hero container" style={`--layer:${app.color}`}>
+    {
+      app.layer !== null ? (
+        <div class="hero-stack">
+          <StackExplorer lang={lang} mode="navigate" uid="page" current={app.id} label={ui('nav.apps')} />
+        </div>
+      ) : (
+        <div class="hero-band" aria-hidden="true">
+          <span class="band-hazard" />
+          <span class="band-name">ISO 20560</span>
+          <span class="band-arrow" />
+        </div>
+      )
+    }
+    <div class="hero-copy">
+      <a class="back" href={path('/apps/', lang)}>← {ui('nav.apps')}</a>
+      {app.layer !== null ? <p class="eyebrow">{LABELS.layer} {app.layer} {LABELS.of}</p> : <p class="eyebrow">{ui('status.tool')}</p>}
+      <h1>{app.name}</h1>
+      <p class="role">{copy.role}</p>
+      <p class="lede measure">{copy.summary}</p>
+      {app.status === 'tool' && <p class="notice measure">{LABELS.tool}</p>}
+    </div>
+  </section>
+
+  {/* the slides beside what the application does; a tool without slides keeps its screen above the text */}
+  {
+    slides ? (
+      <section class="container split" style={`--layer:${app.color}`}>
+        <div class="split-media">
+          <AppSlides app={app.id} lang={lang} sizes="(min-width: 900px) 46vw, 100vw" />
+        </div>
+        {copy.body && (
+          <div class="split-text">
+            <h2>{LABELS.what}</h2>
+            {copy.body.map((p) => (
+              <p>{p}</p>
+            ))}
+          </div>
+        )}
+      </section>
+    ) : (
+      <>
+        {media.hero && (
+          <section class="container showcase" style={`--layer:${app.color}`}>
+            <Figure item={media.hero} lang={lang} priority class="hero-figure" />
+          </section>
+        )}
+        {copy.body && (
+          <section class="container section-tight cols">
+            <h2>{LABELS.what}</h2>
+            <div class="measure">
+              {copy.body.map((p) => (
+                <p>{p}</p>
+              ))}
+            </div>
+          </section>
+        )}
+      </>
+    )
+  }
+
+  {
+    copy.points && (
+      <section class="container section-tight cols">
+        <h2>{LABELS.responsibilities}</h2>
+        <ul class="points" style={`--layer:${app.color}`}>
+          {copy.points.map((p) => (
+            <li>{p}</li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    media.gallery.length > 0 && (
+      <section class="container section-tight">
+        <h2 class="small">{LABELS.screens}</h2>
+        <div class="gallery">
+          {media.gallery.map((item) => (
+            <Figure item={item} lang={lang} tile sizes="(min-width: 1024px) 40vw, 100vw" />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    (prev || next) && (
+      <nav class="container layers" aria-label={LABELS.layers}>
+        {prev ? (
+          <a class="card step prev" href={path(`/apps/${prev.id}/`, lang)} style={`--layer:${prev.color}`}>
+            <span class="eyebrow">
+              ← {LABELS.layer} {prev.layer}
+            </span>
+            <strong>{prev.name}</strong>
+            <span>{prev.copy[lang].role}</span>
+          </a>
+        ) : (
+          <span />
+        )}
+        {next && (
+          <a class="card step next" href={path(`/apps/${next.id}/`, lang)} style={`--layer:${next.color}`}>
+            <span class="eyebrow">
+              {LABELS.layer} {next.layer} →
+            </span>
+            <strong>{next.name}</strong>
+            <span>{next.copy[lang].role}</span>
+          </a>
+        )}
+      </nav>
+    )
+  }
+
+  <section class="container section-tight">
+    <h2 class="small">{ui('status.soon')}</h2>
+    <ul class="soon">
+      {
+        others.map((a) => (
+          <li>
+            <AppCard app={a} lang={lang} level="h3" />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  /* the navigator on the left, as large as the index's stack; the name and summary beside it */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    padding-block: clamp(1.5rem, 1rem + 2vw, 3rem) 2rem;
+  }
+
+  .hero-stack {
+    justify-self: stretch;
+  }
+
+  /* the slides (half the width) beside what the application does */
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    padding-block: 1rem 2.5rem;
+  }
+
+  .split-text h2 {
+    margin-bottom: 1rem;
+    font: 600 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .split-text p {
+    max-width: var(--measure);
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+
+  /* LabelHash: a pipe-label band (the hazard stripes are the label's own colours) */
+  .hero-band {
+    justify-self: center;
+    display: grid;
+    grid-template-columns: 1fr 2.6fr 1fr;
+    width: min(100%, 24rem);
+    height: 6.5rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--layer) 40%, var(--line));
+    transform: rotate(-4deg);
+  }
+
+  .band-hazard {
+    background: repeating-linear-gradient(135deg, #f5c400 0 12px, #1a1a1a 12px 22px);
+  }
+
+  .band-name {
+    display: grid;
+    place-items: center;
+    background: var(--bg-raised);
+    font: 700 1.15rem / 1 var(--font-display);
+    letter-spacing: 0.06em;
+    color: color-mix(in oklab, var(--layer) 83%, white);
+  }
+
+  .band-arrow {
+    background: #eef2f8;
+    clip-path: polygon(15% 30%, 55% 30%, 55% 12%, 92% 50%, 55% 88%, 55% 70%, 15% 70%);
+  }
+
+  .eyebrow {
+    display: block;
+    margin: 0;
+    color: color-mix(in oklab, var(--layer) 83%, white);
+    font: 600 0.78rem / 1.4 var(--font-display);
+    letter-spacing: 0.2em;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 1.6rem + 2.6vw, 3.8rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* the screen itself carries the colour; its frame is a hairline tinted by the layer */
+  .showcase :global(.hero-figure img),
+  .showcase :global(.hero-figure video) {
+    border-color: color-mix(in srgb, var(--layer) 30%, var(--line));
+  }
+
+  .back {
+    display: inline-block;
+    margin-bottom: 1.6rem;
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+    text-decoration: none;
+  }
+
+  .hero h1 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.2em;
+  }
+
+  .role {
+    font: 600 var(--fs-xl) / 1.25 var(--font-display);
+    color: color-mix(in oklab, var(--layer) 83%, white);
+  }
+
+  .notice {
+    padding: 0.9rem 1.1rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+  }
+
+  .showcase {
+    margin-block: 1rem 2rem;
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
+    gap: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .cols h2,
+  .small {
+    font: 600 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* one responsibility per line */
+  .points {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .points li {
+    position: relative;
+    padding-left: 1.25rem;
+    color: var(--text-2);
+  }
+
+  .points li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 0.5rem;
+    height: 2px;
+    background: var(--layer);
+  }
+
+  /* every tile as large as the slides: the columns and the gap of .split */
+  .gallery {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 4vw, 4rem);
+    row-gap: 2rem;
+    margin-top: 1rem;
+  }
+
+  .layers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-block: 3rem;
+  }
+
+  .step {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1.25rem 1.4rem;
+    text-decoration: none;
+    border-color: color-mix(in srgb, var(--layer) 35%, var(--line));
+  }
+
+  .step strong {
+    font: 600 var(--fs-lg) / 1.2 var(--font-display);
+  }
+
+  .step span:last-child {
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+  }
+
+  .next {
+    text-align: right;
+  }
+
+  .soon {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 1rem;
+  }
+
+  /* narrower: the name first, then the navigator, then the slides and the text below each other */
+  @media (max-width: 1023px) {
+    .hero,
+    .split,
+    .gallery {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-copy {
+      order: -1;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .cols {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .layers {
+      grid-template-columns: 1fr;
+    }
+
+    .next {
+      text-align: left;
+    }
+  }
+</style>
+
+<script>
+  import { initSlides } from '../scripts/slides';
+
+  initSlides();
+</script>

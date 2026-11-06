@@ -1,0 +1,139 @@
+---
+// The bottom-up stack as a small iso drawing (the layer HUD's geometry, larger), with one layer lifted, drawn in its
+// colour and named (the 404 page's missing layer floats above it). Decorative: the page says the same in words. Still.
+import { LAYERS } from '../data/article';
+
+interface Props {
+  /** app id of the lit layer */
+  highlight?: string;
+  /** a missing layer: a dashed plate floating above the stack (404) */
+  ghost?: boolean;
+  class?: string;
+}
+
+const { highlight, ghost = false, class: className } = Astro.props;
+// orthographic iso projection, as the big stack: rotateZ(-38°), then rotateX(58°)
+const RZ = (-38 * Math.PI) / 180;
+const RX = (58 * Math.PI) / 180;
+const project = (x: number, y: number, z: number): [number, number] => {
+  const xr = x * Math.cos(RZ) - y * Math.sin(RZ);
+  const yr = x * Math.sin(RZ) + y * Math.cos(RZ);
+  return [xr, yr * Math.cos(RX) - z * Math.sin(RX)];
+};
+const W = 30;
+const D = 18;
+const GAP = 9;
+const SPLIT = 1.2;
+const LIFT = 4;
+const plates = LAYERS.map((l) => {
+  const lit = l.id === highlight;
+  const x0 = l.span === 'right' ? SPLIT / 2 : -W / 2;
+  const x1 = l.span === 'left' ? -SPLIT / 2 : W / 2;
+  const z = (l.level - 1) * GAP + (lit ? LIFT : 0);
+  const corners = [
+    [x0, -D / 2],
+    [x1, -D / 2],
+    [x1, D / 2],
+    [x0, D / 2],
+  ] as const;
+  const top = corners.map(([x, y]) => project(x, y, z));
+  const bottom = corners.map(([x, y]) => project(x, y, z - 1.2));
+  const d = (pts: [number, number][]) => `M${pts.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join(' L')} Z`;
+  // the front edge (thickness) between the top and the bottom outline, along the two visible sides
+  const edge = d([top[1], top[2], top[3], bottom[3], bottom[2], bottom[1]]);
+  return { ...l, lit, top: d(top), edge, label: project((x0 + x1) / 2 + 2, D / 2 - 2, z) };
+});
+const ghostPlate = ghost
+  ? `M${(
+      [
+        [-W / 2, -D / 2],
+        [W / 2, -D / 2],
+        [W / 2, D / 2],
+        [-W / 2, D / 2],
+      ] as const
+    )
+      .map(([x, y]) => project(x, y, 5 * GAP + 6))
+      .map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`)
+      .join(' L')} Z`
+  : undefined;
+const all = [...plates.map((p) => p.top), ...(ghostPlate ? [ghostPlate] : [])].flatMap((d) => d.match(/-?\d+\.\d+/g)!.map(Number));
+const xs = all.filter((_, i) => i % 2 === 0);
+const ys = all.filter((_, i) => i % 2 === 1);
+const pad = 4;
+const vb = [Math.min(...xs) - pad, Math.min(...ys) - pad, Math.max(...xs) - Math.min(...xs) + 2 * pad, Math.max(...ys) - Math.min(...ys) + 2 * pad + 2];
+const litPlate = plates.find((p) => p.lit);
+---
+
+<div class:list={['smini', className]} aria-hidden="true">
+  <svg viewBox={vb.map((v) => v.toFixed(1)).join(' ')}>
+    {
+      plates.map((p) => (
+        <g class:list={['sm-plate', { lit: p.lit, dim: ghost }]} style={`--lc:${p.color}`}>
+          <path class="sm-edge" d={p.edge} />
+          <path class="sm-top" d={p.top} />
+        </g>
+      ))
+    }
+    {ghostPlate && <path class="sm-ghost" d={ghostPlate} />}
+  </svg>
+  {litPlate && <span class="sm-name" style={`--lc:${litPlate.color}`}>{litPlate.name}</span>}
+</div>
+
+<style>
+  .smini {
+    position: relative;
+    width: 100%;
+  }
+
+  .smini svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sm-top {
+    fill: rgb(17 21 31 / 0.92);
+    stroke: color-mix(in srgb, var(--lc) 35%, var(--line-strong));
+    stroke-width: 0.35;
+    stroke-linejoin: round;
+  }
+
+  .sm-edge {
+    fill: color-mix(in srgb, var(--lc) 18%, #070912);
+  }
+
+  .lit .sm-top {
+    fill: color-mix(in srgb, var(--lc) 18%, var(--bg-raised));
+    stroke: var(--lc);
+    stroke-width: 0.45;
+  }
+
+  .lit .sm-edge {
+    fill: color-mix(in srgb, var(--lc) 55%, #070912);
+  }
+
+  .dim {
+    opacity: 0.55;
+  }
+
+  /* 404: the missing layer, a dashed outline above the stack */
+  .sm-ghost {
+    fill: color-mix(in srgb, var(--l-architecture) 4%, transparent);
+    stroke: var(--l-architecture);
+    stroke-width: 0.4;
+    stroke-dasharray: 1.6 1.4;
+  }
+
+  .sm-name {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0.35em 0.8em;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--lc) 45%, var(--line));
+    background: rgb(11 14 23 / 0.85);
+    font: 600 0.8rem / 1 var(--font-display);
+    color: var(--text);
+  }
+</style>

@@ -1,0 +1,299 @@
+---
+// The public roadmap (/roadmap/): where Simon Lab is today and the steps to the launch at ACHEMA 2027. A calm,
+// static timeline: one card per step with its status; the launch step is the one milestone with a colour of its own.
+// Copy from src/content/roadmap (per language).
+import Icon from '../components/Icon.astro';
+import type { IconName } from '../components/icons';
+import type { RoadmapStepId } from '../content/roadmap/types';
+import { ogImage } from '../data/media';
+import { roadmapFor } from '../data/roadmap';
+import type { Lang } from '../i18n/config';
+import Base from '../layouts/Base.astro';
+import '../styles/home.css';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = roadmapFor(lang);
+const ICON: Record<RoadmapStepId, IconName> = {
+  apps: 'shield-check',
+  infra: 'hard-drive',
+  calibration: 'handshake',
+  access: 'graduation-cap',
+  open: 'git-fork',
+  clients: 'users',
+  scale: 'server',
+  launch: 'flag',
+  provider: 'network',
+};
+---
+
+<Base lang={lang} route="/roadmap/" title={copy.meta.title} description={copy.meta.description} ogImage={ogImage('roadmap') ?? ogImage('default')} markdown="/roadmap.md">
+  <section class="hp-sec rm-hero" aria-labelledby="rm-title">
+    <header class="hp-head">
+      <p class="hp-eyebrow">{copy.hero.eyebrow}</p>
+      <h1 class="hp-title" id="rm-title">{copy.hero.title}</h1>
+      <p class="hp-lede">{copy.hero.lede}</p>
+      <p class="rm-target">
+        <Icon name="flag" size={16} />
+        {copy.hero.target}
+      </p>
+    </header>
+  </section>
+
+  <section class="hp-sec" aria-labelledby="rm-goal-title">
+    <div class="rm-goal">
+      <header>
+        <p class="hp-eyebrow">{copy.goal.eyebrow}</p>
+        <h2 class="hp-title" id="rm-goal-title">{copy.goal.title}</h2>
+      </header>
+      <div class="rm-goal-body">
+        <p>{copy.goal.lede}</p>
+        <ul>{copy.goal.points.map((point) => <li>{point}</li>)}</ul>
+        <p class="rm-promise">{copy.goal.promise}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-sec" aria-labelledby="rm-road-title">
+    <header class="hp-head">
+      <p class="hp-eyebrow">{copy.road.eyebrow}</p>
+      <h2 class="hp-title" id="rm-road-title">{copy.road.title}</h2>
+    </header>
+    <ol class="rm-steps">
+      {
+        copy.steps.map((step, i) => (
+          <li class="rm-step" data-status={step.status} id={step.id}>
+            <span class="rm-node" aria-hidden="true">
+              <Icon name={ICON[step.id]} size={18} />
+            </span>
+            <div class="rm-card">
+              <p class="rm-meta">
+                <span class="rm-chip">{copy.status[step.status]}</span>
+                <span class="rm-n">{String(i + 1).padStart(2, '0')}</span>
+              </p>
+              <h3 class="rm-step-title">{step.title}</h3>
+              {step.body.map((p) => (
+                <p>{p}</p>
+              ))}
+              {step.points && (
+                <ul class="rm-points">
+                  {step.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+</Base>
+
+<style>
+  .rm-hero {
+    padding-top: clamp(3rem, 2rem + 5vw, 6.5rem);
+  }
+
+  .rm-hero .hp-title {
+    font-size: var(--fs-3xl);
+  }
+
+  .rm-target {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1.75rem 0 0;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid color-mix(in oklab, var(--warn) 55%, transparent);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    color: var(--text);
+  }
+
+  .rm-target :global(svg) {
+    flex: none;
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  /* what we are building toward: heading left, the list right */
+  .rm-goal {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 5vw, 5rem);
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .rm-goal-body {
+    max-width: 40rem;
+    font-size: var(--fs-lg);
+    line-height: 1.65;
+    color: var(--text-2);
+  }
+
+  .rm-goal-body ul {
+    margin: 0 0 1.25rem;
+    padding-left: 1.2rem;
+  }
+
+  .rm-goal-body li {
+    margin-bottom: 0.4rem;
+  }
+
+  .rm-promise {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* the timeline: a line on the left, a node and a card per step */
+  .rm-steps {
+    position: relative;
+    max-width: 52rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rm-steps::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    border-left: 1px solid var(--line-strong);
+  }
+
+  .rm-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
+    --s: var(--text-3);
+  }
+
+  .rm-node {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-top: 1.1rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--text-3);
+  }
+
+  .rm-card {
+    padding: 1.3rem 1.5rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+  }
+
+  .rm-card p {
+    color: var(--text-2);
+    line-height: 1.65;
+  }
+
+  .rm-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 0.6rem;
+  }
+
+  .rm-chip {
+    padding: 0.15em 0.65em;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font: 500 var(--fs-xs) / 1.6 var(--font-mono);
+    color: var(--text-2);
+  }
+
+  .rm-n {
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .rm-step-title {
+    font-size: var(--fs-xl);
+    margin-bottom: 0.6rem;
+  }
+
+  .rm-points {
+    margin: 0 0 0.6rem;
+    padding-left: 1.1rem;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  .rm-points li {
+    margin-bottom: 0.35rem;
+  }
+
+  /* where we are, what comes next, the launch */
+  .rm-step[data-status='now'] .rm-node {
+    border: 1px solid var(--accent);
+    color: var(--text);
+  }
+
+  .rm-step[data-status='now'] .rm-chip {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .rm-step[data-status='now'] .rm-card {
+    border-color: var(--line-strong);
+  }
+
+  .rm-step[data-status='next'] .rm-node {
+    border-style: solid;
+    color: var(--text-2);
+  }
+
+  .rm-step[data-status='launch'] .rm-node {
+    border: 1px solid var(--warn);
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  .rm-step[data-status='launch'] .rm-chip {
+    border-color: color-mix(in oklab, var(--warn) 60%, transparent);
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  .rm-step[data-status='launch'] .rm-card {
+    border-color: color-mix(in oklab, var(--warn) 45%, var(--line));
+  }
+
+  @media (max-width: 760px) {
+    .rm-goal {
+      grid-template-columns: 1fr;
+    }
+
+    .rm-steps::before {
+      left: 1rem;
+    }
+
+    .rm-step {
+      grid-template-columns: 2rem minmax(0, 1fr);
+      gap: 0.85rem;
+    }
+
+    .rm-node {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .rm-card {
+      padding: 1.1rem 1.15rem 0.9rem;
+    }
+  }
+</style>

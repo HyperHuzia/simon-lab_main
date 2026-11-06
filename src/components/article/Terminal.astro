@@ -1,0 +1,693 @@
+---
+// CapacityIndex stage: the agent terminal of the film, in real HTML text (JetBrains Mono, loaded only here). On
+// cli-prompt it types the prompt; on cli-spec it works, streams the spec and asks for approval (src/scripts/article/
+// terminal.ts). Every line is in the DOM from the start — revealing it is opacity only, and the transcript scrolls
+// by transform — so screen readers get the whole text and nothing reflows. On-screen text follows
+// simon-lab-media/productions/2026-11-bottom-up-naoh/cli-transcript.en.md, with the site's punctuation (no em dashes)
+// and the app's name as CapacityIndex; the terminal stays English in every language, as in the film. The LAYERS block
+// is drawn as a stack (level 5 on top), as in the film. Nothing blinks or spins: state shows in words and colour.
+import '../../styles/fonts-mono.css';
+import LogoMark from './LogoMark.astro';
+
+interface Props {
+  /** fixed state for static copies (no-JS figures): everything up to that state is shown */
+  state?: 'cli-prompt' | 'cli-spec';
+  uid: string;
+}
+
+const { state, uid } = Astro.props;
+
+// (a number and its unit never part at a line break: no-break space between them)
+const PROMPT =
+  'Bring 5% lye to 30% with NaOH flakes from 25 kg bags, 14.5 m³ batch, max 60 °C in the tank, 40 °C at discharge. Design it with a bottom-up approach, layer by layer, and fit it into a spare area of my plant.'.replace(
+    /(\d) (°C|kg|m³)/g,
+    '$1\u00a0$2',
+  );
+const STATUSES = [
+  'reading NaOH–H₂O thermodynamics…',
+  'balancing mass and heat of dissolution…',
+  'sizing agitation and cooling duty…',
+  'scanning the site for a spare plot…',
+  'drafting the design basis…',
+];
+const DESIGN: [string, string][] = [
+  ['product', '30 % w/w NaOH · 14.5 m³ per batch'],
+  ['feed', '5 % lye + NaOH flakes · 220 × 25 kg bags = 5.5 t per batch'],
+  ['handling', 'bag-dump station · 2 bags/min · 25 kg within manual-handling limits'],
+  ['limits', '≤ 60 °C in the tank · 40 °C at discharge'],
+  ['utilities', 'chilled water 7.5 °C · half-pipe cooling jacket'],
+  ['vessel', 'existing stainless tank · retrofit'],
+];
+const PHYSICS = [
+  'dissolution is exothermic → dosing rate bounded by cooling duty',
+  'density and viscosity 5 → 30 % from NaOH–H₂O property models',
+  'solids suspension and power number → agitator selection',
+];
+const CAPACITY = [
+  'demand ≥ 60 m³ of lye per week · 3 shifts × 8 h · 7 days',
+  'lye fill and pump-out 10 m³/h each → one batch fits one shift',
+  'retrofit of the existing tank instead of a new vessel',
+];
+const LAYER_ROWS = [
+  { level: '4', name: 'Architecture', desc: 'spare area on site · roads · site plan', c: 'var(--l-architecture)' },
+  { level: '3', name: 'PlantMesh', desc: '3D assembly · isometrics · supports · clashes', c: 'var(--l-plantmesh)' },
+  { level: '2', name: 'MechGraph', desc: 'vessel · agitator · shaft · CFD', c: 'var(--l-mechgraph)' },
+  { level: '', name: 'IonGrid', desc: 'control cabinets · I/O · heat gains', c: 'var(--l-iongrid)' },
+  { level: '1', name: 'ProcessView', desc: 'P&ID · selections · dynamic simulation', c: 'var(--l-processview)' },
+  { level: '0', name: 'CapacityIndex', desc: 'scope · capacity · economics', c: 'var(--l-capacity)', tag: 'this spec' },
+];
+const OPEN = ['flake purity and size distribution: confirm with the supplier', 'dust extraction and empty-bag handling at the station'];
+const MENU = { question: 'Approve this spec?', options: ['Approve spec', 'Modify spec', 'Chat about something else'] };
+
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/** quantities (numbers with their units) and arrows get the accent, as in the film */
+const rich = (s: string) =>
+  esc(s)
+    .replace(/(\d+(?:\.\d+)?(?:\s?(?:%|m³\/h|m³|°C|kg|bags\/min|t\b|h\b))?)/g, '<span class="q">$1</span>')
+    .replace(/→/g, '<span class="arrow">→</span>');
+
+const full = state !== undefined;
+const specShown = state === 'cli-spec';
+const phase = specShown ? 'menu' : state === 'cli-prompt' ? 'typed' : 'idle';
+const on = specShown ? '' : undefined;
+// a static copy of the prompt state carries no transcript below the prompt
+const body = state !== 'cli-prompt';
+---
+
+<div class="term" lang="en" data-term data-phase={phase} data-done={full ? '' : undefined}>
+  <div class="bar">
+    <span class="bar-app"><i class="bar-ico" aria-hidden="true"><b></b><b></b><b></b></i>simon-lab <span class="dim">·</span> <span class="dim">capacityindex</span></span>
+    <span class="agent" data-agent-chip data-busy={undefined}>
+      <i class="agent-dot" aria-hidden="true"></i><span class="dim">agent ·</span>
+      <span data-agent>{specShown ? 'awaiting approval' : 'ready'}</span>
+    </span>
+  </div>
+
+  <div class="view" data-view>
+    <div class="doc" data-doc>
+      <div class="banner">
+        <span class="banner-mark"><LogoMark uid={`term-${uid}`} /></span>
+        <div class="banner-text">
+          <p class="banner-title">SIMON-LAB <span class="dim">·</span> <span class="accent">CAPACITYINDEX</span></p>
+          <p class="banner-meta">
+            agent 0.9 <span class="dim">·</span> <span class="badge">beta</span><span class="gap"></span><span class="dim">workspace</span>&nbsp;~/plants/north-site
+          </p>
+          <p class="banner-tip"><span class="accent">tip:</span> describe the process; the agent builds it bottom-up, layer by layer</p>
+        </div>
+      </div>
+
+      <div class="prompt">
+        <span class="caret" aria-hidden="true">›</span>
+        <p class="prompt-text" data-prompt data-text={PROMPT}>
+          <span class="typed" data-typed>{full ? PROMPT : ''}</span><span class="cursor" aria-hidden="true"></span><span class="rest" data-rest>{full ? '' : PROMPT}</span>
+        </p>
+        <span class="placeholder" aria-hidden="true">describe a process, a unit or a change…</span>
+      </div>
+
+      {body && (<>
+      <div class="working" data-working>
+        {
+          STATUSES.map((s) => (
+            <p class="ln work" data-ln data-on={on}>
+              <span class="spark" aria-hidden="true">✦</span> {s}
+            </p>
+          ))
+        }
+      </div>
+
+      <div class="spec" data-spec>
+        <p class="ln head" data-ln data-on={on}><span class="dot" aria-hidden="true">●</span> <b>SPEC</b> <span class="dim">·</span> NaOH dissolving unit <span class="dim">· draft 1</span></p>
+        <p class="ln blank" data-ln data-on={on}></p>
+
+        <p class="ln h" data-ln data-on={on}>DESIGN BASIS</p>
+        {
+          DESIGN.map(([k, v]) => (
+            <p class="ln kv" data-ln data-on={on}>
+              <span class="k">{k}</span>
+              <span class="v" set:html={rich(v)} />
+            </p>
+          ))
+        }
+        <p class="ln blank" data-ln data-on={on}></p>
+
+        <div class="block physics">
+          <p class="ln h" data-ln data-on={on}>PHYSICS FIRST</p>
+          {
+            PHYSICS.map((t) => (
+              <p class="ln bullet" data-ln data-on={on}>
+                <span class="tri" aria-hidden="true">▸</span>
+                <span set:html={rich(t)} />
+              </p>
+            ))
+          }
+        </div>
+        <p class="ln blank" data-ln data-on={on}></p>
+
+        <p class="ln h" data-ln data-on={on}>CAPACITY &amp; ECONOMICS</p>
+        {
+          CAPACITY.map((t) => (
+            <p class="ln bullet" data-ln data-on={on}>
+              <span class="tri" aria-hidden="true">▸</span>
+              <span set:html={rich(t)} />
+            </p>
+          ))
+        }
+        <p class="ln blank" data-ln data-on={on}></p>
+
+        <p class="ln h" data-ln data-on={on}>LAYERS <span class="dim">· bottom-up</span></p>
+        {
+          LAYER_ROWS.map((r) => (
+            <p class:list={['ln layer', { 'is-this': r.tag }]} data-ln data-on={on} style={`--c:${r.c}`}>
+              <span class:list={['lbar', { 'half-l': r.name === 'MechGraph', 'half-r': r.name === 'IonGrid' }]} aria-hidden="true" />
+              <span class="lv">{r.level}</span>
+              <span class="nm">{r.name}</span>
+              <span class="ds">{r.desc}</span>
+              {r.tag && <span class="tag">● {r.tag}</span>}
+            </p>
+          ))
+        }
+        <p class="ln blank" data-ln data-on={on}></p>
+
+        <p class="ln h" data-ln data-on={on}>OPEN POINTS</p>
+        {
+          OPEN.map((t) => (
+            <p class="ln bullet open" data-ln data-on={on}>
+              <span class="tri" aria-hidden="true">▸</span>
+              <span set:html={rich(t)} />
+            </p>
+          ))
+        }
+      </div>
+
+      <div class="menu" data-menu data-on={on}>
+        <p class="menu-q">{MENU.question}</p>
+        <ol>
+          {
+            MENU.options.map((o, i) => (
+              <li class:list={{ sel: i === 0 }}>
+                <span class="pick" aria-hidden="true">{i === 0 ? '❯' : ''}</span>
+                {i + 1}. {o}
+                {i === 0 && <span class="cursor menu-cursor" aria-hidden="true" />}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+      </>)}
+    </div>
+  </div>
+</div>
+
+<style>
+  /* --tc: the layer colour for marks (bars, dots, cursor); --tc-text: the same for small text (kept legible);
+     --q: quantities, a pale tint of it */
+  .term {
+    --tc: var(--l-capacity);
+    --tc-text: color-mix(in oklab, var(--tc) 83%, white);
+    --q: color-mix(in oklab, var(--tc) 55%, white);
+    --mono-size: clamp(10.5px, 0.42rem + 0.45vw, 14.5px);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    max-height: 46rem;
+    margin: auto;
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--tc) 30%, var(--line));
+    font-family: var(--font-mono);
+    font-size: var(--mono-size);
+    font-variant-ligatures: none;
+    line-height: 1.62;
+    color: #d5dbe6;
+    contain: layout paint;
+    overflow: hidden;
+  }
+
+  .term p {
+    margin: 0;
+  }
+
+  .dim {
+    /* text-4 is too faint for text (2.9:1 on the terminal ground); text-3 keeps AA */
+    color: var(--text-3);
+  }
+
+  .accent {
+    color: var(--tc-text);
+  }
+
+  .bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85em 1.2em;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-sunken);
+    font-size: 0.86em;
+  }
+
+  .bar-app {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .bar-ico {
+    display: grid;
+    gap: 2px;
+  }
+
+  .bar-ico b {
+    display: block;
+    width: 12px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--l-architecture);
+  }
+
+  .bar-ico b:nth-child(2) {
+    background: var(--l-iongrid);
+  }
+
+  .bar-ico b:nth-child(3) {
+    background: var(--l-capacity);
+  }
+
+  .agent {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.3em 0.9em;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .agent-dot {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--tc);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+
+  /* working: the dot turns amber while the label says what the agent does */
+  .agent[data-busy] .agent-dot {
+    background: var(--warn);
+  }
+
+  .view {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    mask-image: linear-gradient(180deg, transparent 0, #000 1.4em, #000 calc(100% - 1.2em), transparent);
+  }
+
+  .doc {
+    padding: 1.6em clamp(1em, 3.4%, 2.6em) 2em;
+    transition: transform 0.3s var(--ease-out);
+    will-change: transform;
+  }
+
+  /* banner */
+  .banner {
+    display: flex;
+    gap: 1.3em;
+    align-items: center;
+    margin-bottom: 1.5em;
+  }
+
+  .banner-mark {
+    flex: none;
+    display: block;
+    width: 4.6em;
+  }
+
+  .banner-title {
+    font-size: 1.32em;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: var(--text);
+  }
+
+  .banner-meta,
+  .banner-tip {
+    color: var(--text-3);
+  }
+
+  .banner-meta {
+    color: var(--text-2);
+  }
+
+  .badge {
+    padding: 0 0.45em;
+    border-radius: 4px;
+    border: 1px solid color-mix(in srgb, var(--tc) 50%, transparent);
+    color: var(--tc-text);
+    font-size: 0.9em;
+  }
+
+  .gap {
+    display: inline-block;
+    width: 2.2em;
+  }
+
+  .banner-tip {
+    color: var(--text-2);
+  }
+
+  /* prompt */
+  .prompt {
+    position: relative;
+    display: flex;
+    gap: 0.8em;
+    padding: 0.9em 1.1em;
+    margin-bottom: 1.2em;
+    border-radius: 10px;
+    background: var(--bg);
+    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--l-processview) 70%, transparent);
+    color: var(--text);
+  }
+
+  .caret {
+    color: var(--tc-text);
+  }
+
+  .prompt-text {
+    flex: 1;
+  }
+
+  .rest {
+    color: transparent;
+  }
+
+  .placeholder {
+    position: absolute;
+    left: 2.9em;
+    top: 0.9em;
+    color: var(--text-3);
+    opacity: 0;
+    transition: opacity var(--dur-fast);
+  }
+
+  .term[data-phase='idle'] .placeholder {
+    opacity: 1;
+  }
+
+  /* a steady block cursor */
+  .cursor {
+    display: inline-block;
+    width: 0.58em;
+    height: 1.15em;
+    margin: 0 1px -0.2em;
+    background: var(--tc-text);
+    opacity: 0.85;
+  }
+
+  .term[data-phase='idle'] .prompt .cursor {
+    position: absolute;
+    left: 2.9em;
+    top: 1.15em;
+    margin: 0;
+    opacity: 0.85;
+  }
+
+  .term:not([data-phase='idle']):not([data-phase='typing']) .prompt .cursor {
+    display: none;
+  }
+
+  /* lines reveal by opacity; their space is reserved, so nothing reflows */
+  .ln {
+    min-height: 1.62em;
+    opacity: 0;
+    transform: translateY(0.35em);
+    transition:
+      opacity 0.28s var(--ease-out),
+      transform 0.4s var(--ease-out);
+  }
+
+  .ln[data-on] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .work {
+    color: var(--text-2);
+  }
+
+  .work .spark {
+    display: inline-block;
+    color: color-mix(in oklab, var(--l-iongrid) 83%, white);
+  }
+
+  /* the status in progress: its mark in the layer colour, and the line in full text colour */
+  .work[data-current] {
+    color: var(--text);
+  }
+
+  .work[data-current] .spark {
+    color: var(--tc-text);
+  }
+
+  .work[data-done] {
+    color: var(--text-3);
+  }
+
+  .working {
+    margin-bottom: 1.1em;
+  }
+
+  .head {
+    color: var(--text);
+  }
+
+  .head .dot {
+    color: var(--tc);
+  }
+
+  .h {
+    margin-top: 0.15em;
+    font-weight: 700;
+    color: var(--tc-text);
+    letter-spacing: 0.03em;
+  }
+
+  .kv {
+    display: grid;
+    grid-template-columns: 9ch 1fr;
+    gap: 0 1.4ch;
+    padding-left: 2ch;
+  }
+
+  .k {
+    color: var(--text-3);
+  }
+
+  .v {
+    color: #d5dbe6;
+  }
+
+  .q {
+    color: var(--q);
+  }
+
+  .arrow {
+    color: var(--tc-text);
+  }
+
+  .bullet {
+    display: grid;
+    grid-template-columns: 2ch 1fr;
+    padding-left: 2ch;
+  }
+
+  .tri {
+    color: var(--tc-text);
+    font-size: 0.8em;
+    line-height: 2;
+  }
+
+  .open .tri {
+    color: color-mix(in oklab, var(--l-architecture) 83%, white);
+  }
+
+  .block {
+    margin-inline: -1.1ch;
+    padding: 0.15em 1.1ch 0.3em;
+    border-radius: 8px;
+    transition:
+      background-color 0.6s var(--ease-out),
+      box-shadow 0.6s var(--ease-out);
+  }
+
+  .term[data-phase='menu'] .physics {
+    background: color-mix(in srgb, var(--tc) 7%, transparent);
+    box-shadow: inset 2px 0 0 var(--tc);
+  }
+
+  .layer {
+    display: grid;
+    grid-template-columns: 4ch 2ch 15ch 1fr auto;
+    align-items: center;
+    gap: 0 1.2ch;
+    margin-left: 0.6ch;
+    padding: 0 1.4ch 0 1ch;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--c) 5%, transparent);
+  }
+
+  .layer + .layer {
+    margin-top: 1px;
+  }
+
+  .lbar {
+    height: 0.62em;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--c) 75%, #0e1220);
+  }
+
+  .lbar.half-l {
+    width: 48%;
+  }
+
+  .lbar.half-r {
+    width: 48%;
+    margin-left: 52%;
+  }
+
+  .lv {
+    color: color-mix(in srgb, var(--c) 70%, var(--text-3));
+    text-align: right;
+  }
+
+  .nm {
+    font-weight: 700;
+    color: color-mix(in oklab, var(--c) 83%, white);
+  }
+
+  .ds {
+    color: var(--text-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tag {
+    color: var(--tc-text);
+    font-size: 0.92em;
+  }
+
+  .term[data-phase='menu'] .is-this {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 45%, transparent);
+  }
+
+  /* menu */
+  .menu {
+    margin-top: 1.4em;
+    padding: 0.9em 1.2em 1em;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--tc) 40%, var(--line));
+    background: var(--bg);
+    opacity: 0;
+    transform: translateY(0.6em);
+    transition:
+      opacity 0.35s var(--ease-out),
+      transform 0.5s var(--ease-out);
+  }
+
+  .menu[data-on] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .menu-q {
+    margin-bottom: 0.4em !important;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .menu ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu li {
+    display: flex;
+    align-items: center;
+    gap: 0.6ch;
+    padding: 0.08em 0.6ch;
+    color: var(--text-3);
+  }
+
+  .menu li.sel {
+    color: var(--text);
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--tc) 12%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 40%, transparent);
+  }
+
+  .pick {
+    width: 1.5ch;
+    color: var(--tc-text);
+  }
+
+  .menu-cursor {
+    margin-left: 0.6ch;
+    height: 1em;
+    width: 0.5em;
+  }
+
+  @media (max-width: 760px) {
+    .term {
+      --mono-size: 10.5px;
+      border-radius: 12px;
+    }
+
+    .bar {
+      padding: 0.7em 0.9em;
+    }
+
+    .banner-mark {
+      width: 3.4em;
+    }
+
+    .banner-title {
+      font-size: 1.12em;
+      letter-spacing: 0.1em;
+    }
+
+    .gap {
+      display: block;
+      width: 0;
+    }
+
+    .kv {
+      grid-template-columns: 8ch 1fr;
+      padding-left: 0;
+    }
+
+    .bullet {
+      padding-left: 0;
+    }
+
+    .layer {
+      grid-template-columns: 3ch 1.5ch 1fr auto;
+      gap: 0 0.9ch;
+    }
+
+    .ds {
+      display: none;
+    }
+  }
+</style>

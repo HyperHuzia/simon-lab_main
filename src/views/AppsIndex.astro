@@ -1,0 +1,131 @@
+---
+// The applications index: the bottom-up stack as the selector (StackExplorer, select mode: on wide screens it stays
+// beside the page while the heading, the selected application's slides and its card scroll past), then every
+// application as a card: the applications in the beta, coming soon, and the free tools last. Names, roles and
+// summaries from src/data/apps.ts; page copy and the explorer's labels below, per language. Section frame from
+// src/styles/home.css, as on /knowledge/.
+import AppCard from '../components/AppCard.astro';
+import StackExplorer from '../components/StackExplorer.astro';
+import { APPS, STACK } from '../data/apps';
+import type { Lang } from '../i18n/config';
+import Base from '../layouts/Base.astro';
+import '../styles/home.css';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const COPY = {
+  en: {
+    title: 'Applications | Simon Lab',
+    description: 'The Simon Lab applications: one per discipline of a chemical plant project, from scope and process to machines, control cabinets, 3D assembly and site, on one shared project model.',
+    eyebrow: 'Application suite',
+    h1: 'One application per discipline. One project underneath.',
+    lede: 'Each application covers one discipline of a plant project and reads what the previous ones decided, so the project stays consistent from the first specification to the last drawing. Documents are generated from the shared model.',
+    open: 'Open the {name} page',
+    layer: 'Layer',
+    stack: 'The applications, in project order',
+    tools: 'Free tools',
+    soon: 'Coming soon',
+  },
+  pl: {
+    title: 'Aplikacje | Simon Lab',
+    description: 'Aplikacje Simon Lab: jedna na każdą branżę projektu instalacji chemicznej, od zakresu i procesu po maszyny, szafy sterownicze, złożenie 3D i zakład, na jednym wspólnym modelu projektu.',
+    eyebrow: 'Pakiet aplikacji',
+    h1: 'Jedna aplikacja na branżę. Jeden projekt pod spodem.',
+    lede: 'Każda aplikacja obejmuje jedną branżę projektu instalacji i czyta to, co postanowiły poprzednie, więc projekt pozostaje spójny od pierwszej specyfikacji do ostatniego rysunku. Dokumenty powstają ze wspólnego modelu.',
+    open: 'Otwórz stronę {name}',
+    layer: 'Warstwa',
+    stack: 'Aplikacje w kolejności projektu',
+    tools: 'Darmowe narzędzia',
+    soon: 'Wkrótce',
+  },
+  de: {
+    title: 'Anwendungen | Simon Lab',
+    description: 'Die Anwendungen von Simon Lab: eine je Gewerk eines Chemieanlagenprojekts, von Umfang und Prozess über Maschinen und Schaltschränke bis zur 3D-Montage und zum Standort, auf einem gemeinsamen Projektmodell.',
+    eyebrow: 'Anwendungspaket',
+    h1: 'Eine Anwendung je Gewerk. Ein Projekt darunter.',
+    lede: 'Jede Anwendung deckt ein Gewerk eines Anlagenprojekts ab und liest, was die vorigen entschieden haben. So bleibt das Projekt von der ersten Spezifikation bis zur letzten Zeichnung konsistent. Dokumente entstehen aus dem gemeinsamen Modell.',
+    open: 'Seite von {name} öffnen',
+    layer: 'Ebene',
+    stack: 'Die Anwendungen in Projektreihenfolge',
+    tools: 'Kostenlose Tools',
+    soon: 'Demnächst',
+  },
+}[lang];
+const tools = APPS.filter((a) => a.status === 'tool');
+const soon = APPS.filter((a) => a.status === 'soon');
+---
+
+<Base lang={lang} route="/apps/" title={COPY.title} description={COPY.description}>
+  <section class="hp-sec intro" aria-labelledby="apps-title">
+    <StackExplorer lang={lang} mode="select" uid="apps" open={COPY.open} layer={COPY.layer}>
+      <header class="hp-head">
+        <p class="hp-eyebrow">{COPY.eyebrow}</p>
+        <h1 class="hp-title" id="apps-title">{COPY.h1}</h1>
+        <p class="hp-lede">{COPY.lede}</p>
+      </header>
+    </StackExplorer>
+  </section>
+
+  <section class="hp-sec group">
+    <h2 class="hp-group">{COPY.stack}</h2>
+    <ol class="hp-cards">
+      {
+        STACK.map((app) => (
+          <li>
+            <AppCard app={app} lang={lang} />
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="hp-sec group">
+    <h2 class="hp-group">{COPY.soon}</h2>
+    <ul class="hp-cards">
+      {
+        soon.map((app) => (
+          <li>
+            <AppCard app={app} lang={lang} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="hp-sec group">
+    <h2 class="hp-group">{COPY.tools}</h2>
+    <ul class="hp-cards">
+      {
+        tools.map((app) => (
+          <li>
+            <AppCard app={app} lang={lang} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .intro {
+    padding-top: clamp(3rem, 2rem + 5vw, 6.5rem);
+  }
+
+  .intro .hp-title {
+    font-size: var(--fs-3xl);
+  }
+
+  .group {
+    padding-top: clamp(2.5rem, 2rem + 2vw, 4rem);
+  }
+</style>
+<script>
+  import { initSlides } from '../scripts/slides';
+  import { initStackExplorers } from '../scripts/stack-explorer';
+
+  initSlides();
+  initStackExplorers();
+</script>

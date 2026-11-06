@@ -1,0 +1,167 @@
+---
+// Three slides of an application (APP_SLIDES in src/data/media.ts): screens and renders of the demonstration project,
+// or CapacityIndex's drawings and its AI agent terminal. No caption under the frame, so every set has the same size;
+// pictures keep their alt text, drawings their caption for screen readers, and drawings with made-up numbers say so
+// with a small tag in the frame's corner. src/scripts/slides.ts plays them once through each time they come into view
+// (a cross-fade every few seconds, a slow zoom on pictures, drawings building up) and leaves the last one on; there is
+// no switcher. `lazy`: nothing loads until the slides are shown (the applications index keeps one set per application,
+// all but one hidden); otherwise the first picture loads with the page. Calm readers get no zoom and no autoplay;
+// without JavaScript the first slide stays.
+import { APP_SLIDES, BLANK_SRC, media, words, type ImageItem } from '../data/media';
+import type { Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+import CapacitySlides from './CapacitySlides.astro';
+import Terminal from './article/Terminal.astro';
+
+interface Props {
+  app: string;
+  lang: Lang;
+  /** how wide the frame is on the page (the images' sizes attribute) */
+  sizes: string;
+  lazy?: boolean;
+  class?: string;
+}
+
+const { app, lang, sizes, lazy = false, class: className } = Astro.props;
+const ui = t(lang);
+const MS = 4500;
+const DRAWINGS = {
+  terminal: { en: 'Concept: the AI agent writes the specification', pl: 'Koncepcja: agent AI pisze specyfikację', de: 'Konzept: Der KI-Agent schreibt die Spezifikation' },
+  finance: { en: 'The financial model', pl: 'Model finansowy', de: 'Das Finanzmodell' },
+  shifts: { en: 'Staffing and shifts', pl: 'Kadry i zmiany', de: 'Personal und Schichten' },
+  scope: { en: 'Scope versions', pl: 'Wersje zakresu', de: 'Versionen des Umfangs' },
+} as const;
+type Drawing = keyof typeof DRAWINGS;
+type Slide = { kind: 'image'; item: ImageItem; fit?: 'contain'; alt: string; caption: string } | { kind: 'drawing'; which: Drawing; caption: string };
+
+const slides: Slide[] = (APP_SLIDES[app] ?? []).flatMap((s): Slide[] => {
+  if (s.id.startsWith('drawing:')) {
+    const which = s.id.slice('drawing:'.length) as Drawing;
+    return [{ kind: 'drawing', which, caption: DRAWINGS[which][lang] }];
+  }
+  const fig = media(s.id);
+  if (!fig) return [];
+  const w = words(s.id, lang);
+  const item = fig.item.kind === 'video' ? fig.item.poster : fig.item;
+  return [{ kind: 'image', item, fit: s.fit, alt: w.alt, caption: w.caption ?? w.alt }];
+});
+const srcset = (list: { w: number; src: string }[]) => list.map((s) => `${s.src} ${s.w}w`).join(', ');
+const fallback = (item: ImageItem) => item.src ?? ([...item.webp].sort((a, b) => a.w - b.w).find((s) => s.w >= 1280) ?? item.webp[item.webp.length - 1])?.src;
+/** the first picture of a page's slides loads with the page; every other one waits for the script (its img keeps a
+ *  blank src meanwhile) */
+const attrs = (eager: boolean, name: 'srcset' | 'src', value?: string) =>
+  value ? (eager ? { [name]: value } : { [`data-${name}`]: value, ...(name === 'src' ? { src: BLANK_SRC } : {}) }) : {};
+---
+
+{
+  slides.length > 0 && (
+    <figure class:list={['slides', className]} data-slides data-lazy={lazy ? '' : undefined} data-ms={MS} style={`--ms:${MS}ms`}>
+      <div class="slides-frame">
+        {slides.map((s, i) => {
+          const eager = !lazy && i === 0;
+          return s.kind === 'image' ? (
+            <div class="slide" data-slide data-fit={s.fit} data-on={i === 0 ? '' : undefined} aria-hidden={i > 0 ? 'true' : undefined} style={s.item.bg ? `--ph:${s.item.bg}` : undefined}>
+              <picture>
+                {s.item.avif.length > 0 && <source type="image/avif" sizes={sizes} {...attrs(eager, 'srcset', srcset(s.item.avif))} />}
+                {s.item.webp.length > 0 && <source type="image/webp" sizes={sizes} {...attrs(eager, 'srcset', srcset(s.item.webp))} />}
+                <img
+                  {...attrs(eager, 'src', fallback(s.item))}
+                  alt={s.alt}
+                  width={s.item.width}
+                  height={s.item.height}
+                  decoding="async"
+                  fetchpriority={eager ? 'high' : undefined}
+                />
+              </picture>
+            </div>
+          ) : (
+            <div class="slide" data-slide data-on={i === 0 ? '' : undefined} data-build={i === 0 ? '' : undefined} aria-hidden={i > 0 ? 'true' : undefined}>
+              <span class="visually-hidden">{s.caption}</span>
+              {s.which === 'terminal' ? <Terminal uid={`slide-${app}`} state="cli-spec" /> : <CapacitySlides which={s.which} lang={lang} />}
+            </div>
+          );
+        })}
+        {slides.some((s) => s.kind === 'drawing') && <span class="slides-tag">{ui('slides.illustration')}</span>}
+      </div>
+    </figure>
+  )
+}
+
+<style>
+  .slides {
+    margin: 0;
+  }
+
+  .slides-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-sunken);
+    box-shadow: 0 0 0 1px var(--line-strong);
+    isolation: isolate;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    background: var(--ph, var(--bg-sunken));
+    opacity: 0;
+    transition: opacity 0.7s var(--ease-soft);
+  }
+
+  .slide[data-on] {
+    opacity: 1;
+  }
+
+  .slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slide[data-fit='contain'] img {
+    object-fit: contain;
+  }
+
+  /* a picture on screen drifts closer, once, over its time */
+  .slide[data-zoom] img {
+    animation: slide-zoom calc(var(--ms) + 1.2s) linear forwards;
+  }
+
+  @keyframes slide-zoom {
+    to {
+      transform: scale(1.04);
+    }
+  }
+
+  /* drawings with made-up numbers say so, in the frame's corner */
+  .slides-tag {
+    position: absolute;
+    z-index: 1;
+    right: 0.7rem;
+    bottom: 0.7rem;
+    padding: 0.1em 0.6em;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: color-mix(in oklab, var(--bg-sunken) 82%, transparent);
+    font: 500 var(--fs-xs) / 1.6 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    pointer-events: none;
+  }
+
+  .slides[data-held] .slide img {
+    animation-play-state: paused;
+  }
+
+  :global([data-calm]) .slide img {
+    animation: none !important;
+  }
+
+  /* without JavaScript: the first slide; a set that loads only when shown is left out */
+  :global(html:not(.js)) .slides[data-lazy] {
+    display: none;
+  }
+</style>

@@ -1,0 +1,449 @@
+---
+// The bottom-up layer stack in iso perspective (CSS 3D), as in the film: a dense laminate of plates that delaminates
+// into the six application layers. MechGraph and IonGrid share level 3 as two halves.
+//   mode="hero"    — delamination follows the scroll: --p (0–1) is written on the stage by the scroll engine
+//   mode="chapter" — discrete states of the "method" chapter (stack-laminate / -layers / -flow / -in / -docs); --p
+//                    is a registered property set per state and transitioned, so both modes share one geometry
+//   mode="home"    — the homepage hero: the laminate fans out once on load (a CSS animation of --p, no JavaScript
+//                    needed); calm readers get it fanned out
+// Closed, the laminate carries its name (`label`, "Chemical engineering project") on its top plate; in the hero the
+// name gives way slowly as the plates part (--p 0.08–0.45), in the chapter it fades on its own after the plates have
+// started to part; the layers' own names come in. The plates are flat, edged in their layer's colour. Flow
+// (stack-flow), documents in (stack-in: chips of the formats a project starts from, `formats`, line up in front of the
+// first layer, CapacityIndex) and documents out (stack-docs) are one-shot transitions into a still picture, never
+// loops. Everything is sized in em: the scene's font-size follows its container, so the stack fits any stage.
+import { LAYERS } from '../../data/article';
+
+interface Props {
+  mode: 'hero' | 'chapter' | 'home';
+  /** fixed state for static copies (no-JS figures) */
+  state?: string;
+  /** the name of the closed laminate, on its top plate */
+  label?: string;
+  /** chapter: the document formats that go into the first layer (stack-in) */
+  formats?: string[];
+  class?: string;
+}
+
+const { mode, state, label, formats = [], class: className } = Astro.props;
+// text alternative of the chapter stack: the layers bottom-up, the shared level as "MechGraph | IonGrid"
+const names = [1, 2, 3, 4, 5].map((lv) => LAYERS.filter((l) => l.level === lv).map((l) => l.name).join(' | ')).join(' → ');
+const particles = [
+  [14, 30, 0], [30, 62, 1.1], [48, 40, 0.4], [64, 72, 1.6], [80, 34, 0.8], [22, 80, 2.1], [40, 18, 1.4],
+  [58, 52, 2.6], [72, 86, 0.2], [88, 58, 1.9], [36, 46, 2.9], [54, 22, 0.6], [84, 78, 2.4], [12, 54, 1.3],
+] as const;
+const sheets = [
+  { x: 22, y: 30, c: 'var(--l-processview)' },
+  { x: 46, y: 46, c: 'var(--l-mechgraph)' },
+  { x: 62, y: 26, c: 'var(--l-plantmesh)' },
+  { x: 36, y: 62, c: 'var(--l-iongrid)' },
+  { x: 70, y: 58, c: 'var(--l-architecture)' },
+] as const;
+---
+
+<div
+  class:list={['lstack', `lstack--${mode}`, className]}
+  data-fixed-state={state}
+  role={mode === 'chapter' ? 'img' : undefined}
+  aria-label={mode === 'chapter' ? names : undefined}
+  aria-hidden={mode === 'hero' ? 'true' : undefined}
+>
+  <div class="scene">
+    <div class="rig">
+      {
+        LAYERS.map((l) => (
+          <div class:list={['plate', `plate--${l.span}`]} data-lv={l.level} data-layer={l.id} style={`--c:${l.color}`}>
+            <span class="name">{l.name}</span>
+            {label && l.level === 5 && (
+              <span class="lam" aria-hidden="true">
+                {label}
+              </span>
+            )}
+          </div>
+        ))
+      }
+      {
+        mode === 'chapter' &&
+          particles.map(([x, y, d], i) => <i class="particle" style={`left:${x}%;top:${y}%;--d:${d}s;--k:${i % 5}`} />)
+      }
+      {
+        mode === 'chapter' &&
+          formats.map((f, i) => (
+            <i class="infile" style={`left:${52 + i * 10.5}%;--k:${i}`}>
+              <b>{f}</b>
+            </i>
+          ))
+      }
+      {
+        mode === 'chapter' &&
+          sheets.map((s, i) => (
+            <i class="sheet" style={`left:${s.x}%;top:${s.y}%;--c:${s.c};--k:${i}`}>
+              <b />
+            </i>
+          ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  @property --p {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
+
+  .lstack {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    container-type: size;
+    pointer-events: none;
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    /* the exploded stack spans ~37em × 34em: fit it to the container */
+    font-size: min(2.55cqw, 2.75cqh);
+    perspective: 95em;
+    perspective-origin: 50% 35%;
+  }
+
+  /* the four gaps open one after another; all are open by --p 0.71 */
+  .rig {
+    --g0: 0.42em;
+    --gd: 3.85em;
+    --s1: clamp(0, (var(--p) - 0.02) / 0.45, 1);
+    --s2: clamp(0, (var(--p) - 0.1) / 0.45, 1);
+    --s3: clamp(0, (var(--p) - 0.18) / 0.45, 1);
+    --s4: clamp(0, (var(--p) - 0.26) / 0.45, 1);
+    --g1: calc(var(--g0) + var(--gd) * var(--s1) * var(--s1) * (3 - 2 * var(--s1)));
+    --g2: calc(var(--g0) + var(--gd) * var(--s2) * var(--s2) * (3 - 2 * var(--s2)));
+    --g3: calc(var(--g0) + var(--gd) * var(--s3) * var(--s3) * (3 - 2 * var(--s3)));
+    --g4: calc(var(--g0) + var(--gd) * var(--s4) * var(--s4) * (3 - 2 * var(--s4)));
+    --ztop: calc(var(--g1) + var(--g2) + var(--g3) + var(--g4));
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30em;
+    height: 18em;
+    margin: -9em 0 0 -15em;
+    transform-style: preserve-3d;
+    transform: translateY(-0.6em) rotateX(58deg) rotateZ(-38deg);
+  }
+
+  /* a flat plate with a thin edge in its layer's colour (dimmed by --lit) */
+  .plate {
+    --lit: 1;
+    --z: 0em;
+    position: absolute;
+    inset: 0;
+    border-radius: 1.15em;
+    transform-style: preserve-3d;
+    transform: translateZ(calc(var(--z) - var(--ztop) / 2));
+    border: 0.08em solid color-mix(in srgb, var(--c) calc(var(--lit) * 85%), var(--line-strong));
+    transition: border-color var(--dur) var(--ease-out);
+  }
+
+  /* the face is its own layer so it can turn to glass (stack-flow) without dimming the edge */
+  .plate::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgb(17 21 31 / 0.96);
+    transition: opacity 0.8s var(--ease-out);
+  }
+
+  :global([data-state='stack-flow']) .lstack--chapter .plate::before,
+  .lstack--chapter[data-fixed-state='stack-flow'] .plate::before {
+    opacity: 0.36;
+  }
+
+  :global([data-state='stack-flow']) .lstack--chapter .plate::after,
+  .lstack--chapter[data-fixed-state='stack-flow'] .plate::after {
+    opacity: 0.22;
+  }
+
+  /* plate thickness: an underside in a dark tone of the layer colour peeks out along the front edges */
+  .plate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    transform: translateZ(-0.38em);
+    background: color-mix(in srgb, var(--c) calc(12% + var(--lit) * 28%), #070912);
+    transition: opacity 0.8s var(--ease-out);
+  }
+
+  .plate--left {
+    right: calc(50% + 0.55em);
+  }
+
+  .plate--right {
+    left: calc(50% + 0.55em);
+  }
+
+  .plate[data-lv='2'] {
+    --z: var(--g1);
+  }
+
+  .plate[data-lv='3'] {
+    --z: calc(var(--g1) + var(--g2));
+  }
+
+  .plate[data-lv='4'] {
+    --z: calc(var(--g1) + var(--g2) + var(--g3));
+  }
+
+  .plate[data-lv='5'] {
+    --z: calc(var(--g1) + var(--g2) + var(--g3) + var(--g4));
+  }
+
+  .name {
+    position: absolute;
+    left: 1.5em;
+    bottom: 0.9em;
+    font: 600 2em/1 var(--font-display);
+    letter-spacing: 0.01em;
+    color: var(--text);
+    white-space: nowrap;
+    opacity: var(--name, 0);
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .plate--half .name,
+  .plate--left .name,
+  .plate--right .name {
+    font-size: 1.62em;
+    left: 1.2em;
+  }
+
+  /* the closed laminate's name, lying on its top plate: in the hero it gives way slowly as the plates part (gone by
+     --p 0.45, when the layers' names are coming in) */
+  .lam {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 0 2.4em;
+    font: 600 2.15em/1.12 var(--font-display);
+    letter-spacing: -0.01em;
+    text-align: center;
+    text-wrap: balance;
+    color: var(--text);
+    opacity: calc(1 - clamp(0, (var(--p) - 0.08) / 0.37, 1));
+  }
+
+  /* in the chapter the plates part in a second: the name fades on its own once they have started */
+  .lstack--chapter .lam {
+    opacity: 1;
+    transition: opacity 0.8s var(--ease-out) 0.3s;
+  }
+
+  :global(:is([data-state='stack-layers'], [data-state='stack-flow'], [data-state='stack-in'], [data-state='stack-docs'])) .lstack--chapter .lam,
+  .lstack--chapter:not([data-fixed-state='stack-laminate'])[data-fixed-state] .lam {
+    opacity: 0;
+    transition-delay: 0.15s;
+  }
+
+  /* ── hero: delamination follows the scroll; names show once the gaps are open ── */
+  .lstack--hero .plate,
+  .lstack--home .plate {
+    --name: clamp(0, (var(--p) - 0.35) / 0.3, 1);
+  }
+
+  .lstack--hero .name,
+  .lstack--home .name {
+    transition: none;
+  }
+
+  /* ── home: fan out once ─────────────────────────────────────────────────── */
+  .lstack--home {
+    --p: 0;
+    animation: lstack-fan 1.6s var(--ease-out) 0.35s forwards;
+  }
+
+  @keyframes lstack-fan {
+    to {
+      --p: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lstack--home {
+      --p: 1;
+      animation: none;
+    }
+  }
+
+  /* ── chapter: one look per state ───────────────────────────────────────── */
+  .lstack--chapter {
+    --p: 0;
+    transition: --p 1.25s var(--ease-out);
+  }
+
+  :global([data-state='stack-layers']) .lstack--chapter,
+  :global([data-state='stack-flow']) .lstack--chapter,
+  :global([data-state='stack-in']) .lstack--chapter,
+  :global([data-state='stack-docs']) .lstack--chapter,
+  .lstack--chapter[data-fixed-state='stack-layers'],
+  .lstack--chapter[data-fixed-state='stack-flow'],
+  .lstack--chapter[data-fixed-state='stack-in'],
+  .lstack--chapter[data-fixed-state='stack-docs'] {
+    --p: 1;
+  }
+
+  :global([data-state='stack-layers']) .lstack--chapter .plate,
+  :global([data-state='stack-flow']) .lstack--chapter .plate,
+  :global([data-state='stack-in']) .lstack--chapter .plate,
+  :global([data-state='stack-docs']) .lstack--chapter .plate,
+  .lstack--chapter:not([data-fixed-state='stack-laminate'])[data-fixed-state] .plate {
+    --name: 1;
+  }
+
+  /* layers light up bottom-up as they separate */
+  :global([data-state='stack-layers']) .lstack--chapter .plate,
+  :global([data-state='stack-layers']) .lstack--chapter .name {
+    transition-delay: calc(var(--lv-delay, 0) * 1ms);
+  }
+
+  .lstack--chapter .plate[data-lv='1'] {
+    --lv-delay: 250;
+  }
+
+  .lstack--chapter .plate[data-lv='2'] {
+    --lv-delay: 420;
+  }
+
+  .lstack--chapter .plate[data-lv='3'] {
+    --lv-delay: 590;
+  }
+
+  .lstack--chapter .plate[data-lv='4'] {
+    --lv-delay: 760;
+  }
+
+  .lstack--chapter .plate[data-lv='5'] {
+    --lv-delay: 930;
+  }
+
+  /* documents: the lower layers rest, the top of the stack is where documents come from */
+  :global([data-state='stack-docs']) .lstack--chapter .plate:not([data-lv='5']),
+  .lstack--chapter[data-fixed-state='stack-docs'] .plate:not([data-lv='5']) {
+    --lit: 0.45;
+  }
+
+  /* documents in: the upper layers rest, the formats a project starts from line up in front of the first layer,
+     CapacityIndex, coming up to it from the front */
+  :global([data-state='stack-in']) .lstack--chapter .plate:not([data-lv='1']),
+  .lstack--chapter[data-fixed-state='stack-in'] .plate:not([data-lv='1']) {
+    --lit: 0.45;
+  }
+
+  /* in a row in front of the first plate, right of its name, so the layers' names stay clear */
+  .infile {
+    position: absolute;
+    top: 113%;
+    width: 2.55em;
+    height: 3.3em;
+    margin: -1.65em 0 0 -1.275em;
+    border-radius: 0.2em;
+    background: #e3e8f1;
+    box-shadow: 0 0 0 0.07em color-mix(in srgb, var(--l-capacity) 70%, transparent);
+    opacity: 0;
+    transform: translateZ(calc(var(--ztop) / -2 + 1.4em)) translateY(9em) rotateZ(38deg) rotateX(-58deg);
+    transition:
+      opacity 0.4s var(--ease-out),
+      transform 0.9s var(--ease-out);
+  }
+
+  /* the format, in large letters across the page */
+  .infile b {
+    position: absolute;
+    inset: auto 0 0.5em;
+    font: 700 0.8em/1 var(--font-mono);
+    letter-spacing: 0.02em;
+    text-align: center;
+    color: color-mix(in srgb, var(--l-capacity) 55%, #1d2438);
+  }
+
+  :global([data-state='stack-in']) .infile,
+  .lstack--chapter[data-fixed-state='stack-in'] .infile {
+    opacity: 1;
+    transform: translateZ(calc(var(--ztop) / -2 + 1.4em)) rotateZ(38deg) rotateX(-58deg);
+    transition-delay: calc(0.35s + var(--k) * 0.25s);
+  }
+
+  /* flow: short marks rise once from the first layer and stay spread through the stack while stack-flow is on */
+  .particle {
+    position: absolute;
+    width: 0.22em;
+    height: 2.2em;
+    margin: -1.1em 0 0 -0.11em;
+    border-radius: 0.11em;
+    background: var(--accent);
+    opacity: 0;
+    transform: translateZ(calc(var(--ztop) / -2)) rotateZ(38deg) rotateX(-58deg);
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform 1.4s var(--ease-out);
+  }
+
+  :global([data-state='stack-flow']) .particle,
+  .lstack--chapter[data-fixed-state='stack-flow'] .particle {
+    opacity: 0.75;
+    transform: translateZ(calc(var(--ztop) * (var(--k) / 5 - 0.4))) rotateZ(38deg) rotateX(-58deg);
+    transition-delay: calc(0.25s + var(--d) * 0.2);
+  }
+
+  /* documents: a few sheets lift once off the top plate and stay fanned above it while stack-docs is on */
+  .sheet {
+    position: absolute;
+    width: 4.6em;
+    height: 6.4em;
+    margin: -3.2em 0 0 -2.3em;
+    border-radius: 0.25em;
+    background:
+      repeating-linear-gradient(180deg, transparent 0 0.62em, rgb(70 84 120 / 0.32) 0.62em 0.7em) 0.7em 1.6em / calc(100% - 1.4em) calc(100% - 2.4em) no-repeat,
+      #e3e8f1;
+    box-shadow: 0 0 0 0.07em color-mix(in srgb, var(--c) 70%, transparent);
+    opacity: 0;
+    transform: translateZ(calc(var(--ztop) / 2 + 0.2em)) rotateZ(0deg) rotateX(0deg);
+    transition:
+      opacity 0.5s var(--ease-out),
+      transform 1.2s var(--ease-out);
+  }
+
+  .sheet b {
+    position: absolute;
+    left: 0.7em;
+    top: 0.6em;
+    width: 52%;
+    height: 0.5em;
+    border-radius: 0.1em;
+    background: color-mix(in srgb, var(--c) 75%, #1d2438);
+  }
+
+  :global([data-state='stack-docs']) .sheet,
+  .lstack--chapter[data-fixed-state='stack-docs'] .sheet {
+    opacity: 1;
+    transform: translateZ(calc(var(--ztop) / 2 + 2em + var(--k) * 1.1em)) rotateZ(38deg) rotateX(-40deg);
+    transition-delay: calc(0.3s + var(--k) * 0.14s);
+  }
+
+  :global([data-calm]) .lstack--hero,
+  :global([data-calm]) .lstack--home {
+    --p: 1 !important;
+    animation: none;
+  }
+
+  :global([data-calm]) .particle,
+  :global([data-calm]) .sheet,
+  :global([data-calm]) .infile,
+  :global([data-calm]) .lstack--chapter,
+  :global([data-calm]) .lstack--chapter .lam {
+    transition: none;
+  }
+</style>

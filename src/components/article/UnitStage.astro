@@ -1,0 +1,305 @@
+---
+// PlantMesh stage: the assembled unit.
+//   pm-assembly  the clip: machine, cabinet, steelwork, elevator, pump and piping converge around the tank
+//   pm-iso       the model with one of its lines lit violet (a render of the same end pose fading in over it), beside
+//                that line's isometric (doc-08), joined at the line
+//   pm-steel     the same with the tower the operator stands on lit violet, beside its assembly drawing (doc-11), the
+//                structure marked as FEM-checked
+//   pm-clash     the detected clash, in red only (never "resolved"), with the Diagnostics panel reporting "2 findings"
+import { anchors, CALLOUT_WORDS, words } from '../../data/media';
+import { zoomPoint, zoomStyle, type Zoom } from '../../data/stages';
+import type { Lang } from '../../i18n/config';
+import Callout from './Callout.astro';
+import MediaLayer from './MediaLayer.astro';
+
+interface Props {
+  lang: Lang;
+  labels: Record<string, string>;
+  state?: string;
+}
+
+const { lang, labels, state } = Astro.props;
+const sizes = '(min-width: 1000px) 60vw, 100vw';
+const show = (s: string) => !state || state === s;
+const on = state ? '' : undefined;
+const fixed = Boolean(state);
+const pc = (v: number) => `${(v * 100).toFixed(2)}%`;
+
+const final = anchors('pm-final');
+// pm-iso, pm-steel: the model in a box at the left (16:9 in a 16:9 frame), the drawing at the right, centred on the
+// part it shows; the part lights up violet in the model (its render fades in over the plain one)
+const MODEL = { x: -0.24, y: -0.05, w: 1.08 };
+const inModel = (p: { x: number; y: number }) => ({ x: MODEL.x + p.x * MODEL.w, y: MODEL.y + p.y * MODEL.w });
+const SHEET = { w: 0.43, right: 0.0 };
+const sheetH = (SHEET.w / (960 / 679)) * (16 / 9); // as a fraction of the frame height
+const sheetLeft = 1 - SHEET.right - SHEET.w;
+const sheetTop = (y: number) => Math.min(Math.max(y - sheetH / 2, 0.02), 0.98 - sheetH);
+const PARTS = [
+  { state: 'pm-iso', lit: 'pm-final-line', sheet: 'doc-08', at: inModel(final['pipe-run'] ?? { x: 0.43, y: 0.46 }), label: CALLOUT_WORDS['pipe-run'][lang] },
+  { state: 'pm-steel', lit: 'pm-final-steel', sheet: 'doc-11', at: inModel(final['support-structure'] ?? { x: 0.44, y: 0.42 }), label: CALLOUT_WORDS['support-structure'][lang] },
+].filter((part) => show(part.state));
+
+// pm-assembly: the clip at 1.3x about the unit
+const ASSEMBLY: Zoom = { s: 1.3, ox: 0.47, oy: 0.52 };
+// pm-clash: the finding at the elevator (render at 1.12x), and the Diagnostics panel cropped from the PlantMesh window
+const CLASH: Zoom = { s: 1.12, ox: 0.5, oy: 0.5 };
+const clashRaw = anchors('pm-clash').clash;
+const clash = clashRaw ? zoomPoint(clashRaw, CLASH) : undefined;
+const PANEL = { x0: 0.758, y0: 0, x1: 1, y1: 0.34 };
+const BADGE = { x: (0.969 - PANEL.x0) / (PANEL.x1 - PANEL.x0), y: (0.113 - PANEL.y0) / (PANEL.y1 - PANEL.y0) };
+const panelRatio = (((PANEL.x1 - PANEL.x0) * 2400) / ((PANEL.y1 - PANEL.y0) * 1350)).toFixed(4);
+---
+
+<div class="st unit">
+  <div class="st-frame">
+    <div class="st-floor" aria-hidden="true"></div>
+    {
+      show('pm-assembly') && (
+        <div class="st-look st-clip" data-look="pm-assembly" data-on="">
+          <div class="st-scale" style={zoomStyle(ASSEMBLY)}>
+            <MediaLayer id="pm-assembly" lang={lang} kind="clip" loop={false} sizes={sizes} eager={fixed} />
+          </div>
+        </div>
+      )
+    }
+    {
+      PARTS.map((part) => (
+        <div class="st-look iso" data-look={part.state} data-on={on}>
+          <div class="iso-model" style={`left:${pc(MODEL.x)};top:${pc(MODEL.y)};width:${pc(MODEL.w)};height:${pc(MODEL.w)}`}>
+            <MediaLayer id="pm-final" lang={lang} sizes="(min-width: 1000px) 66vw, 108vw" eager={fixed} />
+            <div class="iso-lit">
+              <MediaLayer id={part.lit} lang={lang} sizes="(min-width: 1000px) 66vw, 108vw" eager={fixed} />
+            </div>
+          </div>
+          <span class="iso-link" style={`left:${pc(part.at.x)};top:${pc(part.at.y)};width:${pc(sheetLeft - part.at.x)}`} aria-hidden="true">
+            <i />
+            <b>{part.label}</b>
+          </span>
+          <figure class="iso-sheet" style={`left:${pc(sheetLeft)};top:${pc(sheetTop(part.at.y))};width:${pc(SHEET.w)}`}>
+            <MediaLayer id={part.sheet} lang={lang} sizes="(min-width: 1000px) 26vw, 40vw" eager={fixed} />
+            <figcaption aria-hidden="true">{words(part.sheet, lang).caption}</figcaption>
+          </figure>
+        </div>
+      ))
+    }
+    {
+      show('pm-clash') && (
+        <div class="st-look" data-look="pm-clash" data-on={on}>
+          <div class="st-scale clash-render" style={zoomStyle(CLASH)}>
+            <MediaLayer id="pm-clash" lang={lang} sizes="(min-width: 1000px) 68vw, 112vw" eager={fixed} />
+          </div>
+          {clash && <span class="clash-ring" style={`left:${pc(clash.x)};top:${pc(clash.y)}`} aria-hidden="true" />}
+          {clash && <Callout x={clash.x} y={clash.y} text={labels.findings} side="l" rise="up" run={92} delay={0.7} tone="alert" on={fixed} />}
+          <div class="clash-panel" style={`--px0:${PANEL.x0};--px1:${PANEL.x1};--py0:${PANEL.y0};--py1:${PANEL.y1};aspect-ratio:${panelRatio}`}>
+            <div class="clash-crop">
+              <MediaLayer id="pm-plate-collisions" lang={lang} sizes="(min-width: 1000px) 72vw, 120vw" eager={fixed} />
+            </div>
+            <span class="clash-badge" style={`left:${pc(BADGE.x)};top:${pc(BADGE.y)}`} aria-hidden="true" />
+          </div>
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .unit .st-floor {
+    bottom: -6%;
+    width: 60%;
+  }
+
+  /* pm-iso */
+  .iso-model {
+    position: absolute;
+  }
+
+  .iso-model :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+  }
+
+  /* the same end pose with the part lit violet, fading in over the plain render */
+  .iso-lit {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.9s var(--ease-out) 0.35s;
+  }
+
+  :global([data-on]) > .iso-model .iso-lit {
+    opacity: 1;
+  }
+
+  .iso-link {
+    position: absolute;
+    height: 0;
+    color: var(--l-plantmesh);
+  }
+
+  /* the model's line joined to its isometric: a 1px line from a small dot, as the callouts */
+  .iso-link i {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -0.5px;
+    height: 1px;
+    background: var(--l-plantmesh);
+    clip-path: inset(-4px 100% -4px 0);
+    transition: clip-path 0.9s var(--ease-out) 0.6s;
+  }
+
+  .iso-link::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--l-plantmesh);
+    box-shadow: 0 0 0 2px rgb(11 14 23 / 0.85);
+  }
+
+  .iso-link b {
+    position: absolute;
+    left: 32%;
+    bottom: 0.55rem;
+    padding: 0.3em 0.6em;
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--l-plantmesh) 40%, var(--line));
+    background: rgb(11 14 23 / 0.85);
+    font: 600 0.75rem / 1.2 var(--font-display);
+    color: var(--text);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease-out) 1.2s;
+  }
+
+  :global([data-on]) .iso-link i {
+    clip-path: inset(-4px -4px -4px 0);
+  }
+
+  :global([data-on]) .iso-link b {
+    opacity: 1;
+  }
+
+  .iso-sheet {
+    position: absolute;
+    margin: 0;
+    aspect-ratio: 960 / 679;
+    transform: perspective(1400px) rotateY(-16deg) rotateZ(0.6deg) translateX(18px);
+    transform-origin: 0 50%;
+    opacity: 0;
+    transition:
+      transform 1.1s var(--ease-out) 0.3s,
+      opacity var(--dur) var(--ease-out) 0.3s;
+  }
+
+  :global([data-on]) > .iso-sheet {
+    transform: perspective(1400px) rotateY(-16deg) rotateZ(0.6deg);
+    opacity: 1;
+  }
+
+  /* the sheet lies over the model: a hairline in the layer's colour and a neutral shadow */
+  .iso-sheet :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    border-radius: 4px;
+    box-shadow:
+      0 0 0 1px var(--l-plantmesh),
+      0 12px 32px -18px rgb(0 0 0 / 0.6);
+  }
+
+  .iso-sheet figcaption {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 0.7rem);
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+
+  /* pm-clash: red only. The render is framed tight (tank and roof cut by its edges): fade those edges out */
+  .clash-render {
+    mask-image: linear-gradient(180deg, #000 72%, transparent 96%), linear-gradient(270deg, transparent 4%, #000 16%);
+    mask-composite: intersect;
+  }
+
+  .clash-ring {
+    position: absolute;
+    width: 9%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1.5px solid var(--alert);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.6);
+    transition:
+      opacity var(--dur) var(--ease-out) 0.4s,
+      transform 0.8s var(--ease-out) 0.4s;
+  }
+
+  :global([data-on]) > .clash-ring {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  .clash-panel {
+    position: absolute;
+    right: -1.5%;
+    bottom: -4%;
+    width: 33%;
+    border-radius: 10px;
+    overflow: hidden;
+    /* the panel lies over the render: a hairline in red and a neutral shadow */
+    box-shadow:
+      0 0 0 1px var(--alert),
+      0 12px 32px -18px rgb(0 0 0 / 0.6);
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity var(--dur) var(--ease-out) 1s,
+      transform 0.9s var(--ease-out) 1s;
+  }
+
+  :global([data-on]) > .clash-panel {
+    opacity: 1;
+    transform: none;
+  }
+
+  .clash-crop {
+    position: absolute;
+    top: calc(var(--py0) / (var(--py1) - var(--py0)) * -100%);
+    left: calc(var(--px0) / (var(--px1) - var(--px0)) * -100%);
+    width: calc(100% / (var(--px1) - var(--px0)));
+    aspect-ratio: 16 / 9;
+  }
+
+  .clash-crop :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
+
+  .clash-badge {
+    position: absolute;
+    width: 30%;
+    height: 12%;
+    translate: -50% -50%;
+    border-radius: 999px;
+    border: 1.5px solid var(--alert);
+  }
+
+  @media (max-width: 760px) {
+    .iso-link b,
+    .iso-sheet figcaption {
+      display: none;
+    }
+
+    .clash-panel {
+      width: 38%;
+      bottom: -2%;
+    }
+  }
+</style>

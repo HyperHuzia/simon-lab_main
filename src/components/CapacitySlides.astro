@@ -1,0 +1,443 @@
+---
+// CapacityIndex's slides (AppSlides.astro): it is a text application without screens of its own yet, so three drawings
+// in the site's line style show what it holds. The numbers are made up (the slides carry an "Illustration" tag):
+//   finance  the financial model: NPV, IRR, payback; CAPEX by area; the cumulative cash flow with its payback point
+//   shifts   staffing by function and the rota of four crews on 12-hour shifts over two weeks
+//   scope    the versioned scope: v1 → v2 → v3, each with what changed and why
+// Each drawing builds up when its slide is shown: the slide gets data-build (src/scripts/slides.ts), the parts marked
+// .cs-in come in one after another (opacity and transform only). Static copies and calm readers see them built.
+import type { Lang } from '../i18n/config';
+
+interface Props {
+  which: 'finance' | 'shifts' | 'scope';
+  lang: Lang;
+}
+
+const { which, lang } = Astro.props;
+
+const T = {
+  en: {
+    finance: 'The financial model: NPV, IRR and payback, CAPEX by area, the cumulative cash flow',
+    shifts: 'Staffing by function and the rota of four crews on 12-hour shifts',
+    scope: 'The versioned scope: v1, v2 and v3, with what changed and why',
+    kpi: [
+      ['NPV', '€8.1M'],
+      ['IRR', '16%'],
+      ['Payback', '5.8 years'],
+    ],
+    capex: 'CAPEX · €12.4M',
+    areas: ['Equipment', 'Piping', 'Electrical and I&C', 'Civil', 'Engineering'],
+    money: (v: number) => `€${v.toFixed(1)}M`,
+    cash: 'Cumulative cash flow',
+    year: 'year',
+    payback: 'payback',
+    staff: 'Headcount · 23 FTE',
+    roles: ['Operators', 'Shift leads', 'Maintenance', 'Laboratory', 'Logistics'],
+    rota: '4 crews · 12-hour shifts · 14 days',
+    day: 'day 06–18',
+    night: 'night 18–06',
+    off: 'off',
+    fields: ['Capacity', 'Products', 'CAPEX limit', 'Shifts'],
+    versions: [
+      { v: 'v1', when: 'week 2', why: 'first scope', values: ['8\u00a0kt/a', '50% solution', '€10M', 'day shift'] },
+      { v: 'v2', when: 'week 7', why: 'client: more capacity', values: ['12\u00a0kt/a', '50% solution', '€14M', '4 crews, 12\u00a0h'] },
+      { v: 'v3', when: 'week 11', why: 'client: flakes as well', values: ['12\u00a0kt/a', 'solution + flakes', '€15.2M', '4 crews, 12\u00a0h'] },
+    ],
+    current: 'current',
+  },
+  pl: {
+    finance: 'Model finansowy: NPV, IRR i okres zwrotu, CAPEX według obszarów, skumulowany przepływ gotówki',
+    shifts: 'Kadry według funkcji i grafik czterech brygad w systemie 12-godzinnym',
+    scope: 'Zakres wersjonowany: v1, v2 i v3, z tym, co się zmieniło i dlaczego',
+    kpi: [
+      ['NPV', '8,1\u00a0mln\u00a0€'],
+      ['IRR', '16%'],
+      ['Okres zwrotu', '5,8 roku'],
+    ],
+    capex: 'CAPEX · 12,4\u00a0mln\u00a0€',
+    areas: ['Urządzenia', 'Rurociągi', 'Elektryka i AKPiA', 'Budowlanka', 'Projektowanie'],
+    money: (v: number) => `${v.toFixed(1).replace('.', ',')} mln\u00a0€`,
+    cash: 'Skumulowany przepływ gotówki',
+    year: 'rok',
+    payback: 'zwrot',
+    staff: 'Kadry · 23 etaty',
+    roles: ['Operatorzy', 'Kierownicy zmian', 'Utrzymanie ruchu', 'Laboratorium', 'Logistyka'],
+    rota: '4 brygady · zmiany 12 h · 14 dni',
+    day: 'dzień 06–18',
+    night: 'noc 18–06',
+    off: 'wolne',
+    fields: ['Wydajność', 'Produkty', 'Limit CAPEX', 'Zmiany'],
+    versions: [
+      { v: 'v1', when: 'tydzień 2', why: 'pierwszy zakres', values: ['8\u00a0kt/rok', 'roztwór 50%', '10\u00a0mln\u00a0€', 'zmiana dzienna'] },
+      { v: 'v2', when: 'tydzień 7', why: 'klient: większa wydajność', values: ['12\u00a0kt/rok', 'roztwór 50%', '14\u00a0mln\u00a0€', '4 brygady, 12\u00a0h'] },
+      { v: 'v3', when: 'tydzień 11', why: 'klient: także płatki', values: ['12\u00a0kt/rok', 'roztwór + płatki', '15,2\u00a0mln\u00a0€', '4 brygady, 12\u00a0h'] },
+    ],
+    current: 'bieżąca',
+  },
+  de: {
+    finance: 'Das Finanzmodell: Kapitalwert, interner Zinsfuß und Amortisation, CAPEX nach Bereichen, der kumulierte Cashflow',
+    shifts: 'Personal nach Funktion und der Dienstplan von vier Schichtgruppen mit 12-Stunden-Schichten',
+    scope: 'Der versionierte Umfang: v1, v2 und v3, mit dem, was sich geändert hat, und warum',
+    kpi: [
+      ['Kapitalwert', '8,1\u00a0Mio.\u00a0€'],
+      ['IRR', '16\u00a0%'],
+      ['Amortisation', '5,8 Jahre'],
+    ],
+    capex: 'CAPEX · 12,4\u00a0Mio.\u00a0€',
+    areas: ['Apparate', 'Rohrleitungen', 'Elektro und MSR', 'Bau', 'Engineering'],
+    money: (v: number) => `${v.toFixed(1).replace('.', ',')} Mio.\u00a0€`,
+    cash: 'Kumulierter Cashflow',
+    year: 'Jahr',
+    payback: 'Amortisation',
+    staff: 'Personal · 23 VZÄ',
+    roles: ['Anlagenfahrer', 'Schichtleiter', 'Instandhaltung', 'Labor', 'Logistik'],
+    rota: '4 Schichtgruppen · 12-h-Schichten · 14 Tage',
+    day: 'Tag 06–18',
+    night: 'Nacht 18–06',
+    off: 'frei',
+    fields: ['Kapazität', 'Produkte', 'CAPEX-Grenze', 'Schichten'],
+    versions: [
+      { v: 'v1', when: 'Woche 2', why: 'erster Umfang', values: ['8\u00a0kt/a', '50-%-Lösung', '10\u00a0Mio.\u00a0€', 'Tagschicht'] },
+      { v: 'v2', when: 'Woche 7', why: 'Kunde: mehr Kapazität', values: ['12\u00a0kt/a', '50-%-Lösung', '14\u00a0Mio.\u00a0€', '4 Gruppen, 12\u00a0h'] },
+      { v: 'v3', when: 'Woche 11', why: 'Kunde: auch Schuppen', values: ['12\u00a0kt/a', 'Lösung + Schuppen', '15,2\u00a0Mio.\u00a0€', '4 Gruppen, 12\u00a0h'] },
+    ],
+    current: 'aktuell',
+  },
+}[lang];
+
+// finance: CAPEX by area (sums to 12.4) and the cumulative cash flow, years 0–10 (payback at 5.8)
+const CAPEX = [5.2, 1.7, 1.5, 2.0, 2.0];
+const CASH = [-4.0, -12.4, -10.4, -8.2, -5.6, -2.6, 0.6, 3.9, 7.2, 10.5, 13.8];
+const cx = (year: number) => 350 + year * 24.6;
+const cy = (v: number) => 150 + (16 - v) * (170 / 30);
+const curve = CASH.map((v, i) => `${i ? 'L' : 'M'}${cx(i).toFixed(1)} ${cy(v).toFixed(1)}`).join('');
+const capexLeft = CAPEX.map((_, i) => CAPEX.slice(0, i).reduce((a, b) => a + b, 0));
+const capexW = 252 / 12.4;
+
+// shifts: staffing, and the rota (a 14-day 2-2-3 pattern; crews A and C cover the days, B and D the nights)
+const STAFF = [12, 4, 3, 2, 2];
+const ON = [1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0];
+const CREWS = [
+  { name: 'A', shift: 'd', days: ON },
+  { name: 'B', shift: 'n', days: ON },
+  { name: 'C', shift: 'd', days: ON.map((d) => 1 - d) },
+  { name: 'D', shift: 'n', days: ON.map((d) => 1 - d) },
+];
+
+// scope: which values changed from the version before
+const changed = (v: number, f: number) => v > 0 && T.versions[v].values[f] !== T.versions[v - 1].values[f];
+---
+
+<svg class="cs" viewBox="0 0 640 360" role="img" aria-label={T[which]}>
+  {
+    which === 'finance' && (
+      <>
+        {T.kpi.map(([label, value], i) => (
+          <g class="cs-in" style={`--d:${i}`} transform={`translate(${24 + i * 202} 24)`}>
+            <rect class="box" width="188" height="68" rx="8" />
+            <text class="lab" x="14" y="24">
+              {label}
+            </text>
+            <text class="big" x="14" y="54">
+              {value}
+            </text>
+          </g>
+        ))}
+        <text class="head cs-in" style="--d:3" x="24" y="132">
+          {T.capex}
+        </text>
+        {CAPEX.map((v, i) => (
+          <rect class="seg cs-grow" style={`--d:${4 + i};--o:${1 - i * 0.16}`} x={24 + capexLeft[i] * capexW} y="146" width={v * capexW - 2} height="18" rx="2" />
+        ))}
+        {T.areas.map((area, i) => (
+          <g class="cs-in" style={`--d:${5 + i}`} transform={`translate(24 ${196 + i * 27})`}>
+            <rect class="seg" style={`--o:${1 - i * 0.16}`} width="10" height="10" rx="2" y="-9" />
+            <text class="lab" x="18">
+              {area}
+            </text>
+            <text class="val" x="276" text-anchor="end">
+              {T.money(CAPEX[i])}
+            </text>
+          </g>
+        ))}
+        <text class="head cs-in" style="--d:3" x="330" y="132">
+          {T.cash}
+        </text>
+        <path class="axis cs-in" style="--d:4" d={`M350 ${cy(0).toFixed(1)}H596M350 150V320`} />
+        {[0, 5, 10].map((year) => (
+          <text class="tick cs-in" style="--d:4" x={cx(year)} y="338" text-anchor="middle">
+            {year === 0 ? `${T.year} 0` : year}
+          </text>
+        ))}
+        <path class="line cs-draw" style="--d:6" d={curve} />
+        <path class="pay cs-in" style="--d:12" d={`M${cx(5.81).toFixed(1)} 150V320`} />
+        <circle class="dot cs-in" style="--d:12" cx={cx(5.81)} cy={cy(0)} r="4" />
+        <text class="lab cs-in" style="--d:12" x={cx(5.81) + 8} y="166">
+          {T.payback}
+        </text>
+      </>
+    )
+  }
+  {
+    which === 'shifts' && (
+      <>
+        <text class="head cs-in" style="--d:0" x="24" y="42">
+          {T.staff}
+        </text>
+        {T.roles.map((role, i) => (
+          <g transform={`translate(24 ${80 + i * 52})`}>
+            <text class="lab cs-in" style={`--d:${1 + i}`} y="-8">
+              {role}
+            </text>
+            <rect class="seg cs-grow" style={`--d:${1 + i};--o:1`} y="0" width={STAFF[i] * 16} height="14" rx="2" />
+            <text class="val cs-in" style={`--d:${2 + i}`} x={STAFF[i] * 16 + 10} y="12">
+              {STAFF[i]}
+            </text>
+          </g>
+        ))}
+        <text class="head cs-in" style="--d:0" x="270" y="42">
+          {T.rota}
+        </text>
+        {ON.map((_, day) => (
+          <text class="tick cs-in" style={`--d:${1 + day * 0.4}`} x={310 + day * 22 + 10} y="72" text-anchor="middle">
+            {day + 1}
+          </text>
+        ))}
+        {CREWS.map((crew, r) => (
+          <g transform={`translate(270 ${86 + r * 40})`}>
+            <text class="val cs-in" style="--d:1" y="20">
+              {crew.name}
+            </text>
+            {crew.days.map((on, day) =>
+              on ? (
+                <rect class:list={['cell', crew.shift, 'cs-in']} style={`--d:${1.5 + day * 0.4}`} x={40 + day * 22} y="2" width="19" height="26" rx="3" />
+              ) : (
+                <rect class="cell off cs-in" style={`--d:${1.5 + day * 0.4}`} x={40 + day * 22} y="2" width="19" height="26" rx="3" />
+              ),
+            )}
+          </g>
+        ))}
+        <g class="cs-in" style="--d:8" transform="translate(310 276)">
+          <rect class="cell d" width="14" height="14" rx="3" y="-11" />
+          <text class="lab" x="22">
+            {T.day}
+          </text>
+          <rect class="cell n" x="122" width="14" height="14" rx="3" y="-11" />
+          <text class="lab" x="144">
+            {T.night}
+          </text>
+          <rect class="cell off" x="250" width="14" height="14" rx="3" y="-11" />
+          <text class="lab" x="272">
+            {T.off}
+          </text>
+        </g>
+      </>
+    )
+  }
+  {
+    which === 'scope' && (
+      <>
+        {T.versions.map((version, v) => (
+          <g class:list={['cs-in', 'card', { now: v === 2 }]} style={`--d:${v * 3}`} transform={`translate(${24 + v * 204} 34)`}>
+            <rect class="box" width="184" height="292" rx="10" />
+            <text class="big" x="16" y="40">
+              {version.v}
+            </text>
+            <text class="lab" x="168" y="36" text-anchor="end">
+              {version.when}
+            </text>
+            <text class="why" x="16" y="66">
+              {version.why}
+            </text>
+            <path class="rule" d="M16 82H168" />
+            {T.fields.map((field, f) => (
+              <g transform={`translate(16 ${108 + f * 42})`}>
+                <text class="lab">{field}</text>
+                <text class:list={['val', { mark: changed(v, f) }]} y="20">
+                  {version.values[f]}
+                </text>
+                {changed(v, f) && <circle class="dot" cx="160" cy="15" r="3.5" />}
+              </g>
+            ))}
+            {v === 2 && (
+              <g transform="translate(16 302)">
+                <rect class="now-tag" width="70" height="20" rx="10" y="-14" />
+                <text class="lab now-t" x="35" text-anchor="middle">
+                  {T.current}
+                </text>
+              </g>
+            )}
+          </g>
+        ))}
+        {[0, 1].map((v) => (
+          <path class="arrow cs-in" style={`--d:${v * 3 + 2}`} d={`M${210 + v * 204} 180h10m-4-4 4 4-4 4`} />
+        ))}
+      </>
+    )
+  }
+</svg>
+
+<style>
+  .cs {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 100% 10%,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 5% 100%,
+      var(--bg-raised);
+    --cap: var(--l-capacity);
+  }
+
+  path,
+  rect,
+  circle {
+    vector-effect: non-scaling-stroke;
+  }
+
+  text {
+    font-family: var(--font-mono);
+  }
+
+  .box {
+    fill: var(--bg);
+    stroke: var(--line-strong);
+    stroke-width: 1;
+  }
+
+  .lab,
+  .tick {
+    font-size: 12px;
+    fill: var(--text-3);
+  }
+
+  .val {
+    font-size: 13px;
+    font-weight: 600;
+    fill: var(--text-2);
+  }
+
+  .head {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    fill: var(--text-2);
+  }
+
+  .big {
+    font: 600 24px var(--font-display);
+    fill: var(--text);
+  }
+
+  .why {
+    font-size: 12px;
+    fill: color-mix(in oklab, var(--cap) 80%, white);
+  }
+
+  .seg {
+    fill: color-mix(in oklab, var(--cap) calc(var(--o, 1) * 85%), var(--bg));
+  }
+
+  .axis,
+  .rule {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 1;
+  }
+
+  .line {
+    fill: none;
+    stroke: var(--cap);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .pay {
+    fill: none;
+    stroke: var(--text-4);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+  }
+
+  .dot {
+    fill: var(--cap);
+  }
+
+  .cell.d {
+    fill: color-mix(in oklab, var(--cap) 60%, var(--bg));
+  }
+
+  .cell.n {
+    fill: color-mix(in oklab, var(--l-mechgraph) 55%, var(--bg));
+  }
+
+  .cell.off {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 1;
+  }
+
+  .mark {
+    fill: color-mix(in oklab, var(--cap) 85%, white);
+  }
+
+  .card.now .box {
+    stroke: var(--cap);
+  }
+
+  .now-tag {
+    fill: color-mix(in oklab, var(--cap) 18%, var(--bg));
+    stroke: color-mix(in oklab, var(--cap) 60%, transparent);
+    stroke-width: 1;
+  }
+
+  .now-t {
+    fill: color-mix(in oklab, var(--cap) 85%, white);
+  }
+
+  .arrow {
+    fill: none;
+    stroke: var(--text-3);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* building up: hidden until the slide is built (data-build on the slide), then in order (--d). Groups placed with a
+     transform attribute only fade (a CSS transform would replace their placement); bars grow, the curve draws. */
+  :global(.js) .cs-in {
+    opacity: 0;
+  }
+
+  :global(.js) .cs-grow {
+    transform: scaleX(0);
+    transform-box: fill-box;
+    transform-origin: left center;
+  }
+
+  :global(.js) .cs-draw {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  :global(.js [data-build]) .cs-in {
+    opacity: 1;
+    transition: opacity 0.45s var(--ease-out) calc(var(--d, 0) * 110ms);
+  }
+
+  :global(.js [data-build]) .cs-grow {
+    transform: scaleX(1);
+    transition: transform 0.6s var(--ease-out) calc(var(--d, 0) * 110ms);
+  }
+
+  :global(.js [data-build]) .cs-draw {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 1.6s var(--ease-soft) calc(var(--d, 0) * 110ms);
+  }
+
+  :global([data-calm]) .cs-in,
+  :global([data-calm]) .cs-grow,
+  :global([data-calm]) .cs-draw {
+    transition: none !important;
+  }
+</style>

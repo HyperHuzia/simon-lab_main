@@ -1,0 +1,144 @@
+WEBVTT
+
+1
+00:00:14.200 --> 00:00:19.067
+Simon Lab, hier arbeitet Ihr Agent:
+eine CLI und ein Toolset für vollständige
+
+2
+00:00:19.134 --> 00:00:21.044
+Projekte im Chemieanlagenbau,
+
+3
+00:00:21.120 --> 00:00:25.731
+Ebene für Ebene, ausgehend von der Physik,
+die den Prozess bestimmt, mit mehr Detail
+
+4
+00:00:25.798 --> 00:00:29.736
+in jeder Phase. Der Agent
+beginnt mit der Spezifikation: Umfang,
+
+5
+00:00:29.803 --> 00:00:33.536
+Kapazität und Wirtschaftlichkeit,
+in CapacityIndex.
+
+6
+00:00:34.300 --> 00:00:37.612
+In ProcessView erstellt der Agent
+das R&amp;I-Fließbild.
+
+7
+00:00:37.679 --> 00:00:40.874
+Jede Leitung, Armatur und Messstelle
+trägt ihre volle Auslegung,
+
+8
+00:00:40.941 --> 00:00:43.567
+Werkstoffe, Rohrklassen,
+Stutzen, Parameter,
+
+9
+00:00:43.634 --> 00:00:47.925
+dazu Vorgaben für Konstruktion,
+MSR-Technik und Steuerung.
+
+10
+00:00:48.033 --> 00:00:51.183
+Das Fließbild läuft als
+dynamische Prozesssimulation:
+
+11
+00:00:51.249 --> 00:00:53.470
+Befüllen, Mischen, Dosieren, Kühlen,
+
+12
+00:00:53.536 --> 00:00:55.679
+geprüft, bevor Sie das erste Rohr kaufen.
+
+13
+00:00:56.125 --> 00:01:00.172
+Fertige Steuerprogramme laufen
+auf einer emulierten SPS.
+
+14
+00:01:01.500 --> 00:01:06.367
+Die Parameter fließen in MechGraph,
+wo die Maschine aus eigenen
+
+15
+00:01:06.434 --> 00:01:10.283
+Berechnungen entsteht: Rührleistung
+und Feststoffsuspension,
+
+16
+00:01:10.358 --> 00:01:15.728
+Wellendurchbiegung und kritische Drehzahl,
+Festigkeit und CFD-Simulation.
+
+17
+00:01:15.833 --> 00:01:20.655
+Parallel dazu verwandelt IonGrid die
+Steuerungslogik in echte Schaltschränke
+
+18
+00:01:20.721 --> 00:01:22.060
+aus Katalogkomponenten,
+
+19
+00:01:22.126 --> 00:01:27.089
+mit Wärmebilanz, pneumatischer
+Steuerung und Einkaufsliste.
+
+20
+00:01:28.433 --> 00:01:31.678
+PlantMesh baut komplette
+Prozesseinheiten zusammen:
+
+21
+00:01:32.032 --> 00:01:35.913
+Rohrleitungsisometrien, Stahlbau
+mit FEM-Analyse,
+
+22
+00:01:35.979 --> 00:01:40.711
+Wartungszugänge, Kabelführung
+und automatische Kollisionsprüfung.
+
+23
+00:01:41.267 --> 00:01:45.554
+Architecture setzt die Einheit in Ihr
+Werk: Gelände aus öffentlichen
+
+24
+00:01:45.621 --> 00:01:49.304
+Geodaten, Punktwolken aus Scans
+bestehender Anlagen,
+
+25
+00:01:49.371 --> 00:01:50.534
+Straßen und Gebäude,
+
+26
+00:01:50.601 --> 00:01:52.848
+bis hin zum Lageplan.
+
+27
+00:01:55.500 --> 00:01:59.024
+Ein vollständiger Export
+ausführungsreifer Dokumentation,
+
+28
+00:01:59.471 --> 00:02:03.505
+aus einem getesteten Prozess und einem
+kollisionsgeprüften 3D-Modell.
+
+29
+00:02:07.667 --> 00:02:10.576
+Simon Lab. Chemieanlagenbau
+nach dem Bottom-up-Prinzip.
+
+30
+00:02:10.767 --> 00:02:12.979
+Jetzt in der Beta mit Partnern unseres Vertrauens.

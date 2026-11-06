@@ -1,0 +1,141 @@
+WEBVTT
+
+1
+00:00:14.200 --> 00:00:19.067
+Simon Lab is where your agent works:
+a CLI and a toolset for building complete
+
+2
+00:00:19.134 --> 00:00:21.044
+chemical-engineering projects,
+
+3
+00:00:21.120 --> 00:00:25.731
+layer by layer, starting from the physics
+that governs the process and adding detail
+
+4
+00:00:25.798 --> 00:00:29.736
+at every stage. The agent
+begins with the spec: scope,
+
+5
+00:00:29.803 --> 00:00:33.536
+capacity and economics, in CapacityIndex.
+
+6
+00:00:34.300 --> 00:00:37.612
+In ProcessView, the agent builds the P&amp;ID.
+
+7
+00:00:37.679 --> 00:00:40.874
+Every line, valve and instrument
+carries its full selection,
+
+8
+00:00:40.941 --> 00:00:43.567
+materials, pipe classes,
+nozzles, parameters,
+
+9
+00:00:43.634 --> 00:00:47.925
+plus guidelines for mechanical design,
+instrumentation and control.
+
+10
+00:00:48.033 --> 00:00:51.183
+The schematic runs as
+a dynamic process simulation:
+
+11
+00:00:51.249 --> 00:00:53.470
+filling, mixing, dosing, cooling,
+
+12
+00:00:53.536 --> 00:00:55.679
+proven before you buy a single pipe.
+
+13
+00:00:56.125 --> 00:01:00.172
+Ready-made control programs
+run on an emulated PLC.
+
+14
+00:01:01.500 --> 00:01:06.367
+The parameters flow into MechGraph, where
+the machine is designed from dedicated
+
+15
+00:01:06.434 --> 00:01:10.283
+calculations: mixing power
+and solids suspension,
+
+16
+00:01:10.358 --> 00:01:15.728
+shaft deflection and critical speed,
+strength, and CFD simulation.
+
+17
+00:01:15.833 --> 00:01:20.655
+In parallel, IonGrid turns the control
+logic into real cabinets built from
+
+18
+00:01:20.721 --> 00:01:22.060
+catalog components,
+
+19
+00:01:22.126 --> 00:01:27.089
+with heat-gain balance, pneumatic
+control and a purchase list.
+
+20
+00:01:28.433 --> 00:01:31.678
+PlantMesh builds complete
+process-unit assemblies:
+
+21
+00:01:32.032 --> 00:01:35.913
+piping isometrics, support
+structures with FEM analysis,
+
+22
+00:01:35.979 --> 00:01:40.711
+service access, cable routing
+and automatic clash detection.
+
+23
+00:01:41.267 --> 00:01:45.554
+Architecture places the unit in your
+plant: terrain from public geospatial
+
+24
+00:01:45.621 --> 00:01:49.304
+data, point clouds from
+scans of existing facilities,
+
+25
+00:01:49.371 --> 00:01:50.534
+roads and buildings,
+
+26
+00:01:50.601 --> 00:01:52.848
+all the way to the site plan.
+
+27
+00:01:55.500 --> 00:01:59.024
+A full export of
+construction-ready documentation,
+
+28
+00:01:59.471 --> 00:02:03.505
+from a tested process and
+a clash-checked 3D model.
+
+29
+00:02:07.667 --> 00:02:10.576
+Simon Lab. Bottom-up chemical engineering.
+
+30
+00:02:10.767 --> 00:02:12.979
+Now in beta with trusted partners.

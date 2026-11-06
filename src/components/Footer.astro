@@ -1,0 +1,288 @@
+---
+// Site footer: the logo in slate with the motto, links, and the company's details (#contact, the target of every
+// "Contact" link): the name, then the address, email and phone behind one button in their own place (ContactDetails:
+// character codes, no plain text in the HTML), then the tax numbers as a table, each with a button that copies only
+// the number. Strings carry data-ui keys for the 404 page.
+import { PLATFORM_URL, SIGN_IN } from '../config';
+import { APPS } from '../data/apps';
+import { path, type Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+import ContactDetails from './ContactDetails.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang);
+const home = path('/', lang);
+const apps = APPS.filter((a) => a.page);
+const year = new Date().getFullYear();
+const ids = [
+  { key: 'footer.vat', value: 'PL6482629454' },
+  { key: 'footer.nip', value: '6482629454' },
+  { key: 'footer.regon', value: '544133932' },
+] as const;
+---
+
+<footer class="site-footer">
+  <div class="container grid">
+    <div class="about">
+      <img src="/brand/logo-slate.svg" alt="SIMON-LAB" width="150" height="55" loading="lazy" />
+      {/* the motto, one sentence a line */}
+      <p class="motto" data-ui="site.motto" data-ui-lines>
+        {
+          ui('site.motto')
+            .split(/(?<=\.)\s+/)
+            .map((s) => <span>{s}</span>)
+        }
+      </p>
+    </div>
+
+    <nav aria-label={ui('footer.apps')} data-ui-aria="footer.apps">
+      <h2 data-ui="footer.apps">{ui('footer.apps')}</h2>
+      <ul>
+        {
+          apps.map((a) => (
+            <li>
+              <a href={path(`/apps/${a.id}/`, lang)}>{a.name}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav aria-label={ui('footer.company')} data-ui-aria="footer.company">
+      <h2 data-ui="footer.company">{ui('footer.company')}</h2>
+      <ul>
+        <li><a href={`${home}#mission`} data-ui="nav.mission">{ui('nav.mission')}</a></li>
+        <li><a href={path('/knowledge/', lang)} data-ui="nav.knowledge">{ui('nav.knowledge')}</a></li>
+        <li><a href={path('/roadmap/', lang)} data-ui="nav.roadmap">{ui('nav.roadmap')}</a></li>
+        <li><a href={path('/beta/', lang)} data-ui="nav.beta">{ui('nav.beta')}</a></li>
+        <li><a href={path('/team/', lang)} data-ui="nav.team">{ui('nav.team')}</a></li>
+        <li><a href={`${home}#about`} data-ui="nav.about">{ui('nav.about')}</a></li>
+        <li><a href="#contact" data-ui="nav.contact">{ui('nav.contact')}</a></li>
+        {SIGN_IN && <li><a href={PLATFORM_URL} data-ui="nav.signin">{ui('nav.signin')}</a></li>}
+        <li><a href="/licenses.txt" data-no-prefix data-ui="footer.licenses">{ui('footer.licenses')}</a></li>
+      </ul>
+    </nav>
+
+    <div class="legal" id="contact">
+      <h2 data-ui="footer.contact">{ui('footer.contact')}</h2>
+      <p class="name">Szymon Wojciechowski Simon-Lab</p>
+      <ContactDetails lang={lang} uid="footer" />
+      <dl class="table">
+        {
+          ids.map((id) => (
+            <>
+              <dt data-ui={id.key}>{ui(id.key)}</dt>
+              <dd class="id">
+                <span class="num">{id.value}</span>
+                <button type="button" class="copy" data-copy={id.value} data-ui-copy={id.key} aria-label={ui('footer.copy').replace('{what}', ui(id.key))}>
+                  <Icon name="copy" size={15} class="i-copy" />
+                  <Icon name="check" size={15} class="i-done" />
+                </button>
+              </dd>
+            </>
+          ))
+        }
+      </dl>
+      <p class="visually-hidden" aria-live="polite" data-copy-status data-copied={ui('footer.copied')}></p>
+    </div>
+  </div>
+  <div class="container bottom">
+    <span>© {year} Simon-Lab. <span data-ui="footer.rights">{ui('footer.rights')}</span></span>
+  </div>
+</footer>
+
+<script>
+  // copy only the number; where the clipboard is unavailable, select it for Ctrl+C instead
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+    let timer = 0;
+    button.addEventListener('click', async () => {
+      const value = button.dataset.copy ?? '';
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch {
+        const num = button.parentElement?.querySelector('.num');
+        const selection = window.getSelection();
+        if (num && selection) {
+          const range = document.createRange();
+          range.selectNodeContents(num);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        return;
+      }
+      button.setAttribute('data-done', '');
+      if (status) status.textContent = `${status.dataset.copied}: ${value}`;
+      clearTimeout(timer);
+      timer = window.setTimeout(() => button.removeAttribute('data-done'), 1600);
+    });
+  });
+</script>
+
+<style>
+  .site-footer {
+    margin-top: clamp(4rem, 3rem + 5vw, 8rem);
+    border-top: 1px solid var(--line);
+    background: var(--bg-sunken);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.3fr 0.9fr 0.9fr 1.7fr;
+    gap: 2.5rem;
+    padding-block: 3.5rem 2.5rem;
+  }
+
+  h2 {
+    font: 600 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  a {
+    color: var(--text-2);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--text-3);
+  }
+
+  /* the slate variant of the logo (scripts/make-logos.mjs) */
+  .about img {
+    height: 40px;
+    width: auto;
+    aspect-ratio: 300 / 109.48; /* the logo's viewBox */
+    margin-bottom: 1rem;
+  }
+
+  .about p {
+    max-width: 32ch;
+    line-height: 1.6;
+  }
+
+  /* global: the 404 page rebuilds these spans when it swaps the language */
+  .motto :global(span) {
+    display: block;
+  }
+
+  .name {
+    margin: 0 0 0.75rem;
+    color: var(--text-2);
+    font-weight: 600;
+  }
+
+  /* the details: label | value, one size, one neutral palette; the contact table above uses the same label column */
+  .legal {
+    --cd-label: 6.5rem;
+  }
+
+  .legal :global(.cd) {
+    margin-bottom: 0.9rem;
+  }
+
+  .table {
+    display: grid;
+    grid-template-columns: var(--cd-label) minmax(0, 1fr);
+    column-gap: 1.25rem;
+    row-gap: 0.45rem;
+    margin: 0;
+  }
+
+  dt {
+    color: var(--text-3);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--text-2);
+    min-height: 1.6em;
+  }
+
+  .id {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  .copy {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: none;
+    color: var(--text-3);
+    cursor: pointer;
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .copy:hover {
+    color: var(--text);
+    border-color: var(--line-strong);
+  }
+
+  .copy > :global(svg) {
+    grid-area: 1 / 1;
+  }
+
+  .copy :global(.i-done),
+  .copy[data-done] :global(.i-copy) {
+    visibility: hidden;
+  }
+
+  .copy[data-done] :global(.i-done) {
+    visibility: visible;
+    color: var(--ok);
+  }
+
+  /* without JavaScript nothing can be copied by the button: the number stays selectable */
+  :global(html:not(.js)) .copy {
+    display: none;
+  }
+
+  .bottom {
+    padding-block: 1.25rem 2rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-xs);
+  }
+
+  @media (max-width: 960px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .about,
+    .legal {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

@@ -1,0 +1,544 @@
+/* The "Bottom-up" scroll article (src/views/BottomUp.astro): chapter frames, the sticky stage and the text beats.
+   With JS (html.js, set inline before first paint) the stage is sticky and the beats scroll over it; without JS the
+   stage is hidden and every beat carries its own static figure (<noscript>).
+   Calm look: flat surfaces, 1px lines, layer colours only as thin strokes, dots, small plates and small labels. */
+
+.bu {
+  --gutter-x: max(var(--gutter), calc((100vw - 92rem) / 2));
+  --beat-w: min(26rem, 100vw - 2 * var(--gutter));
+  position: relative;
+}
+
+/* reading progress, top of the viewport: a thin line in the accent */
+.bu-progress {
+  position: fixed;
+  z-index: 70;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.8;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+html:not(.js) .bu-progress {
+  display: none;
+}
+
+/* ── chapter frame ─────────────────────────────────────────────── */
+.chapter {
+  position: relative;
+}
+
+/* later chapters render when they come near (their sticky-layout height is reserved inline); without JS the layout
+   is short and plain, so nothing is deferred */
+.js .chapter.is-deferred {
+  content-visibility: auto;
+}
+
+/* The terminal brings JetBrains Mono onto this page (Terminal.astro). The shared header and footer use the mono stack
+   too (language switch, footer labels): keep them on the system monospace, as on every other page, so the font is
+   fetched only when the terminal comes near. */
+.page-bu .site-header,
+.page-bu .site-footer {
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+/* without JS the header never gets its scrolled backdrop: give it one, the article scrolls under it */
+html:not(.js) [data-header] {
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  border-bottom-color: var(--line);
+}
+
+.ch-head,
+.ch-outro {
+  width: min(100% - 2 * var(--gutter), 92rem);
+  margin-inline: auto;
+}
+
+.ch-head {
+  position: relative;
+  padding: clamp(6rem, 4rem + 9vh, 11rem) 0 clamp(2.5rem, 1.5rem + 5vh, 5rem);
+}
+
+/* a short rule in the chapter's colour opens each chapter */
+.ch-head::before {
+  content: '';
+  display: block;
+  width: 3rem;
+  height: 2px;
+  margin-bottom: 2rem;
+  border-radius: 1px;
+  background: var(--c);
+}
+
+.ch-head > * {
+  max-width: 46rem;
+}
+
+/* eyebrows and kickers: tracked Montserrat, like the film's lockup lines (JetBrains Mono stays with the terminal and
+   the app chrome, so the font loads only when those come near) */
+.ch-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+  font: 600 0.78rem / 1.4 var(--font-display);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--c) 83%, white);
+}
+
+.ch-plate {
+  width: 2rem;
+  height: auto;
+  overflow: visible;
+}
+
+.ch-plate path {
+  fill: color-mix(in srgb, var(--c) 8%, transparent);
+  stroke: color-mix(in srgb, var(--c) 40%, transparent);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.ch-plate .up {
+  fill: color-mix(in srgb, var(--c) 18%, var(--bg));
+  stroke: var(--c);
+}
+
+.ch-title {
+  font-size: clamp(1.9rem, 1.3rem + 1.9vw, 3rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+
+.ch-intro {
+  max-width: 40rem;
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+.ch-intro.lede {
+  color: var(--text);
+}
+
+.ch-outro {
+  padding: 3rem 0 1rem;
+}
+
+.ch-outro p {
+  max-width: 40rem;
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+/* ── scrolly: sticky stage + beats ─────────────────────────────── */
+.js .scrolly {
+  position: relative;
+  display: grid;
+}
+
+.js .scrolly > .stage,
+.js .scrolly > .steps {
+  grid-area: 1 / 1;
+}
+
+.stage {
+  display: none;
+}
+
+.js .stage {
+  display: block;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: clip;
+}
+
+/* the stage ground: the page background and a faint drawing grid, no colour */
+.stage-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.stage-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: center;
+  opacity: 0.28;
+  mask-image: radial-gradient(65% 70% at 66% 52%, #000, transparent 88%);
+}
+
+.stage-viz {
+  position: absolute;
+  top: calc(var(--header-h) + 4svh);
+  bottom: 5svh;
+  left: calc(var(--gutter-x) + var(--beat-w) + clamp(2.5rem, 4.5vw, 6rem));
+  right: var(--gutter-x);
+  display: grid;
+  place-items: center;
+  container-type: size;
+}
+
+.steps {
+  position: relative;
+  z-index: 1;
+}
+
+.js .steps {
+  pointer-events: none;
+}
+
+.js .step {
+  display: flex;
+  align-items: center;
+  min-height: 110vh;
+  min-height: 110svh;
+  padding-inline: var(--gutter-x);
+}
+
+/* a scroll-linked beat runs ~2 screens (the last step of a section stays pinned until its progress reaches ~0.82);
+   its card starts at the reading line and stays in view while the visual changes under the scroll */
+.js .step--long {
+  align-items: flex-start;
+  min-height: 210vh;
+  min-height: 210svh;
+}
+
+.js .step--long .beat {
+  position: sticky;
+  top: 26svh;
+}
+
+/* a flat card; the neutral shadow only separates it from the stage it scrolls over */
+.beat {
+  position: relative;
+  width: var(--beat-w);
+  padding: 1.5rem 1.6rem 1.4rem;
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px -18px rgb(0 0 0 / 0.6);
+  pointer-events: auto;
+  transition: border-color var(--dur) var(--ease-out);
+}
+
+.beat::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--c);
+  opacity: 0.25;
+  transition: opacity var(--dur) var(--ease-out);
+}
+
+/* beats not yet (or no longer) active dim their text, not their ground. By colour rather than opacity, so dimmed
+   text keeps AA contrast (at 0.5 opacity the coloured kickers fell to ~2:1). */
+.js .step:not([data-active]) .beat > * {
+  color: var(--text-3);
+}
+
+.js .step:not([data-active]) .beat :is(strong, em, b, a) {
+  color: inherit;
+}
+
+.beat > * {
+  transition: color var(--dur) var(--ease-out);
+}
+
+.js .step[data-active] .beat {
+  border-color: color-mix(in srgb, var(--c) 25%, var(--line));
+}
+
+.js .step[data-active] .beat::before {
+  opacity: 1;
+}
+
+.kicker {
+  margin: 0 0 0.7rem;
+  font: 600 0.72rem / 1.4 var(--font-display);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--c) 83%, white);
+}
+
+.beat-title {
+  font-size: clamp(1.25rem, 1.1rem + 0.45vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.85rem;
+}
+
+.beat p:not(.kicker):not(.note) {
+  font-size: 1rem;
+  line-height: 1.66;
+  color: var(--text-2);
+}
+
+.beat p:last-child {
+  margin-bottom: 0;
+}
+
+.beat strong {
+  color: var(--text);
+}
+
+.beat em {
+  font-style: italic;
+  color: var(--text);
+}
+
+.note {
+  display: flex;
+  gap: 0.55rem;
+  margin: 1.1rem 0 0;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--text-3);
+}
+
+.note svg {
+  flex: none;
+  margin-top: 0.15em;
+}
+
+/* without JS: beats in reading order, each with its figure */
+html:not(.js) .step {
+  width: min(100% - 2 * var(--gutter), 46rem);
+  margin: 0 auto 3.5rem;
+}
+
+html:not(.js) .beat {
+  width: auto;
+}
+
+/* mid widths: the visual takes the full stage, beats float over it */
+@media (max-width: 1000px) and (min-width: 761px) {
+  .stage-viz {
+    left: var(--gutter-x);
+  }
+}
+
+/* phones: the stage sits on top (52svh), beats scroll under it on a solid ground */
+@media (max-width: 760px) {
+  .js .stage {
+    top: var(--header-h);
+    z-index: 2;
+    height: 52vh;
+    height: 52svh;
+    background: var(--bg);
+    box-shadow: 0 14px 22px -12px var(--bg);
+  }
+
+  .stage-viz {
+    inset: 0.5rem var(--gutter) 0.75rem;
+  }
+
+  .js .steps {
+    padding-top: calc(52svh + 1.25rem);
+    padding-bottom: 20svh;
+  }
+
+  .js .step {
+    align-items: flex-start;
+    min-height: 78vh;
+    min-height: 78svh;
+    padding-inline: var(--gutter);
+  }
+
+  .beat {
+    width: 100%;
+    padding: 1.15rem 1.15rem 1.1rem;
+  }
+
+  .js .step--long .beat {
+    top: calc(var(--header-h) + 52svh + 1rem);
+  }
+
+  .ch-head {
+    padding-top: 4.5rem;
+  }
+}
+
+/* ── shared stage parts (chapters 5–11) ───────────────────────────────────────────────────────────────────────
+   .st        stage canvas (size container)        .st-frame  16:9 frame for renders and clips
+   .st-look   one look per state (data-on = the stage's state, set by the scroll engine)
+   .st-clip   a frameless clip on the dark stage   .st-zoom   a still scaled about --zo by --zs while its look is on
+   .st-floor  neutral contact shadow under a render   .st-badge  small status chip (e.g. "visualization")      */
+.st {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+
+.st-frame {
+  position: relative;
+  width: min(100cqw, 100cqh * 16 / 9);
+  aspect-ratio: 16 / 9;
+}
+
+.st-look {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur) var(--ease-out),
+    visibility 0s linear var(--dur);
+}
+
+.st-look[data-on] {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--dur) var(--ease-out),
+    visibility 0s;
+}
+
+.st-look .mlayer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+/* renders with a dark ground and clips blend into the stage instead of sitting in a box */
+.st-clip .mlayer,
+.st-blend .mlayer {
+  background: transparent;
+  mask-image: radial-gradient(ellipse 62% 68% at 50% 50%, #000 62%, transparent 100%);
+}
+
+.st-zoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--zo, 50% 50%);
+  transition: transform 1.2s var(--ease-out);
+}
+
+.st-look[data-on] .st-zoom,
+.st-zoom.is-on {
+  transform: scale(var(--zs, 1));
+  transition-delay: 0.1s;
+}
+
+/* renders shown larger than their 16:9 frame (alpha stills, dark clips): a constant scale about --zo */
+.st-scale {
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--zo, 50% 50%);
+  transform: scale(var(--zs, 1));
+}
+
+.st-floor {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  width: 46%;
+  height: 16%;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.5), transparent);
+  pointer-events: none;
+}
+
+.st-badge {
+  position: absolute;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.38em 0.8em;
+  border-radius: 999px;
+  border: 1px dashed color-mix(in srgb, var(--c) 55%, var(--line-strong));
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  font: 600 0.7rem / 1 var(--font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.st-badge i {
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+/* a framed app window or bright clip (UI plates, the site fly-over): a hairline in the layer's colour and a neutral
+   shadow, as it can sit over another render */
+.st-window {
+  position: absolute;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg-sunken);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--c) 30%, var(--line)),
+    0 12px 32px -18px rgb(0 0 0 / 0.6);
+}
+
+.st-window .mlayer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.st-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2rem;
+  margin: 0;
+  padding-left: 1.1em;
+  font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-caption::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.52em;
+  width: 0.4em;
+  height: 0.4em;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+@media (max-width: 760px) {
+  .st-badge {
+    font-size: 0.6rem;
+  }
+
+  .st-caption {
+    bottom: -1.6rem;
+    font-size: 0.64rem;
+  }
+}

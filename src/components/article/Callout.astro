@@ -1,0 +1,194 @@
+---
+// A leader-line callout pinned to a point of a render: a small dot, a 45° tick and a horizontal run (1px lines in the
+// layer's colour), then the label. Positioned in fractions of its frame (already mapped through any zoom:
+// src/data/stages.ts zoomPoint). It draws on with a clip-path wipe from the dot outwards once its layer is on
+// ([data-on], set by the scroll engine), or at once when `on` is given (static figures); the label fades in after it.
+// On phones a callout close to the edge it points towards flips to the other side, so its label never runs off the
+// stage.
+interface Props {
+  x: number;
+  y: number;
+  text: string;
+  side?: 'l' | 'r';
+  rise?: 'up' | 'down';
+  /** length of the horizontal run, px (desktop) */
+  run?: number;
+  /** stagger, s */
+  delay?: number;
+  /** layer: the stage's colour (--c); alert: findings */
+  tone?: 'layer' | 'alert';
+  on?: boolean;
+}
+
+const { x, y, text, side = 'r', rise = 'up', run = 64, delay = 0, tone = 'layer', on = false } = Astro.props;
+const style = `left:${(x * 100).toFixed(2)}%;top:${(y * 100).toFixed(2)}%;--run:${run}px;--d:${delay}s`;
+const flip = (side === 'r' && x > 0.58) || (side === 'l' && x < 0.42);
+---
+
+<span class:list={['co', `co--${side}`, `co--${rise}`, `co--${tone}`, { 'is-on': on, 'co--flip': flip }]} style={style}>
+  <i class="co-dot" aria-hidden="true"></i>
+  <span class="co-arm" aria-hidden="true"><i class="co-tick"></i><i class="co-run"></i></span>
+  <span class="co-label">{text}</span>
+</span>
+
+<style>
+  .co {
+    --co: var(--c, var(--accent));
+    --tick: 22px;
+    position: absolute;
+    z-index: 3;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .co--alert {
+    --co: var(--alert);
+  }
+
+  /* a small dot with a dark ring, so it reads on light and dark parts of a render */
+  .co-dot {
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--co);
+    box-shadow: 0 0 0 2px rgb(11 14 23 / 0.85);
+    transform: scale(0);
+    transition: transform 0.45s var(--ease-out) var(--d);
+  }
+
+  .co-arm {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: calc(var(--tick) + var(--run));
+    height: var(--tick);
+    transform-origin: 0 100%;
+    clip-path: inset(-6px 100% -6px 0);
+    transition: clip-path 0.55s var(--ease-out) calc(var(--d) + 0.15s);
+  }
+
+  .co--l .co-arm {
+    transform: scaleX(-1);
+  }
+
+  .co--down .co-arm {
+    transform: scaleY(-1);
+  }
+
+  .co--l.co--down .co-arm {
+    transform: scale(-1, -1);
+  }
+
+  .co-tick,
+  .co-run {
+    position: absolute;
+    height: 1px;
+    background: var(--co);
+  }
+
+  .co-tick {
+    left: 0;
+    bottom: 0;
+    width: calc(var(--tick) * 1.4142);
+    transform-origin: 0 50%;
+    transform: rotate(-45deg);
+  }
+
+  .co-run {
+    left: var(--tick);
+    top: 0;
+    width: var(--run);
+  }
+
+  .co-label {
+    position: absolute;
+    bottom: var(--tick);
+    left: calc(var(--tick) + var(--run) + 6px);
+    translate: 0 50%;
+    padding: 0.3em 0.6em;
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--co) 40%, var(--line));
+    background: rgb(11 14 23 / 0.85);
+    font: 600 0.75rem / 1.25 var(--font-display);
+    letter-spacing: 0.01em;
+    color: var(--text);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.45s var(--ease-out) calc(var(--d) + 0.6s);
+  }
+
+  .co--l .co-label {
+    left: auto;
+    right: calc(var(--tick) + var(--run) + 6px);
+  }
+
+  .co--down .co-label {
+    bottom: calc(-1 * var(--tick));
+  }
+
+  /* on: the layer that holds the callout is the stage's current look */
+  :global([data-on]) .co .co-dot,
+  .co.is-on .co-dot {
+    transform: scale(1);
+  }
+
+  :global([data-on]) .co .co-arm,
+  .co.is-on .co-arm {
+    clip-path: inset(-6px -6px -6px 0);
+  }
+
+  :global([data-on]) .co .co-label,
+  .co.is-on .co-label {
+    opacity: 1;
+  }
+
+  :global([data-calm]) .co *,
+  .co.is-on * {
+    transition: none !important;
+  }
+
+  @media (max-width: 760px) {
+    .co {
+      --tick: 14px;
+      --run: 10px !important;
+    }
+
+    .co-label {
+      padding: 0.25em 0.5em;
+      font-size: 0.62rem;
+      white-space: normal;
+      width: max-content;
+      max-width: 8.5rem;
+    }
+
+    .co--flip.co--r .co-arm {
+      transform: scaleX(-1);
+    }
+
+    .co--flip.co--r.co--down .co-arm {
+      transform: scale(-1, -1);
+    }
+
+    .co--flip.co--l .co-arm {
+      transform: none;
+    }
+
+    .co--flip.co--l.co--down .co-arm {
+      transform: scaleY(-1);
+    }
+
+    .co--flip.co--r .co-label {
+      left: auto;
+      right: calc(var(--tick) + var(--run) + 6px);
+    }
+
+    .co--flip.co--l .co-label {
+      right: auto;
+      left: calc(var(--tick) + var(--run) + 6px);
+    }
+  }
+</style>

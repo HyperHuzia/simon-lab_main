@@ -1,0 +1,1250 @@
+---
+// Stages of "Project as code" (states pac-*): drawn in HTML and SVG with the site's document tiles and Lucide icons,
+// the same vocabulary as the homepage's mission story. One component serves every pac chapter and renders only the
+// visuals of the states it is given; CSS follows the stage's data-state (set by the scroll engine on the enclosing
+// [data-stage], or by the <noscript> figure's wrapper).
+//   · one model: the definition of line L-104 beside the line drawn as a P&ID excerpt (pump, flowmeter, valve, tank),
+//     then the documents generated from the model (a 2 × 3 grid), then three real pages for review
+//   · revisions: a log whose steps play in src/scripts/article/pac.ts (a cursor opens two versions, then a change
+//     creates the next one and what follows from it); the markup is the picture before the first step, and `fixed`
+//     renders a state's final picture for readers without JavaScript
+//   · formats: whatever comes in falls into a loose pile, the model takes it, the outputs leave in a column (CSS, once
+//     the step is reached; calm readers and static figures see the final picture)
+// The listing, the drawing's tags and the revisions are examples, as the notes at the end of the article say.
+import { media } from '../../data/media';
+import type { Lang } from '../../i18n/config';
+import Figure from '../Figure.astro';
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons';
+
+interface Props {
+  states: string[];
+  labels: Record<string, string>;
+  lang: Lang;
+  /** a static figure (no JavaScript): the final picture of this state */
+  fixed?: string;
+}
+
+const { states, labels: L, lang, fixed } = Astro.props;
+const has = (...s: string[]) => s.some((x) => states.includes(x));
+
+// the drift: the equipment list is at C, the P&ID still at A, the rest in between
+const CHAIN = [
+  { name: 'pac.grant', type: 'pac.pdf', rev: 'B' },
+  { name: 'pac.process', type: 'pac.doc', rev: 'B' },
+  { name: 'pac.pid', type: 'pac.dwg', rev: 'A', off: true },
+  { name: 'pac.list', type: 'pac.xls', rev: 'C' },
+  { name: 'pac.permit', type: 'pac.pdf', rev: 'B' },
+];
+const DOCS = ['pac.doc.pid', 'pac.doc.lines', 'pac.doc.iso', 'pac.doc.equip', 'pac.doc.cab', 'pac.doc.site'];
+const PAGES = ['doc-08', 'doc-06', 'doc-pzt'].map((id) => media(id)).filter((m) => m !== undefined);
+const LISTING = [
+  ['line', 'L-104'],
+  ['  medium', 'NaOH 30 %'],
+  ['  nominal_size', 'DN50'],
+  ['  material', '1.4404'],
+  ['  pipe_class', 'B1'],
+  ['  from', 'P-101 / discharge'],
+  ['  to', 'B-101 / N3'],
+  ['  inline', 'FT-104, HV-104'],
+];
+// one string per listing line: inside <pre> the template's own indentation would render; the line's number takes
+// the colour of the drawn line
+const listingLine = ([k, v]: string[], i: number) => `<span class="k">${k}:</span> <span class="${i === 0 ? 'v id' : 'v'}">${v}</span>`;
+
+type Version = {
+  id: string;
+  title: string;
+  /** an older version, greyed once the log is read */
+  old?: boolean;
+  /** created by the change in pac-diff */
+  late?: boolean;
+  code?: { kind: 'add' | 'del' | 'mod'; text: string }[];
+  effects?: { icon: IconName; key: string; tone: 'info' | 'warn' | 'ok' }[];
+  docsLabel?: string;
+  docs?: string[];
+};
+const VERSIONS: Version[] = [
+  { id: '0.10', title: 'pac.r10', old: true },
+  { id: '0.11', title: 'pac.r11', old: true },
+  {
+    id: '0.12',
+    title: 'pac.r12',
+    code: [
+      { kind: 'add', text: '+ cabinet: C-101' },
+      { kind: 'add', text: '+ io: P-101, FT-104' },
+    ],
+    docsLabel: 'pac.affected',
+    docs: ['pac.doc.cab', 'pac.doc.io', 'pac.doc.site'],
+  },
+  {
+    id: '0.13',
+    title: 'pac.r13',
+    code: [
+      { kind: 'mod', text: '~ dose.rate: throttled' },
+      { kind: 'add', text: '+ dose.limit: T ≤ 60 °C' },
+    ],
+    docsLabel: 'pac.affected',
+    docs: ['pac.doc.plc', 'pac.doc.seq', 'pac.doc.sim'],
+  },
+  {
+    id: '0.14',
+    title: 'pac.r14',
+    late: true,
+    code: [
+      { kind: 'del', text: '- nominal_size: DN50' },
+      { kind: 'add', text: '+ nominal_size: DN65' },
+    ],
+    effects: [
+      { icon: 'gauge', key: 'pac.fx.loss', tone: 'info' },
+      { icon: 'triangle-alert', key: 'pac.fx.ft', tone: 'warn' },
+      { icon: 'check', key: 'pac.fx.pump', tone: 'ok' },
+    ],
+    docsLabel: 'pac.regenerated',
+    docs: ['pac.doc.pid', 'pac.doc.lines', 'pac.doc.iso'],
+  },
+];
+// the log's picture: before the first step (the markup of the live stage), or a step's final one (static figures);
+// pac.ts sets the same attributes
+const PICTURE =
+  fixed === 'pac-diff'
+    ? { grey: true, open: '0.14', cur: '0.14', change: true }
+    : fixed === 'pac-rev'
+      ? { grey: true, open: '0.13', cur: '0.13', change: false }
+      : { grey: false, open: '', cur: '0.13', change: false };
+const flag = (b: boolean) => (b ? '' : undefined);
+
+// formats: whatever comes in, each tile with its place in the pile (a turn and a nudge)
+const IN = [
+  { f: 'PDF', r: -4, x: 0.1 },
+  { f: 'DXF', r: 3, x: -0.2 },
+  { f: 'XLSX', r: -2, x: 0.2 },
+  { f: 'STEP', r: 5, x: 0 },
+  { f: 'DOCX', r: -6, x: -0.1 },
+  { f: 'IFC', r: 2, x: 0.2 },
+  { f: 'CSV', r: -3, x: 0 },
+  { f: 'E57', r: 6, x: -0.2 },
+  { f: 'XML', r: -5, x: 0.1 },
+  { f: 'JSON', r: 4, x: 0 },
+];
+const OUT = ['PDF', 'IFC', '3D Tiles', 'XLSX', 'CSV'];
+const ITER_ROWS = [
+  { gen: 'a', d: 0 },
+  { gen: 'a', d: 1 },
+  { gen: 'a', d: 2 },
+  { gen: 'b', d: 0, mark: true },
+  { gen: 'b', d: 1 },
+  { gen: 'b', d: 2 },
+];
+---
+
+<div class="pac">
+  <div class="pac-frame">
+    {
+      has('pac-chain', 'pac-drift') && (
+        <div class="pc">
+          {CHAIN.map((d, i) => (
+            <>
+              <div class:list={['pc-doc', { off: d.off }]}>
+                <Icon name="file-text" size={18} class="pc-ico" />
+                <span class="pc-name">{L[d.name]}</span>
+                <span class="pc-type">{L[d.type]}</span>
+                <span class="pc-rev">
+                  {L['pac.rev']} {d.rev}
+                </span>
+              </div>
+              {i < CHAIN.length - 1 && (
+                <div class="pc-link">
+                  <Icon name="unlink" size={13} />
+                  <span>{L['pac.retyped']}</span>
+                </div>
+              )}
+            </>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      has('pac-model', 'pac-fanout', 'pac-pages') && (
+        <div class="pm">
+          <div class="pm-card">
+            <p class="pm-head">
+              <Icon name="database" size={15} />
+              {L['pac.model']}
+            </p>
+            <pre><code>{LISTING.map((line, i) => <span class="pm-line" set:html={listingLine(line, i)} />)}</code></pre>
+          </div>
+          <span class="pm-arrow">
+            <Icon name="arrow-right" size={18} />
+          </span>
+          <div class="pm-out">
+            {/* line L-104 as a P&ID excerpt: P-101 → FT-104 → HV-104 → B-101 / N3 */}
+            <svg class="pm-pid" viewBox="0 0 290 222" role="img" aria-label={L['pac.pid.alt']}>
+              <path class="pid-other" d="M6 164 H29" />
+              <path class="pid-line" d="M44 149 H62 V48 H246 V84" />
+              <path class="pid-flow" d="M57 106 L62 96 L67 106 Z M214 43 L224 48 L214 53 Z" />
+              <g class="pid-eq">
+                <path d="M35 177 L31 187 M53 177 L57 187 M27 187 H61" />
+                <circle cx="44" cy="164" r="15" />
+                <path d="M216 100 Q216 84 246 84 Q276 84 276 100 V176 Q276 192 246 192 Q216 192 216 176 Z" />
+                <path d="M225 190 L222 202 M267 190 L270 202" />
+              </g>
+              <path class="pid-liquid" d="M217 152 H275 V176 Q275 191 246 191 Q217 191 217 176 Z" />
+              <path class="pid-signal" d="M112 32 V41" />
+              <rect class="pid-inline" x="103" y="41" width="18" height="14" rx="2" />
+              <circle class="pid-bubble" cx="112" cy="19" r="13" />
+              <path class="pid-inline" d="M166 41 V55 L186 41 V55 Z" />
+              <path class="pid-stem" d="M176 48 V34 M170 34 H182" />
+              <g class="pid-plate">
+                <rect x="86" y="61" width="122" height="17" rx="3" />
+                <text x="147" y="73">L-104 · DN50 · B1</text>
+              </g>
+              <text class="pid-bubble-t" x="112" y="17">FT</text>
+              <text class="pid-bubble-t" x="112" y="27">104</text>
+              <text class="pid-type" x="96" y="23" text-anchor="end">{L['pac.eq.ft']}</text>
+              <text class="pid-tag" x="176" y="27">HV-104</text>
+              <text class="pid-type" x="176" y="14">{L['pac.eq.valve']}</text>
+              <text class="pid-small" x="253" y="78">N3</text>
+              <text class="pid-tag" x="246" y="126">B-101</text>
+              <text class="pid-type" x="246" y="139">{L['pac.eq.tank']}</text>
+              <text class="pid-tag" x="44" y="204">P-101</text>
+              <text class="pid-type" x="44" y="216">{L['pac.eq.pump']}</text>
+            </svg>
+            <ul class="pm-docs">
+              {DOCS.map((d, i) => (
+                <li style={`--i:${i}`}>
+                  <Icon name="file-text" size={18} />
+                  <span>{L[d]}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="pm-pages">
+              {PAGES.map((p, i) => (
+                <div class="pm-page" style={`--i:${i}`}>
+                  <Figure item={p!} lang={lang} bare sizes="(min-width: 900px) 22vw, 40vw" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    {
+      has('pac-rev', 'pac-diff') && (
+        <div class="pr" data-pac-log data-fixed={flag(Boolean(fixed))}>
+          <p class="pr-head">
+            <Icon name="scroll-text" size={15} />
+            {L['pac.log']}
+          </p>
+          <p class="pr-sig" data-sig data-on={flag(PICTURE.change)}>
+            <Icon name="git-compare" size={14} />
+            <span class="pr-sig-k">{L['pac.change']}</span>
+            <code>L-104 · nominal_size: DN50 → DN65</code>
+          </p>
+          <ol class="pr-log">
+            {VERSIONS.map((v) => (
+              <li
+                class="pr-v"
+                data-v={v.id}
+                data-old={flag(Boolean(v.old))}
+                data-late={flag(Boolean(v.late))}
+                data-on={flag(!v.late || PICTURE.change)}
+                data-grey={flag(PICTURE.grey && Boolean(v.old))}
+                data-open={flag(PICTURE.open === v.id)}
+                data-cur={flag(PICTURE.cur === v.id)}
+              >
+                <p class="pr-row">
+                  <span class="pr-id">{v.id}</span>
+                  <span class="pr-t">{L[v.title]}</span>
+                  <span class="tag">{L['pac.current']}</span>
+                </p>
+                {v.code && (
+                  <div class="pr-more">
+                    <pre><code>{v.code.map((c) => <span class={c.kind} data-item="code" data-on="" set:text={c.text} />)}</code></pre>
+                    {v.effects && (
+                      <ul class="pr-fx">
+                        {v.effects.map((e) => (
+                          <li data-tone={e.tone} data-item="fx" data-on="">
+                            <Icon name={e.icon} size={14} />
+                            <span>{L[e.key]}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <p class="pr-h" data-item="doc" data-on="">
+                      {v.late && <Icon name="file-check" size={14} />}
+                      {L[v.docsLabel ?? 'pac.affected']}
+                    </p>
+                    <ul class="pr-docs">
+                      {(v.docs ?? []).map((d) => (
+                        <li data-item="doc" data-on="">
+                          <Icon name="file-text" size={13} />
+                          {L[d]}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ol>
+          <svg class="pr-cursor" data-cursor viewBox="0 0 16 22" width="16" height="22" aria-hidden="true">
+            <path d="M1.5 1.5 V17.5 L5.6 13.6 L8.5 20.2 L11.2 19 L8.3 12.6 H13.9 Z" />
+          </svg>
+        </div>
+      )
+    }
+
+    {
+      has('pac-formats') && (
+        <div class="pf">
+          <div class="pf-col">
+            <p class="pf-h">{L['pac.in']}</p>
+            <ul class="pf-pile">
+              {IN.map((t, i) => (
+                <li style={`--i:${i};--r:${t.r}deg;--x:${t.x}em`}>{t.f}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="pf-model">
+            <Icon name="database" size={24} />
+            <span>{L['pac.model']}</span>
+            <span class="pf-agent">
+              <Icon name="bot" size={13} />
+              {L['pac.agent']}
+            </span>
+          </div>
+          <div class="pf-col">
+            <p class="pf-h">{L['pac.out']}</p>
+            <ul class="pf-list">
+              {OUT.map((f, i) => (
+                <li style={`--i:${i}`}>{f}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )
+    }
+
+    {
+      has('pac-iterate', 'pac-scope') && (
+        <div class="pi">
+          <p class="pi-head">{L['pac.iteration']}</p>
+          {ITER_ROWS.map((row, r) => (
+            <>
+              {row.mark && (
+                <p class="pi-mark">
+                  <span>{L['pac.scope']}</span>
+                </p>
+              )}
+              <div class="pi-row" data-gen={row.gen} style={`--d:${row.d}`}>
+                <span class="pi-rn">{String(r + 1).padStart(2, '0')}</span>
+                {DOCS.map((_, k) => (
+                  <span class="pi-tile" style={`--k:${k}`}>
+                    <Icon name="file-text" size={16} stroke={1.7} />
+                  </span>
+                ))}
+              </div>
+            </>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .pac {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    container-type: size;
+    display: grid;
+    place-items: center;
+  }
+
+  .pac-frame {
+    position: relative;
+    width: min(100cqw, 100cqh * 4 / 3);
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    padding: 5%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    font-size: clamp(0.72rem, 0.6rem + 0.5vw, 0.86rem);
+    --pv: color-mix(in oklab, var(--l-processview) 83%, white);
+  }
+
+  .pac-frame > * {
+    width: 100%;
+  }
+
+  /* shared look: the document tile */
+  .pc-doc {
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    padding: 0.55em 0.8em;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .pc-doc :global(svg),
+  .pm-docs :global(svg),
+  .pr-docs :global(svg) {
+    flex: none;
+    color: var(--text-3);
+  }
+
+  /* 1 · the broken chain: documents in a column, each link retyped by hand */
+  .pc {
+    display: grid;
+    justify-items: center;
+    max-width: 26em;
+    margin-inline: auto;
+  }
+
+  .pc-doc {
+    width: 100%;
+    transition:
+      border-color var(--dur) var(--ease-out),
+      opacity var(--dur) var(--ease-out);
+  }
+
+  .pc-name {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .pc-type {
+    font: 500 0.82em / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .pc-rev {
+    padding: 0.15em 0.5em;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    font: 500 0.78em / 1.3 var(--font-mono);
+    color: var(--text-2);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .pc-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.35em 0;
+    font-size: 0.8em;
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  .pc-link::before {
+    content: '';
+    width: 1px;
+    height: 1.2em;
+    margin-right: 0.3em;
+    border-left: 1px dashed var(--line-strong);
+  }
+
+  :global([data-state='pac-drift']) .pc-rev {
+    opacity: 1;
+  }
+
+  :global([data-state='pac-drift']) .pc-doc.off {
+    border-color: color-mix(in oklab, var(--alert) 70%, transparent);
+    border-style: dashed;
+  }
+
+  :global([data-state='pac-drift']) .pc-doc.off .pc-rev {
+    border-color: color-mix(in oklab, var(--alert) 60%, transparent);
+    color: color-mix(in oklab, var(--alert) 83%, white);
+  }
+
+  /* 2 · one model: the definition beside the line it draws, then the documents generated from it, then real pages */
+  .pm {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) auto minmax(0, 1.05fr);
+    gap: 4%;
+    align-items: center;
+  }
+
+  .pm-card {
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .pm-head,
+  .pr-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin: 0;
+    padding: 0.6em 0.9em;
+    border-bottom: 1px solid var(--line);
+    font: 600 0.82em / 1.2 var(--font-display);
+    color: var(--text-2);
+  }
+
+  .pm-card pre {
+    margin: 0;
+    padding: 0.8em 0.9em;
+    font: 400 0.86em / 1.65 var(--font-mono);
+    white-space: normal;
+    overflow: hidden;
+  }
+
+  /* one block per line: the markup's own line breaks inside <pre> must not render */
+  .pm-line {
+    display: block;
+    white-space: pre;
+  }
+
+  .pm-line :global(.k) {
+    color: var(--text-3);
+  }
+
+  .pm-line :global(.v) {
+    color: var(--text);
+  }
+
+  .pm-line :global(.v.id) {
+    color: var(--pv);
+    font-weight: 600;
+  }
+
+  .pm-arrow {
+    display: grid;
+    color: var(--text-3);
+  }
+
+  .pm-out {
+    position: relative;
+    display: grid;
+    align-items: center;
+  }
+
+  .pm-out > * {
+    grid-area: 1 / 1;
+  }
+
+  /* the P&ID excerpt */
+  .pm-pid {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .pid-line {
+    fill: none;
+    stroke: var(--pv);
+    stroke-width: 2.4;
+    stroke-linejoin: round;
+  }
+
+  .pid-other {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 1.8;
+  }
+
+  .pid-flow {
+    fill: var(--pv);
+  }
+
+  .pid-eq {
+    fill: var(--bg);
+    stroke: var(--text-2);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+  }
+
+  .pid-liquid {
+    fill: color-mix(in oklab, var(--l-processview) 18%, transparent);
+  }
+
+  .pid-inline {
+    fill: var(--bg);
+    stroke: var(--pv);
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+  }
+
+  .pid-stem {
+    fill: none;
+    stroke: var(--pv);
+    stroke-width: 1.4;
+  }
+
+  .pid-signal {
+    fill: none;
+    stroke: var(--text-3);
+    stroke-width: 1.1;
+    stroke-dasharray: 2 2;
+  }
+
+  .pid-bubble {
+    fill: var(--bg);
+    stroke: var(--text-2);
+    stroke-width: 1.2;
+  }
+
+  .pid-plate rect {
+    fill: var(--bg);
+    stroke: var(--pv);
+    stroke-width: 1;
+  }
+
+  .pm-pid text {
+    text-anchor: middle;
+  }
+
+  .pid-plate text {
+    fill: var(--pv);
+    font: 600 9.5px var(--font-mono);
+  }
+
+  .pid-tag {
+    fill: var(--text);
+    font: 600 10px var(--font-mono);
+  }
+
+  .pid-bubble-t {
+    fill: var(--text);
+    font: 600 8px var(--font-mono);
+  }
+
+  .pm-pid .pid-type {
+    fill: var(--text-3);
+    font: 500 8.5px var(--font-display);
+  }
+
+  .pm-pid .pid-type[text-anchor='end'] {
+    text-anchor: end;
+  }
+
+  .pid-small {
+    fill: var(--text-3);
+    font: 500 7.5px var(--font-mono);
+  }
+
+  /* the documents generated from the model: a 2 × 3 grid */
+  .pm-docs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pm-docs li {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 0.4em;
+    min-height: 5.2em;
+    padding: 0.7em 0.5em;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--bg);
+    font-size: 0.9em;
+    line-height: 1.25;
+    text-align: center;
+    color: var(--text);
+    /* long German compounds break at their soft hyphens (Rohrleitungs-isometrie) instead of leaving the tile */
+    hyphens: manual;
+    overflow-wrap: anywhere;
+    opacity: 0;
+    transform: translateY(0.5em) scale(0.96);
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+
+  .pm-pages {
+    position: relative;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .pm-page {
+    grid-area: 1 / 1;
+    width: 72%;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 18px 36px -24px rgb(0 0 0 / 0.8);
+    transform: translateX(calc((var(--i) - 1) * 22%)) rotate(calc((var(--i) - 1) * 4deg));
+  }
+
+  .pm-page :global(.figure) {
+    margin: 0;
+  }
+
+  :global(:is([data-state='pac-fanout'], [data-state='pac-pages'])) .pm-pid {
+    opacity: 0;
+  }
+
+  :global([data-state='pac-fanout']) .pm-docs li {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(var(--i) * 70ms);
+  }
+
+  :global([data-state='pac-pages']) .pm-pages {
+    opacity: 1;
+  }
+
+  /* 3 · revisions: a log of changes to the data; a version opens to what it changed and the documents it reached.
+     The log fills more of its frame (less padding above and below) and its size follows the stage's height, so the
+     last version opened in full still fits a short screen */
+  .pac-frame:has(> .pr) {
+    padding-block: 3.5%;
+  }
+
+  .pr {
+    position: relative;
+    align-self: start;
+    max-width: 34em;
+    font-size: min(1em, 2.65cqh);
+    margin-inline: auto;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: var(--bg);
+  }
+
+  .pr-sig {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3em 0.6em;
+    margin: 0.8em 0.9em 0;
+    padding: 0.5em 0.75em;
+    border: 1px solid color-mix(in oklab, var(--warn) 55%, transparent);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--warn) 8%, transparent);
+    font-size: 0.9em;
+    color: var(--text);
+  }
+
+  .pr-sig:not([data-on]) {
+    display: none;
+  }
+
+  .pr-sig :global(svg) {
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  .pr-sig-k {
+    font: 600 0.78em / 1.2 var(--font-display);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  .pr-sig code {
+    font: 500 0.95em / 1.3 var(--font-mono);
+  }
+
+  .pr-log {
+    position: relative;
+    margin: 0;
+    padding: 0.6em 0.9em 0.7em 1.7em;
+    list-style: none;
+  }
+
+  /* the line of the history */
+  .pr-log::before {
+    content: '';
+    position: absolute;
+    left: 1.15em;
+    top: 1.4em;
+    bottom: 1.4em;
+    border-left: 1px solid var(--line-strong);
+  }
+
+  .pr-v {
+    position: relative;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+
+  .pr-v[data-grey] {
+    opacity: 0.38;
+  }
+
+  .pr-v[data-late]:not([data-on]) {
+    display: none;
+  }
+
+  .pr-v::before {
+    content: '';
+    position: absolute;
+    left: -0.85em;
+    top: 0.79em;
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 50%;
+    border: 1px solid var(--text-3);
+    background: var(--bg);
+  }
+
+  .pr-v[data-cur]::before {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .pr-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2em 0.7em;
+    margin: 0;
+    padding: 0.34em 0 0.34em 0.5em;
+    color: var(--text-2);
+  }
+
+  .pr-v:is([data-cur], [data-open]) .pr-row {
+    color: var(--text);
+  }
+
+  .pr-v:not([data-cur]) .tag {
+    display: none;
+  }
+
+  .pr .tag {
+    padding: 0.1em 0.6em;
+    font-size: 0.78em;
+  }
+
+  .pr-id {
+    font: 500 0.86em / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .pr-more {
+    display: none;
+    margin: 0.05em 0 0.45em 0.5em;
+    padding: 0.6em 0.75em 0.7em;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg-raised);
+  }
+
+  .pr-v[data-open] .pr-more {
+    display: block;
+  }
+
+  .pr-more pre {
+    margin: 0 0 0.55em;
+    font: 400 0.84em / 1.55 var(--font-mono);
+    white-space: normal;
+  }
+
+  .pr-more pre span {
+    display: block;
+    white-space: pre;
+  }
+
+  .pr-more .add {
+    color: color-mix(in oklab, var(--ok) 83%, white);
+  }
+
+  .pr-more .del {
+    color: color-mix(in oklab, var(--alert) 83%, white);
+  }
+
+  .pr-more .mod {
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  .pr-fx {
+    display: grid;
+    gap: 0.3em;
+    margin: 0 0 0.65em;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9em;
+  }
+
+  .pr-fx li {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    color: var(--text);
+  }
+
+  .pr-fx li :global(svg) {
+    flex: none;
+  }
+
+  .pr-fx [data-tone='info'] :global(svg) {
+    color: var(--pv);
+  }
+
+  .pr-fx [data-tone='warn'] :global(svg) {
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  .pr-fx [data-tone='ok'] :global(svg) {
+    color: color-mix(in oklab, var(--ok) 83%, white);
+  }
+
+  .pr-h {
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+    margin: 0 0 0.4em;
+    font: 600 0.72em / 1.2 var(--font-display);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .pr-h :global(svg) {
+    color: color-mix(in oklab, var(--ok) 83%, white);
+  }
+
+  .pr-docs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pr-docs li {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.3em 0.6em;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: var(--bg);
+    font-size: 0.84em;
+    color: var(--text);
+  }
+
+  .pr-v[data-late] .pr-docs li {
+    border-color: color-mix(in oklab, var(--ok) 50%, transparent);
+  }
+
+  /* what a version's panel shows comes in one item at a time while the step plays (pac.ts) */
+  .pr-more [data-item] {
+    opacity: 0;
+    transform: translateY(0.25em);
+    transition:
+      opacity var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .pr-more [data-item][data-on] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .pr-cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    width: 16px;
+    height: 22px;
+    opacity: 0;
+    pointer-events: none;
+    transform-origin: 0 0;
+  }
+
+  .pr-cursor path {
+    fill: var(--text);
+    stroke: var(--bg);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+  }
+
+  /* 5 · formats: whatever comes in falls into a pile, the model takes it, the outputs leave in a column */
+  .pf {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) auto minmax(0, 0.9fr);
+    gap: 6%;
+    align-items: end;
+  }
+
+  .pf-h {
+    margin: 0 0 0.7em;
+    font: 600 0.75em / 1.2 var(--font-display);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .pf-pile {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: center;
+    align-content: flex-start;
+    gap: 0.35em 0.3em;
+    min-height: 7.5em;
+    margin: 0;
+    padding: 0.4em 0.2em 0.55em;
+    list-style: none;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .pf-pile li {
+    padding: 0.4em 0.65em;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: var(--bg);
+    font: 500 0.86em / 1.2 var(--font-mono);
+    color: var(--text);
+    transform: translateX(var(--x)) rotate(var(--r));
+  }
+
+  .pf-list {
+    display: grid;
+    gap: 0.45em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pf-list li {
+    padding: 0.45em 0.8em;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--bg);
+    font: 500 0.9em / 1.2 var(--font-mono);
+    color: var(--text);
+    text-align: center;
+  }
+
+  .pf-model {
+    position: relative;
+    align-self: center;
+    display: grid;
+    justify-items: center;
+    gap: 0.5em;
+    padding: 1.4em 1.2em 1em;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    background: var(--bg);
+    font: 600 0.9em / 1.2 var(--font-display);
+    color: var(--text);
+    text-align: center;
+  }
+
+  .pf-model > :global(svg) {
+    color: var(--accent);
+  }
+
+  .pf-agent {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    margin-top: 0.2em;
+    padding-top: 0.55em;
+    border-top: 1px solid var(--line);
+    font: 500 0.82em / 1.2 var(--font-display);
+    color: var(--text-2);
+  }
+
+  .pf-model::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    opacity: 0;
+  }
+
+  @keyframes pf-fall {
+    from {
+      transform: translate(var(--x), -7em) rotate(0deg);
+      opacity: 0;
+    }
+
+    35% {
+      opacity: 1;
+    }
+
+    to {
+      transform: translateX(var(--x)) rotate(var(--r));
+      opacity: 1;
+    }
+  }
+
+  @keyframes pf-take {
+    0%,
+    100% {
+      opacity: 0;
+    }
+
+    40% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes pf-leave {
+    from {
+      transform: translateX(-2.5em);
+      opacity: 0;
+    }
+
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  /* once the step is reached (the scroll engine leaves data-index -1); before it the tiles wait out of sight */
+  :global(html:not([data-calm]) [data-stage][data-index='-1']) .pf :is(.pf-pile, .pf-list) li {
+    opacity: 0;
+  }
+
+  :global(html:not([data-calm]) [data-stage]:not([data-index='-1'])) .pf-pile li {
+    animation: pf-fall 560ms cubic-bezier(0.3, 0.9, 0.4, 1) calc(var(--i) * 110ms) both;
+  }
+
+  :global(html:not([data-calm]) [data-stage]:not([data-index='-1'])) .pf-model::after {
+    animation: pf-take 900ms var(--ease-out) 1.45s both;
+  }
+
+  :global(html:not([data-calm]) [data-stage]:not([data-index='-1'])) .pf-list li {
+    animation: pf-leave 480ms var(--ease-out) calc(1.9s + var(--i) * 100ms) both;
+  }
+
+  /* 6 · iterations: rows of documents, the scope change recolours the next ones */
+  .pi {
+    max-width: 30em;
+    margin-inline: auto;
+  }
+
+  .pi-head {
+    margin: 0 0 0.8em 2.6em;
+    font: 600 0.72em / 1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .pi-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 0.5em;
+    --g: var(--l-processview);
+  }
+
+  .pi-row[data-gen='b'] {
+    --g: var(--ok);
+  }
+
+  .pi-rn {
+    width: 2.1em;
+    font: 500 0.75em / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .pi-tile {
+    display: grid;
+    place-items: center;
+    width: 2.4em;
+    height: 2.4em;
+    border: 1px solid color-mix(in oklab, var(--g) 55%, transparent);
+    border-radius: 6px;
+    background: color-mix(in oklab, var(--g) 12%, transparent);
+    color: color-mix(in oklab, var(--g) 83%, white);
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      opacity 320ms var(--ease-out),
+      transform 320ms var(--ease-out);
+  }
+
+  .pi-mark {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    margin: 0.2em 0 0.6em 2.6em;
+    font: 600 0.72em / 1.2 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--ok) 83%, white);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .pi-mark::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: color-mix(in oklab, var(--ok) 60%, transparent);
+  }
+
+  :global([data-state='pac-iterate']) .pi-row[data-gen='a'] .pi-tile,
+  :global([data-state='pac-scope']) .pi-tile {
+    opacity: 1;
+    transform: none;
+  }
+
+  :global([data-state='pac-iterate']) .pi-row[data-gen='a'] .pi-tile,
+  :global([data-state='pac-scope']) .pi-row[data-gen='b'] .pi-tile {
+    transition-delay: calc(var(--d) * 240ms + var(--k) * 45ms + 150ms);
+  }
+
+  :global([data-state='pac-scope']) .pi-mark {
+    opacity: 1;
+  }
+
+  @container (max-width: 520px) {
+    /* the definition, the arrow and the drawing one under another: their size follows the stage's height */
+    .pm {
+      grid-template-columns: 1fr;
+      gap: 0.7em;
+      font-size: min(1em, 2.6cqh);
+    }
+
+    .pm-arrow {
+      justify-self: center;
+      transform: rotate(90deg);
+    }
+
+    .pm-pid {
+      width: min(78%, 21em);
+      justify-self: center;
+    }
+
+    .pm-page {
+      width: min(72%, 22em);
+    }
+
+    .pm-card pre {
+      font-size: 0.78em;
+    }
+
+    /* on a phone the log's lines wrap more: a little smaller still */
+    .pr {
+      font-size: min(1em, 2.45cqh);
+    }
+
+    .pf {
+      gap: 4%;
+    }
+  }
+</style>

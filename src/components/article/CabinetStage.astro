@@ -1,0 +1,134 @@
+---
+// IonGrid stage: the control cabinet.
+//   ig-assembly   the clip: the cabinet assembles from catalogue components
+//   ig-heat       the open cabinet, zoomed in: "known losses ≥ 705 W" at the drives (a lower bound, from the article's
+//                 labels) and the I/O modules that drive the solenoid valves (pneumatic control)
+//   ig-register   the apparatus register and I/O list in IonGrid, beside the closed cabinet they were generated from
+import { anchors, CALLOUT_WORDS, words } from '../../data/media';
+import { zoomPoint, zoomStyle, type Zoom } from '../../data/stages';
+import type { Lang } from '../../i18n/config';
+import Callout from './Callout.astro';
+import MediaLayer from './MediaLayer.astro';
+
+interface Props {
+  lang: Lang;
+  labels: Record<string, string>;
+  state?: string;
+}
+
+const { lang, labels, state } = Astro.props;
+const sizes = '(min-width: 1000px) 60vw, 100vw';
+const show = (s: string) => !state || state === s;
+const on = state ? '' : undefined;
+
+// the cabinet is small in its 16:9 render: clip and still at 1.55x about the cabinet, callouts through the zoom
+const HEAT: Zoom = { s: 1.55, ox: 0.53, oy: 0.52 };
+const open = anchors('ig-open');
+const heat = open.heat ? zoomPoint(open.heat, HEAT) : undefined;
+const pneumatic = open.pneumatic ? zoomPoint(open.pneumatic, HEAT) : undefined;
+---
+
+<div class="st cabinet">
+  <div class="st-frame">
+    <div class="st-floor" aria-hidden="true"></div>
+    {
+      show('ig-assembly') && (
+        <div class="st-look st-clip" data-look="ig-assembly" data-on="">
+          <div class="st-scale" style={zoomStyle(HEAT)}>
+            <MediaLayer id="ig-assembly" lang={lang} kind="clip" loop={false} sizes={sizes} eager={Boolean(state)} />
+          </div>
+        </div>
+      )
+    }
+    {
+      show('ig-heat') && (
+        <div class="st-look" data-look="ig-heat" data-on={on}>
+          <div class="st-scale" style={zoomStyle(HEAT)}>
+            <MediaLayer id="ig-open" lang={lang} sizes="(min-width: 1000px) 93vw, 155vw" eager={Boolean(state)} />
+          </div>
+          {heat && <Callout x={heat.x} y={heat.y} text={labels.knownLosses} side="l" rise="up" run={54} delay={0.9} on={Boolean(state)} />}
+          {pneumatic && <Callout x={pneumatic.x} y={pneumatic.y} text={CALLOUT_WORDS.pneumatic[lang]} side="r" rise="down" run={60} delay={1.25} on={Boolean(state)} />}
+        </div>
+      )
+    }
+    {
+      show('ig-register') && (
+        <div class="st-look" data-look="ig-register" data-on={on}>
+          <div class="st-window reg-window">
+            <MediaLayer id="ig-register" lang={lang} sizes="(min-width: 1000px) 48vw, 80vw" eager={Boolean(state)} />
+            <p class="st-caption reg-caption" aria-hidden="true">{words('ig-register', lang).caption}</p>
+          </div>
+          <div class="reg-cabinet">
+            <MediaLayer id="ig-closed" lang={lang} sizes="(min-width: 1000px) 44vw, 72vw" eager={Boolean(state)} />
+          </div>
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .cabinet .st-floor {
+    bottom: -12%;
+    width: 36%;
+  }
+
+  /* the register is there to show that the lists come with the cabinet, not to be read: a smaller window at the
+     right, the cabinet in front keeps its size */
+  .reg-window {
+    left: 41%;
+    top: 46%;
+    width: 58%;
+    aspect-ratio: 16 / 9;
+    overflow: visible;
+    transform: translate(14px, -50%);
+    transition: transform 1.1s var(--ease-out);
+  }
+
+  .reg-window :global(.mlayer) {
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .reg-caption {
+    left: 8%;
+    bottom: -1.9rem;
+  }
+
+  .reg-cabinet {
+    position: absolute;
+    left: -9%;
+    bottom: -24%;
+    width: 88%;
+    aspect-ratio: 16 / 9;
+    /* neutral depth: the closed cabinet stands in front of the register window */
+    filter: drop-shadow(0 16px 24px rgb(0 0 0 / 0.55));
+    transform: translateX(-12px);
+    transition: transform 1.1s var(--ease-out);
+  }
+
+  .reg-cabinet :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+  }
+
+  :global([data-on]) > .reg-window {
+    transform: translateY(-50%);
+  }
+
+  :global([data-on]) > .reg-cabinet {
+    transform: none;
+  }
+
+  @media (max-width: 760px) {
+    .reg-window {
+      left: 34%;
+      width: 64%;
+    }
+
+    .reg-cabinet {
+      left: -22%;
+    }
+  }
+</style>

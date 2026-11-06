@@ -1,0 +1,175 @@
+---
+// The film's layer HUD: a small miniature of the iso stack fixed in the bottom-left corner; while a layer chapter's
+// stage is pinned, its layer is drawn in its colour and its name shows beside it, under the text cards. Smaller on
+// phones. The scroll engine announces the pinned chapter ('scrolly:chapter'); src/scripts/article/hud.ts sets
+// data-layer. The reading-progress line is rendered here too (styled in src/styles/article.css).
+import { LAYERS } from '../../data/article';
+
+// orthographic iso projection matching the big stack: rotateZ(-38°), then rotateX(58°)
+const RZ = (-38 * Math.PI) / 180;
+const RX = (58 * Math.PI) / 180;
+const project = (x: number, y: number, z: number): [number, number] => {
+  const xr = x * Math.cos(RZ) - y * Math.sin(RZ);
+  const yr = x * Math.sin(RZ) + y * Math.cos(RZ);
+  return [xr, yr * Math.cos(RX) - z * Math.sin(RX)];
+};
+const W = 30;
+const D = 18;
+const GAP = 8.5;
+const SPLIT = 1.2;
+const plates = LAYERS.map((l) => {
+  const x0 = l.span === 'right' ? SPLIT / 2 : -W / 2;
+  const x1 = l.span === 'left' ? -SPLIT / 2 : W / 2;
+  const z = (l.level - 1) * GAP;
+  const pts = [
+    [x0, -D / 2],
+    [x1, -D / 2],
+    [x1, D / 2],
+    [x0, D / 2],
+  ].map(([x, y]) => project(x, y, z));
+  return { ...l, d: `M${pts.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join(' L')} Z` };
+});
+const all = plates.flatMap((p) => p.d.match(/-?\d+\.\d+/g)!.map(Number));
+const xs = all.filter((_, i) => i % 2 === 0);
+const ys = all.filter((_, i) => i % 2 === 1);
+const pad = 3;
+const vb = [Math.min(...xs) - pad, Math.min(...ys) - pad, Math.max(...xs) - Math.min(...xs) + 2 * pad, Math.max(...ys) - Math.min(...ys) + 2 * pad]
+  .map((v) => v.toFixed(1))
+  .join(' ');
+---
+
+<div class="bu-progress" data-progress-bar aria-hidden="true"></div>
+<div class="hud" data-hud aria-hidden="true">
+  <svg class="hud-stack" viewBox={vb}>
+    {plates.map((p) => <path d={p.d} data-hud-layer={p.id} style={`--lc:${p.color}`} />)}
+  </svg>
+  <span class="hud-names">
+    {
+      LAYERS.map((l) => (
+        <span data-hud-name={l.id} style={`--lc:${l.color}`}>
+          {l.name}
+        </span>
+      ))
+    }
+  </span>
+</div>
+
+<style>
+  /* painted before the article, so cards slide over it and it never covers text */
+  .hud {
+    position: fixed;
+    z-index: 0;
+    left: max(var(--gutter), calc((100vw - 92rem) / 2));
+    bottom: 1.25rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.65rem;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+
+  .hud[data-layer] {
+    opacity: 0.9;
+    transform: none;
+  }
+
+  .hud-stack {
+    width: 48px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .hud-stack path {
+    fill: rgb(17 21 31 / 0.9);
+    stroke: color-mix(in srgb, var(--lc) 30%, var(--line-strong));
+    stroke-width: 0.8;
+    stroke-linejoin: round;
+    transition:
+      fill var(--dur) var(--ease-out),
+      stroke var(--dur) var(--ease-out);
+  }
+
+  .hud-names {
+    position: relative;
+    display: grid;
+    margin-bottom: 0.1rem;
+    font: 600 0.75rem/1 var(--font-display);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
+  .hud-names span {
+    grid-area: 1 / 1;
+    color: color-mix(in oklab, var(--lc) 83%, white);
+    opacity: 0;
+    transform: translateY(3px);
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+
+  /* one rule per layer: draw the plate in its colour and show the name */
+  .hud[data-layer='capacityindex'] [data-hud-layer='capacityindex'],
+  .hud[data-layer='processview'] [data-hud-layer='processview'],
+  .hud[data-layer='mechgraph'] [data-hud-layer='mechgraph'],
+  .hud[data-layer='iongrid'] [data-hud-layer='iongrid'],
+  .hud[data-layer='plantmesh'] [data-hud-layer='plantmesh'],
+  .hud[data-layer='architecture'] [data-hud-layer='architecture'] {
+    fill: color-mix(in srgb, var(--lc) 26%, var(--bg-raised));
+    stroke: var(--lc);
+  }
+
+  .hud[data-layer='capacityindex'] [data-hud-name='capacityindex'],
+  .hud[data-layer='processview'] [data-hud-name='processview'],
+  .hud[data-layer='mechgraph'] [data-hud-name='mechgraph'],
+  .hud[data-layer='iongrid'] [data-hud-name='iongrid'],
+  .hud[data-layer='plantmesh'] [data-hud-name='plantmesh'],
+  .hud[data-layer='architecture'] [data-hud-name='architecture'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* documents: every layer drawn, the one that produced the landing page brightens once */
+  .hud[data-layer='all'] path {
+    fill: color-mix(in srgb, var(--lc) 14%, var(--bg-raised));
+    stroke: color-mix(in srgb, var(--lc) 70%, transparent);
+  }
+
+  .hud path:global(.pulse) {
+    animation: hud-pulse 0.7s var(--ease-out);
+  }
+
+  @keyframes hud-pulse {
+    30% {
+      fill: color-mix(in srgb, var(--lc) 45%, var(--bg-raised));
+      stroke: var(--lc);
+    }
+  }
+
+  :global(html:not(.js)) .hud {
+    display: none;
+  }
+
+  /* phones: minimized */
+  @media (max-width: 760px) {
+    .hud {
+      left: var(--gutter);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 0.7rem);
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .hud-stack {
+      width: 26px;
+    }
+
+    .hud-names {
+      margin: 0;
+      font-size: 0.68rem;
+    }
+  }
+</style>

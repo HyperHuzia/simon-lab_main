@@ -1,0 +1,152 @@
+---
+// Documents stage: the 18 pages of the design package fall into one stack (CSS 3D, the brand's iso view) as the reader
+// scrolls: the step is long and its progress (--p, written by the scroll engine) moves every page along its own
+// stretch of the scroll, so scrolling back lifts them again. Each page is edged in the colour of the layer that
+// produced it (src/data/media.ts DOC_LAYER); they land bottom-up by layer, so the finished stack shows the laminate of
+// the hero again. Each landing pulses its layer in the HUD (src/scripts/article/docs.ts).
+import { DOC_LAYER, media } from '../../data/media';
+import { LAYERS } from '../../data/article';
+import type { Lang } from '../../i18n/config';
+import MediaLayer from './MediaLayer.astro';
+
+interface Props {
+  lang: Lang;
+  labels: Record<string, string>;
+  state?: string;
+}
+
+const { lang, state } = Astro.props;
+const fixed = Boolean(state);
+const order = LAYERS.map((l) => l.id);
+const color = (layer: string) => LAYERS.find((l) => l.id === layer)?.color ?? 'var(--text-4)';
+// deterministic scatter (no Math.random: the same page renders the same way every build)
+const rand = (i: number, k: number) => {
+  const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
+  return v - Math.floor(v);
+};
+const pages = Object.keys(DOC_LAYER)
+  .sort((a, b) => order.indexOf(DOC_LAYER[a]) - order.indexOf(DOC_LAYER[b]) || a.localeCompare(b))
+  .map((id, i) => {
+    const item = media(id)?.item;
+    const landscape = item ? item.width > item.height : false;
+    return {
+      id,
+      i,
+      landscape,
+      layer: DOC_LAYER[id],
+      style: [
+        `--i:${i}`,
+        `--c:${color(DOC_LAYER[id])}`,
+        `--sx:${((rand(i, 1) - 0.5) * 70).toFixed(1)}em`,
+        `--sy:${((rand(i, 2) - 0.5) * 50).toFixed(1)}em`,
+        `--sz:${(18 + rand(i, 3) * 26).toFixed(1)}em`,
+        `--sr:${((rand(i, 4) - 0.5) * 140).toFixed(0)}deg`,
+        `--jr:${((rand(i, 5) - 0.5) * 7).toFixed(1)}deg`,
+      ].join(';'),
+    };
+  });
+---
+
+<div class="st docs" data-docs data-fixed={fixed ? '' : undefined} data-count={pages.length} style={`--n:${pages.length}`}>
+  <div class="docs-scene" aria-hidden="true">
+    <div class="docs-rig">
+      <div class="docs-base"></div>
+      {
+        pages.map((p) => (
+          <div class:list={['dpage', { 'is-land': p.landscape }]} style={p.style} data-layer={p.layer}>
+            <MediaLayer id={p.id} lang={lang} sizes="200px" eager={fixed} />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  /* q: the fall, from the moment the stage stands in its place (about a quarter into the step) to the end of the step;
+     each page falls over its own stretch of it (t, eased as e), bottom-up */
+  .docs {
+    --stack: 0.34em;
+    --q: clamp(0, (var(--p, 0) - 0.25) / 0.62, 1);
+  }
+
+  .docs[data-fixed],
+  :global([data-calm]) .docs {
+    --q: 1;
+  }
+
+  .docs-scene {
+    position: absolute;
+    inset: 0;
+    font-size: min(2.75cqw, 3.5cqh);
+    perspective: 90em;
+    perspective-origin: 50% 30%;
+  }
+
+  .docs-rig {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(58deg) rotateZ(-38deg);
+  }
+
+  .docs-base {
+    position: absolute;
+    left: -11em;
+    top: -9em;
+    width: 22em;
+    height: 18em;
+    border-radius: 1.2em;
+    background: var(--bg-raised);
+    box-shadow: 0 0 0 0.08em var(--line-strong);
+  }
+
+  /* a white page with a thin edge in its layer's colour */
+  .dpage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 9em;
+    aspect-ratio: 960 / 1358;
+    border-radius: 0.15em;
+    background: #fff;
+    box-shadow: 0 0 0 0.08em var(--c);
+    --t: clamp(0, (var(--q) * (var(--n) + 3) - var(--i)) / 3, 1);
+    --e: calc(var(--t) * var(--t) * (3 - 2 * var(--t)));
+    opacity: min(1, calc(var(--t) * 4));
+    transform: translate3d(
+        calc(-50% + var(--sx) * (1 - var(--e))),
+        calc(-50% + var(--sy) * (1 - var(--e))),
+        calc(0.4em + (var(--sz) - 0.4em) * (1 - var(--e)) + var(--i) * var(--stack))
+      )
+      rotateZ(calc(var(--sr) * (1 - var(--e)) + var(--jr) * var(--e)));
+  }
+
+  .dpage.is-land {
+    width: 12.7em;
+    aspect-ratio: 960 / 679;
+  }
+
+  .dpage :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: inherit;
+    background: #fff;
+  }
+
+
+  @media (max-width: 760px) {
+    .docs-scene {
+      font-size: min(2.6cqw, 3.1cqh);
+    }
+
+    .docs-rig {
+      left: 46%;
+    }
+  }
+</style>

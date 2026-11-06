@@ -1,0 +1,132 @@
+---
+// One chapter of the article: header (eyebrow, h2, intro), a scrolly section — a sticky stage with the chapter's
+// visual and text beats (cards with an h3) scrolling over it — and the outro. The stage component follows the chapter's
+// states (src/data/stages.ts). Chapters render lazily (content-visibility) with a reserved height.
+import type { Chapter as ChapterT } from '../../content/bottom-up/types';
+import { chapterHeight, layerById } from '../../data/article';
+import { SCRUBBED, stageKind } from '../../data/stages';
+import type { Lang } from '../../i18n/config';
+import CabinetStage from './CabinetStage.astro';
+import DocsStage from './DocsStage.astro';
+import EnvDiagram from './EnvDiagram.astro';
+import GenericStage from './GenericStage.astro';
+import InfraStage from './InfraStage.astro';
+import LayerStack from './LayerStack.astro';
+import MirrorStage from './MirrorStage.astro';
+import MachineStage from './MachineStage.astro';
+import PacStage from './PacStage.astro';
+import ProcessViewStage from './ProcessViewStage.astro';
+import SiteStage from './SiteStage.astro';
+import StaticFigure from './StaticFigure.astro';
+import Terminal from './Terminal.astro';
+import UnitStage from './UnitStage.astro';
+
+interface Props {
+  chapter: ChapterT;
+  labels: Record<string, string>;
+  lang: Lang;
+  /** position in the article (0 = first chapter after the hero) */
+  index: number;
+}
+
+const { chapter, labels, lang, index } = Astro.props;
+const first = chapter.steps[0]?.stage ?? '';
+const kind = stageKind(first);
+const layer = layerById(chapter.layer);
+// layer chapters wear their layer's colour; the environment and the mirrors the accent; the others (method,
+// documents, infrastructure) a neutral grey, so a colour always means one layer
+const color = layer?.color ?? (kind === 'env' || kind === 'mirror' ? 'var(--accent)' : 'var(--text-3)');
+// every chapter renders lazily (content-visibility) with its sticky-layout height reserved; the first sits below a
+// 170svh hero, so nothing of it — not even the terminal's monospace font — is needed for the first screen
+const deferred = index >= 0;
+const style = [`--c:${color}`, deferred ? `contain-intrinsic-size:auto ${chapterHeight(chapter)}svh` : ''].filter(Boolean).join(';');
+// the Architecture wipe, the terminal and the falling documents follow the scroll: the engine writes the active
+// step's progress as --p on the section and sends it as stage:progress
+const progress = chapter.steps.some((s) => SCRUBBED.has(s.stage)) ? 'step' : undefined;
+// the documents chapter lights every layer of the HUD (each landing page pulses its own)
+const hudLayer = kind === 'docs' ? 'all' : chapter.layer;
+const openStep = chapter.steps.find((s) => s.stage === 'infra-open');
+---
+
+<section
+  id={chapter.id}
+  class:list={['chapter', `chapter--${kind}`, { 'is-deferred': deferred, 'is-layer': Boolean(layer) }]}
+  data-chapter={chapter.id}
+  data-layer={chapter.layer}
+  style={style}
+>
+  <header class="ch-head">
+    <p class="ch-eyebrow">
+      {
+        layer && (
+          <svg class="ch-plate" viewBox="0 0 40 24" aria-hidden="true">
+            <path d="M3 14 L20 6 L37 14 L20 22 Z" />
+            <path class="up" d="M3 9 L20 1 L37 9 L20 17 Z" />
+          </svg>
+        )
+      }
+      <span>{chapter.eyebrow}</span>
+    </p>
+    <h2 class="ch-title">{chapter.title}</h2>
+    {chapter.intro?.map((p, i) => <p class:list={['ch-intro', { lede: i === 0 }]} set:html={p} />)}
+  </header>
+
+  <div class="scrolly" data-scrolly data-progress={progress} data-chapter-stage={chapter.id} data-layer={hudLayer}>
+    <div class="stage" data-stage data-state={first} data-kind={kind}>
+      <div class="stage-bg" aria-hidden="true"></div>
+      <div class="stage-viz">
+        {kind === 'env' && <EnvDiagram labels={labels} />}
+        {kind === 'mirror' && <MirrorStage lang={lang} labels={labels} />}
+        {kind === 'stack' && <LayerStack mode="chapter" label={labels.project} formats={labels.formats?.split(' · ')} />}
+        {kind === 'cli' && <Terminal uid={chapter.id} />}
+        {kind === 'pv' && <ProcessViewStage lang={lang} labels={labels} />}
+        {kind === 'mg' && <MachineStage lang={lang} labels={labels} />}
+        {kind === 'ig' && <CabinetStage lang={lang} labels={labels} />}
+        {kind === 'pm' && <UnitStage lang={lang} labels={labels} />}
+        {kind === 'ar' && <SiteStage lang={lang} />}
+        {kind === 'docs' && <DocsStage lang={lang} labels={labels} />}
+        {kind === 'infra' && <InfraStage labels={labels} open={openStep} />}
+        {kind === 'pac' && <PacStage states={chapter.steps.map((s) => s.stage)} labels={labels} lang={lang} />}
+        {kind === 'media' && <GenericStage chapter={chapter} lang={lang} />}
+      </div>
+    </div>
+
+    <div class="steps">
+      {
+        chapter.steps.map((step) => (
+          <div class:list={['step', { 'step--long': SCRUBBED.has(step.stage) }]} id={step.id} data-step data-state={step.stage}>
+            <div class="beat">
+              {step.kicker && <p class="kicker">{step.kicker}</p>}
+              {step.title && <h3 class="beat-title">{step.title}</h3>}
+              {step.body.map((p) => (
+                <p set:html={p} />
+              ))}
+              {step.note && (
+                <p class="note">
+                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                    <circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.3" />
+                    <path d="M8 7.2v4M8 4.6v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                  </svg>
+                  <span set:html={step.note} />
+                </p>
+              )}
+            </div>
+            <noscript>
+              <StaticFigure step={step} labels={labels} lang={lang} open={openStep} />
+            </noscript>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  {
+    chapter.outro?.length ? (
+      <div class="ch-outro">
+        {chapter.outro.map((p) => (
+          <p set:html={p} />
+        ))}
+      </div>
+    ) : null
+  }
+</section>

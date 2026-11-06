@@ -1,0 +1,143 @@
+WEBVTT
+
+1
+00:00:14.200 --> 00:00:16.989
+Simon Lab to środowisko,
+w którym pracuje twój agent:
+
+2
+00:00:17.056 --> 00:00:20.333
+CLI i zestaw narzędzi do tworzenia
+kompletnych projektów inżynierii
+
+3
+00:00:20.400 --> 00:00:24.454
+chemicznej, warstwa po warstwie,
+od fizyki rządzącej procesem,
+
+4
+00:00:24.521 --> 00:00:26.548
+z uszczegóławianiem na każdym etapie.
+
+5
+00:00:26.623 --> 00:00:30.271
+Agent zaczyna od specyfikacji:
+zakres, wydajność i ekonomia
+
+6
+00:00:30.338 --> 00:00:32.515
+w aplikacji CapacityIndex.
+
+7
+00:00:33.267 --> 00:00:36.361
+W ProcessView agent tworzy schemat P&amp;ID.
+
+8
+00:00:36.437 --> 00:00:39.446
+Każdy rurociąg, zawór
+i przyrząd niesie pełny dobór:
+
+9
+00:00:39.513 --> 00:00:42.175
+materiały, klasy, króćce, parametry,
+
+10
+00:00:42.242 --> 00:00:46.659
+oraz wytyczne dla mechaniki,
+AKPiA i sterowania.
+
+11
+00:00:46.767 --> 00:00:50.113
+Schemat pozwala na dynamiczną
+symulację procesu: napełnianie,
+
+12
+00:00:50.180 --> 00:00:52.923
+mieszanie, dozowanie, chłodzenie,
+
+13
+00:00:52.990 --> 00:00:55.423
+sprawdzone, zanim kupisz pierwszą rurę.
+
+14
+00:00:55.498 --> 00:00:59.370
+Gotowe programy sterowania pracują
+na emulowanym sterowniku PLC.
+
+15
+00:01:00.700 --> 00:01:04.058
+Parametry trafiają do MechGraph, gdzie
+maszyna jest konstruowana na podstawie
+
+16
+00:01:04.125 --> 00:01:07.727
+dedykowanych obliczeń: moc
+mieszania i zawieszanie cząstek,
+
+17
+00:01:07.794 --> 00:01:13.210
+ugięcie wału i prędkość krytyczna,
+wytrzymałość i symulacje CFD.
+
+18
+00:01:13.300 --> 00:01:17.018
+Równolegle IonGrid zamienia logikę
+sterowania w realne szafy z katalogowych
+
+19
+00:01:17.085 --> 00:01:21.282
+podzespołów, z bilansem zysków
+ciepła, sterowaniem pneumatycznym
+
+20
+00:01:21.415 --> 00:01:23.209
+i listą zakupową.
+
+21
+00:01:24.567 --> 00:01:27.592
+PlantMesh tworzy gotowe złożenia
+węzłów technologicznych:
+
+22
+00:01:27.667 --> 00:01:31.570
+izometrie rurociągów,
+konstrukcje wsporcze z analizą MES,
+
+23
+00:01:31.637 --> 00:01:36.381
+dostęp serwisowy, trasy kablowe
+i automatyczna detekcja kolizji.
+
+24
+00:01:36.933 --> 00:01:40.269
+Architecture osadza węzeł w zakładzie:
+teren z publicznych danych
+
+25
+00:01:40.335 --> 00:01:43.821
+geoprzestrzennych, chmury punktów
+ze skanów istniejących obiektów,
+
+26
+00:01:43.887 --> 00:01:47.586
+drogi i budynki, aż po plan
+zagospodarowania terenu.
+
+27
+00:01:50.233 --> 00:01:52.721
+Pełen eksport gotowej
+dokumentacji wykonawczej,
+
+28
+00:01:52.787 --> 00:01:57.217
+z przetestowanego procesu i modelu
+3D sprawdzonego pod kątem kolizji.
+
+29
+00:02:01.367 --> 00:02:04.670
+Simon Lab. Inżynieria
+chemiczna metodą bottom-up.
+
+30
+00:02:04.746 --> 00:02:07.190
+Beta testy z zaufanymi partnerami.

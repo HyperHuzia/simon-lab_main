@@ -1,0 +1,503 @@
+---
+// The bottom-up stack of the applications in iso perspective: six slabs, MechGraph and IonGrid sharing layer 2 as two
+// halves, as in the article. Two modes:
+//   select    the applications index. The slabs are tabs: a click, a tap, Enter or Space selects an application, its
+//             card (three slides, its layer, role and summary, the link to its page) replaces the previous one; arrow
+//             keys move along the stack. On wide screens the stack stays in place beside the page (sticky) while the
+//             heading, the slides and the card scroll past. Without JavaScript: the cards as a list, no stack.
+//   navigate  an application page: the slabs are links to the other pages, the page's own slab lifted.
+// Hovering a slab rings it with a still outline (it can be clicked); the selected slab lifts, takes its layer's colour,
+// a strong white edge and a soft gloss that crosses its surface every few seconds (a gradient moved through a
+// registered custom property; none for calm readers).
+// Behaviour: src/scripts/stack-explorer.ts.
+import { LAYERS } from '../data/article';
+import { appById } from '../data/apps';
+import { path, type Lang } from '../i18n/config';
+import AppSlides from './AppSlides.astro';
+
+interface Props {
+  lang: Lang;
+  mode: 'select' | 'navigate';
+  uid: string;
+  /** navigate: the page's application */
+  current?: string;
+  /** select: the word before the layer number ("Layer") and the link to a page, with {name} */
+  layer?: string;
+  open?: string;
+  /** navigate: the accessible name of the list */
+  label?: string;
+}
+
+const { lang, mode, uid, current, layer = '', open = '', label } = Astro.props;
+const apps = LAYERS.map((l) => {
+  const app = appById(l.id)!;
+  return { ...l, href: path(`/apps/${l.id}/`, lang), layerNo: app.layer ?? 0, role: app.copy[lang].role, summary: app.copy[lang].summary };
+});
+const active = mode === 'navigate' ? current : apps[0].id;
+const select = mode === 'select';
+---
+
+<div class:list={['sx', `sx--${mode}`]} data-sx={mode}>
+  {
+    select && (
+      <div class="sx-head">
+        <slot />
+      </div>
+    )
+  }
+  <div class="sx-scene">
+    <ol class="sx-list" role={select ? 'tablist' : undefined} aria-orientation={select ? 'vertical' : undefined} aria-label={label}>
+      {
+        apps.map((a) => (
+          <li
+            class:list={['sx-item', `sx-item--${a.span}`]}
+            role={select ? 'presentation' : undefined}
+            data-lv={a.level}
+            data-app={a.id}
+            data-active={a.id === active ? '' : undefined}
+            style={`--c:${a.color}`}
+          >
+            {select ? (
+              <button
+                type="button"
+                class="sx-slab"
+                role="tab"
+                id={`sx-${uid}-tab-${a.id}`}
+                aria-selected={a.id === active ? 'true' : 'false'}
+                aria-controls={`sx-${uid}-${a.id}`}
+                tabindex={a.id === active ? 0 : -1}
+                data-sx-slab
+              >
+                <span class="sx-name">{a.name}</span>
+                <span class="sx-role">{a.role}</span>
+              </button>
+            ) : (
+              <a class="sx-slab" href={a.href} aria-current={a.id === active ? 'page' : undefined} data-sx-slab>
+                <span class="sx-name">{a.name}</span>
+                <span class="sx-role">{a.role}</span>
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  {
+    select && (
+      <div class="sx-detail">
+        {apps.map((a) => (
+          <section
+            class="sx-card"
+            id={`sx-${uid}-${a.id}`}
+            role="tabpanel"
+            aria-labelledby={`sx-${uid}-tab-${a.id}`}
+            data-card={a.id}
+            data-on={a.id === active ? '' : undefined}
+            style={`--c:${a.color}`}
+          >
+            <AppSlides app={a.id} lang={lang} lazy sizes="(min-width: 1024px) 44vw, 100vw" />
+            <p class="sx-layer">
+              <i />
+              {layer} {a.layerNo}
+            </p>
+            <h2 class="sx-card-name">{a.name}</h2>
+            <p class="sx-card-role">{a.role}</p>
+            <p class="sx-card-summary">{a.summary}</p>
+            <a class="sx-open" href={a.href}>
+              {open.replace('{name}', a.name)}
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                <path d="M2.5 8h10.5M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+          </section>
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  @property --gloss {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 130%;
+  }
+
+  .sx {
+    display: grid;
+    column-gap: clamp(1.5rem, 4vw, 4rem);
+  }
+
+  /* the index: the stack on the left, beside it the heading, then the selected application's slides and card */
+  .sx--select {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-areas:
+      'scene head'
+      'scene detail';
+    grid-template-rows: auto 1fr;
+  }
+
+  /* the named areas exist only in select mode: in navigate mode a named area would open a second, empty column and
+     halve the stack */
+  .sx--select .sx-head {
+    grid-area: head;
+  }
+
+  .sx--select .sx-scene {
+    grid-area: scene;
+  }
+
+  .sx--select .sx-detail {
+    grid-area: detail;
+    align-self: start;
+  }
+
+  /* ── without JavaScript: the index shows its cards as a list, an application page its links ─────────── */
+  :global(html:not(.js)) .sx--select .sx-scene {
+    display: none;
+  }
+
+  :global(html:not(.js)) .sx--select {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'head' 'detail';
+  }
+
+  .sx-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .sx-slab {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: var(--radius);
+    border: 1px solid color-mix(in srgb, var(--c) 40%, var(--line));
+    background: var(--bg-raised);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .sx-name {
+    font: 600 var(--fs-lg) / 1.2 var(--font-display);
+  }
+
+  .sx-role {
+    font-size: var(--fs-sm);
+    color: color-mix(in oklab, var(--c) 83%, white);
+  }
+
+  .sx-detail {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  /* ── with JavaScript: slabs in iso perspective ─────────────────────── */
+  :global(.js) .sx-scene {
+    position: relative;
+    height: min(44rem, 80svh);
+    container-type: size;
+  }
+
+
+  :global(.js) .sx-list {
+    --gap: 5.2em;
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 54%;
+    width: 30em;
+    height: 18em;
+    margin: -9em 0 0 -15em;
+    font-size: min(2.45cqw, 2.4cqh);
+    transform-style: preserve-3d;
+    transform: rotateX(58deg) rotateZ(-38deg);
+  }
+
+  :global(.js) .sx-item {
+    --z: calc((var(--lvz) - 2) * var(--gap));
+    --lift: 0em;
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: translateZ(calc(var(--z) + var(--lift)));
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  :global(.js) .sx-item[data-lv='1'] {
+    --lvz: 0;
+  }
+
+  :global(.js) .sx-item[data-lv='2'] {
+    --lvz: 1;
+  }
+
+  :global(.js) .sx-item[data-lv='3'] {
+    --lvz: 2;
+  }
+
+  :global(.js) .sx-item[data-lv='4'] {
+    --lvz: 3;
+  }
+
+  :global(.js) .sx-item[data-lv='5'] {
+    --lvz: 4;
+  }
+
+  :global(.js) .sx-item--left {
+    right: calc(50% + 0.55em);
+  }
+
+  :global(.js) .sx-item--right {
+    left: calc(50% + 0.55em);
+  }
+
+  /* a flat slab with a thin edge in its layer's colour */
+  :global(.js) .sx-slab {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border-radius: 1.15em;
+    border: 0.08em solid color-mix(in srgb, var(--c) 55%, var(--line-strong));
+    background: rgb(17 21 31 / 0.96);
+    font: inherit;
+    text-align: left;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    transition:
+      border-color var(--dur) var(--ease-out),
+      background-color var(--dur) var(--ease-out);
+  }
+
+  /* plate thickness */
+  :global(.js) .sx-slab::after {
+    content: '';
+    position: absolute;
+    inset: -0.08em;
+    border-radius: inherit;
+    transform: translateZ(-0.4em);
+    background: color-mix(in srgb, var(--c) 28%, #070912);
+  }
+
+  /* hover: a still outline ring at an offset, the invitation to click (no motion until a slab is chosen) */
+  :global(.js) .sx-item:not([data-active]) .sx-slab:hover,
+  :global(.js) .sx-item:not([data-active]) .sx-slab:focus-visible {
+    border-color: color-mix(in srgb, var(--c) 75%, white);
+    outline: 0.07em solid rgb(238 241 246 / 0.55);
+    outline-offset: 0.22em;
+  }
+
+  /* the selected slab's gloss: a soft band of light crossing the surface, then a pause */
+  :global(.js) .sx-slab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(112deg, transparent 38%, rgb(255 255 255 / 0.14) 50%, transparent 62%) no-repeat;
+    background-size: 240% 100%;
+    background-position: var(--gloss) 0;
+    transform: translateZ(0.02em);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  :global(.js) .sx-item[data-active] .sx-slab::before {
+    opacity: 1;
+    animation: sx-gloss 5.2s var(--ease-soft) infinite;
+  }
+
+  @keyframes sx-gloss {
+    0% {
+      --gloss: 130%;
+    }
+
+    38%,
+    100% {
+      --gloss: -30%;
+    }
+  }
+
+  :global([data-calm]) .sx-slab::before {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  :global(.js) .sx-name {
+    position: absolute;
+    left: 1.4em;
+    bottom: 0.85em;
+    font-size: 2em;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  :global(.js) .sx-item--left .sx-name,
+  :global(.js) .sx-item--right .sx-name {
+    left: 1.1em;
+    font-size: 1.6em;
+  }
+
+  :global(.js) .sx-role {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* the selected layer lifts and takes its full colour; the others recede */
+  :global(.js) .sx-item[data-active] {
+    --lift: 0.9em;
+  }
+
+  :global(.js) .sx-item[data-active] .sx-slab {
+    border: 0.17em solid rgb(245 247 250 / 0.95);
+    background-color: color-mix(in srgb, var(--c) 12%, var(--bg-raised));
+  }
+
+  :global(.js) .sx-list:has([data-active]) .sx-item:not([data-active]) .sx-slab {
+    border-color: color-mix(in srgb, var(--c) 30%, var(--line));
+  }
+
+  :global(.js) .sx-slab:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.1em var(--accent);
+  }
+
+  /* the cards: one per application in one cell, the selected one shown */
+  :global(.js) .sx-detail {
+    display: grid;
+    gap: 0;
+  }
+
+  .sx-card {
+    align-self: start;
+  }
+
+  :global(.js) .sx-card {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out),
+      visibility 0s linear var(--dur);
+  }
+
+  :global(.js) .sx-card[data-on] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out),
+      visibility 0s;
+  }
+
+  .sx-card > p {
+    margin: 0;
+  }
+
+  .sx-layer {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 1.5rem !important;
+    font: 600 0.74rem / 1 var(--font-display);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* the layer's colour as a small plate */
+  .sx-layer i {
+    width: 1.5rem;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: var(--c);
+  }
+
+  .sx-card-name {
+    margin: 0.8rem 0 0;
+    font: 600 clamp(1.5rem, 1.2rem + 0.9vw, 2rem) / 1.1 var(--font-display);
+    letter-spacing: -0.015em;
+  }
+
+  .sx-card-role {
+    margin-top: 0.4rem !important;
+    font: 600 var(--fs-base) / 1.35 var(--font-display);
+    color: color-mix(in oklab, var(--c) 83%, white);
+  }
+
+  .sx-card-summary {
+    margin-top: 0.9rem !important;
+    max-width: 40rem;
+    font-size: var(--fs-base);
+    line-height: 1.65;
+    color: var(--text-2);
+  }
+
+  .sx-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+    font: 600 var(--fs-sm) / 1 var(--font-display);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .sx-open svg {
+    color: color-mix(in oklab, var(--c) 83%, white);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .sx-open:hover svg {
+    transform: translateX(3px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .sx-item {
+      transition: none;
+    }
+  }
+
+  /* wide screens: the same stack on the index and on an application page; on the index it is the selector, so it
+     stays in place under the header */
+  @media (min-width: 1024px) {
+    :global(.js) .sx-scene {
+      height: min(40rem, calc(100svh - var(--header-h) - 2rem));
+    }
+
+    :global(.js) .sx--select .sx-scene {
+      position: sticky;
+      top: calc(var(--header-h) + 1rem);
+      align-self: start;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .sx--select {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'head'
+        'scene'
+        'detail';
+      grid-template-rows: auto;
+    }
+
+    :global(.js) .sx-scene {
+      height: min(30rem, 92vw);
+    }
+  }
+</style>

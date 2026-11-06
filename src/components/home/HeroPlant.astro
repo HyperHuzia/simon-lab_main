@@ -1,0 +1,760 @@
+---
+// The drawing under the homepage hero: a small process unit and the same unit as project code. Feed tank T-101, pump
+// P-101 into the top head of the stirred vessel R-101, its bottom outlet (valve XV) through the cooler E-101 into the
+// top head of the product tank T-102; cooling water in counter-current, the outlet temperature (TIC) on the supply
+// valve. On the right the code that describes them, each line linked to its equipment by a leader that runs above the
+// drawing and drops onto it (the top line to the farthest item, so no two leaders cross), and the documents generated
+// from it in the formats the platform writes. Generic tags only, no project data.
+//
+// Once per visit, when the page has loaded and the drawing is in view, src/scripts/hero-plant.ts runs a batch on it,
+// as ProcessView shows one: the pump fills the vessel, the agitator turns while the temperature rises, the batch is
+// cooled into the product tank; the code line of each working item lights up, then the documents. Then a few slides
+// from the film (3D from PlantMesh, MechGraph and IonGrid, the documents) are painted on a canvas (no LCP candidate),
+// and the drawing comes back as it is drawn here, with the button that opens the film. Calm readers and readers
+// without JavaScript see this end state at once.
+//
+// One SVG with a fixed viewBox, so its height is known before anything loads; below 640px the frame crops it to the
+// plant (code text would be too small to read).
+import { film, media } from '../../data/media';
+import type { HomeCopy } from '../../content/home/types';
+import { path, type Lang } from '../../i18n/config';
+import { ICONS } from '../icons';
+
+interface Props {
+  lang: Lang;
+  copy: HomeCopy['hero'];
+}
+
+const { lang, copy } = Astro.props;
+
+/** code lines (y of the baseline) and the equipment each describes: the leader's landing point and its colour */
+const ITEMS = [
+  { kind: 'tank', tag: 'T-101', props: '{ volume: 8 m³ }', to: [90, 82], c: 'var(--l-capacity)' },
+  { kind: 'pump', tag: 'P-101', props: '{ flow: 12 m³/h }', to: [210, 288], c: 'var(--l-processview)' },
+  { kind: 'vessel', tag: 'R-101', props: '{ stirred: true }', to: [350, 108], c: 'var(--l-mechgraph)' },
+  { kind: 'hx', tag: 'E-101', props: '{ duty: 140 kW }', to: [510, 236], c: 'var(--l-iongrid)' },
+  { kind: 'tank', tag: 'T-102', props: '{ volume: 6 m³ }', to: [690, 160], c: 'var(--l-plantmesh)' },
+] as const;
+const LINE_Y = (i: number) => 52 + i * 26;
+const DOCS = ['PDF', 'IFC', 'XLSX', 'CSV'];
+const doc = ICONS['file-text'].replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+// arrowheads on the pipes: right (→) and down (↓), the tip at x, y
+const right = (x: number, y: number) => `M${x - 6} ${y - 4}L${x} ${y}L${x - 6} ${y + 4}`;
+const down = (x: number, y: number) => `M${x - 4} ${y - 6}L${x} ${y}L${x + 4} ${y - 6}`;
+const hatch = Array.from({ length: 47 }, (_, i) => `M${28 + i * 16} 330l-7 9`).join('');
+const T101 = 'M50 100Q50 82 90 82Q130 82 130 100V280Q130 296 90 296Q50 296 50 280Z';
+const R101 = 'M300 156Q300 140 350 140Q400 140 400 156V270Q400 286 350 286Q300 286 300 270Z';
+const T102 = 'M650 176Q650 160 690 160Q730 160 730 176V284Q730 300 690 300Q650 300 650 284Z';
+// the lines the batch flows through: feed (T-101 → R-101), discharge (R-101 → T-102), cooling water (in, out)
+const FEED = ['M142 272H166V304H194', 'M226 304H252V120H318V143'];
+const DISCHARGE = ['M350 286V304H420V256H440', 'M580 256H626V136H668V162'];
+const WATER = ['M532 192V236', 'M488 236V192'];
+
+// the slides after the batch: renders of the film's applications and pages of its documents (WebP renditions by width)
+const webp = (id: string) => {
+  const item = media(id)?.item;
+  return item?.kind === 'image' ? Object.fromEntries(item.webp.map((s) => [s.w, s.src])) : undefined;
+};
+// the PlantMesh slide plays the camera orbiting the assembled unit when that clip is exported, the still otherwise
+// a clip plays on the slides' canvas only with its transparency (the WebM's VP9 alpha): an opaque one would hide the
+// grid behind the slides, so without it the slide keeps its picture
+const clip = (id: string) => {
+  const item = media(id)?.item;
+  return item?.kind === 'video' && item.alpha ? { sources: item.sources.filter((s) => s.type.startsWith('video/webm')) } : undefined;
+};
+const slides = [
+  { caption: copy.slides[0], video: clip('pm-orbit'), images: [webp('pm-final')] },
+  { caption: copy.slides[1], images: [webp('mg-contour')] },
+  { caption: copy.slides[2], images: [webp('ig-kit'), webp('ig-open')] },
+  { caption: copy.slides[3], pages: ['doc-03', 'doc-06', 'doc-09', 'doc-12', 'doc-pzt'].map(webp) },
+];
+// the film: EN for EN and DE pages, PL for PL; without JavaScript the button leads to the article's film
+const f = film(lang === 'pl' ? 'film-pl' : 'film-en');
+const duration = f?.duration ? `${Math.floor(f.duration / 60)}:${String(Math.round(f.duration % 60)).padStart(2, '0')}` : '';
+const filmHref = `${path('/knowledge/bottom-up/', lang)}#film`;
+---
+
+<div class="hp-plant" data-hero-plant data-slides={JSON.stringify(slides)}>
+  <div class="hp-frame">
+    <svg class="hp-svg" viewBox="0 0 1200 345" aria-hidden="true">
+      <defs>
+        <symbol id="hp-doc" viewBox="0 0 24 24" set:html={doc} />
+        <clipPath id="hp-c-t101"><path d={T101} /></clipPath>
+        <clipPath id="hp-c-r101"><path d={R101} /></clipPath>
+        <clipPath id="hp-c-t102"><path d={T102} /></clipPath>
+      </defs>
+      <path class="ground" d="M20 330H780" />
+      <path class="hatch" d={hatch} />
+
+      {/* the batch: liquids under the outlines (levels scale from the bottom), falling streams into the top heads */}
+      <g class="proc" clip-path="url(#hp-c-t101)">
+        <g class="liquid" data-level="t101" style="transform:scaleY(0.745)">
+          <rect x="50" y="100" width="80" height="196" />
+          <path class="surface" d="M50 100H130" />
+        </g>
+      </g>
+      <g class="proc" clip-path="url(#hp-c-r101)">
+        <path class="stream" data-stream="r101" d="M318 146V286" />
+        <g class="liquid" data-level="r101" style="transform:scaleY(0)">
+          <rect x="300" y="150" width="100" height="136" />
+          <rect class="warm" data-warm x="300" y="150" width="100" height="136" />
+          <path class="surface" d="M300 150H400" />
+        </g>
+      </g>
+      <g class="proc" clip-path="url(#hp-c-t102)">
+        <path class="stream" data-stream="t102" d="M668 164V300" />
+        <g class="liquid" data-level="t102" style="transform:scaleY(0.12)">
+          <rect x="650" y="170" width="80" height="130" />
+          <path class="surface" d="M650 170H730" />
+        </g>
+      </g>
+
+      {/* T-101 feed tank, with its level and level control */}
+      <path class="eq" d={T101} />
+      <path class="eq" d="M62 292V330M118 292V330M130 272h12" />
+      <path class="level" d="M52 150H128" />
+      <path class="signal" d="M130 140H153" />
+      <circle class="bubble" cx="166" cy="140" r="13" />
+      <text class="bubble-t" x="166" y="143.5">LIC</text>
+      <text class="read" data-read="lic" x="166" y="169">62 %</text>
+      <text class="tag" x="98" y="74">T-101</text>
+
+      {/* to the pump, P-101, and up into the top head of the vessel; a flow transmitter on the riser */}
+      <path class="pipe" d="M142 272H166V304H194" />
+      <path class="arrow" d={right(186, 304)} />
+      <circle class="eq" cx="210" cy="304" r="16" />
+      <path class="rotor" data-rotor d="M210 294V314M200 304H220" />
+      <path class="eq" d="M196 318h28l5 12h-38z" />
+      <text class="tag" x="214" y="271">P-101</text>
+      <path class="pipe" d={FEED[1]} />
+      <path class="arrow" d={down(318, 136)} />
+      <path class="signal" d="M252 286H265" />
+      <circle class="bubble" cx="278" cy="286" r="13" />
+      <text class="bubble-t" x="278" y="289.5">FT</text>
+      <text class="read" data-read="ft" x="278" y="315">0 m³/h</text>
+
+      {/* R-101 stirred vessel: motor, shaft, impeller (it turns while stirring), baffles; the bottom outlet with XV */}
+      <path class="eq" d={R101} />
+      <path class="eq" d="M312 282V330M388 282V330" />
+      <rect class="eq" x="338" y="108" width="24" height="20" rx="2" />
+      <rect class="eq" x="344" y="128" width="12" height="12" />
+      <path class="eq thin" d="M350 140V248M308 168V262M392 168V262" />
+      <g class="impeller" data-impeller>
+        <path class="eq thin" d="M330 248h40" />
+        <rect class="eq thin" x="330" y="244" width="12" height="8" />
+        <rect class="eq thin" x="358" y="244" width="12" height="8" />
+      </g>
+      <text class="tag" x="368" y="122">R-101</text>
+      <path class="signal" d="M400 196H417" />
+      <circle class="bubble" cx="430" cy="196" r="13" />
+      <text class="bubble-t" x="430" y="199.5">TT</text>
+      <text class="read read-l" data-read="tt" x="447" y="200">20 °C</text>
+      <path class="pipe" d={DISCHARGE[0]} />
+      <path class="arrow" d={right(438, 256)} />
+      <path class="valve" data-valve d="M394 298L406 310V298L394 310Z" />
+
+      {/* E-101, a shell-and-tube cooler: cooling water in counter-current (supply through TV), TIC on the outlet */}
+      <rect class="eq" x="440" y="236" width="140" height="40" rx="20" />
+      <path class="eq thin" d="M462 238V274M558 238V274M462 248H558M462 256H558M462 264H558" />
+      <path class="eq" d="M470 276V330M550 276V330" />
+      <text class="tag tag-c" x="510" y="298">E-101</text>
+      <path class="pipe" d={WATER[0]} />
+      <path class="pipe" d={WATER[1]} />
+      <path class="arrow" d={down(532, 230)} />
+      <path class="arrow" d="M484 204L488 198L492 204" />
+      <text class="cw-t" x="488" y="186">CWR</text>
+      <text class="cw-t" x="532" y="186">CWS</text>
+      <path class="valve" data-valve d="M526 202H538L526 214H538Z" />
+      <path class="eq thin" d="M538 208H546" />
+      <rect class="eq thin" x="546" y="203" width="8" height="10" rx="1" />
+      <path class="signal" d="M554 208H587" />
+      <circle class="bubble" cx="600" cy="208" r="13" />
+      <text class="bubble-t" x="600" y="211.5">TIC</text>
+      <path class="signal" d="M600 221V256" />
+      <text class="read" data-read="tic" x="600" y="190">40 °C</text>
+
+      {/* on into the top head of the product tank T-102 */}
+      <path class="pipe" d={DISCHARGE[1]} />
+      <path class="arrow" d={down(668, 155)} />
+      <path class="eq" d={T102} />
+      <path class="eq" d="M662 296V330M718 296V330" />
+      <path class="level" d="M652 210H728" />
+      <text class="tag" x="698" y="154">T-102</text>
+
+      {/* the batch's flows over the pipes */}
+      {FEED.map((d) => <path class="flow" data-flow="feed" d={d} />)}
+      {DISCHARGE.map((d) => <path class="flow" data-flow="discharge" d={d} />)}
+      {WATER.map((d) => <path class="flow water" data-flow="water" d={d} />)}
+
+      {/* leaders: from each line of code, along the top, down onto the equipment */}
+      <g class="wide">
+        {
+          ITEMS.map((item, i) => {
+            const y = LINE_Y(i) - 5;
+            return (
+              <g class="leader-g" data-line={i} style={`--c:${item.c}`}>
+                <path class="leader" d={`M820 ${y}H${item.to[0]}V${item.to[1]}`} />
+                <circle class="dot" cx="820" cy={y} r="3" />
+                <circle class="dot" cx={item.to[0]} cy={item.to[1]} r="2.5" />
+              </g>
+            );
+          })
+        }
+
+        <g class="code">
+          <text x="836" y="26">plant:</text>
+          {
+            ITEMS.map((item, i) => (
+              <text x="852" y={LINE_Y(i)} data-line={i}>
+                <tspan class="kw">{item.kind}</tspan>
+                <tspan class="id" x="924">
+                  {item.tag}
+                </tspan>
+                <tspan class="val" x="1002">
+                  {item.props}
+                </tspan>
+              </text>
+            ))
+          }
+        </g>
+
+        {/* what the code turns into: documents in the formats the platform writes */}
+        {
+          DOCS.map((name, i) => (
+            <g class="doc-tile" data-doc={i} transform={`translate(${852 + i * 72} 202)`}>
+              <rect class="doc" width="48" height="48" rx="6" />
+              <use class="doc-i" href="#hp-doc" x="12" y="12" width="24" height="24" />
+              <text class="doc-t" x="24" y="68">
+                {name}
+              </text>
+            </g>
+          ))
+        }
+      </g>
+    </svg>
+
+    <canvas class="hp-slides" data-slides-canvas aria-hidden="true"></canvas>
+    <p class="hp-caption" data-slide-caption aria-hidden="true"></p>
+
+    {/* the end state: the whole drawing opens the film */}
+    <a class="hp-film" href={filmHref} data-film-open>
+      <span class="hp-film-pill">
+        <span class="hp-film-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5.2v13.6L19 12z" fill="currentColor"></path></svg>
+        </span>
+        <span>{copy.film}</span>
+        {duration && <span class="hp-film-time">{duration}</span>}
+      </span>
+    </a>
+  </div>
+</div>
+<p class="hp-film-link">
+  <a href={filmHref} data-film-open>
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8z" fill="currentColor"></path></svg>
+    {copy.filmLink}
+  </a>
+</p>
+
+<style>
+  @property --flow {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
+  /* a drawing sheet, like the stage of the mission story */
+  .hp-plant {
+    margin-top: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+    padding: clamp(0.75rem, 0.3rem + 1.6vw, 1.75rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 100% 10%,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 5% 100%,
+      var(--bg-raised);
+  }
+
+  .hp-frame {
+    position: relative;
+  }
+
+  .hp-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    transition: opacity 0.6s var(--ease-soft);
+  }
+
+  path,
+  rect,
+  circle {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .eq,
+  .pipe,
+  .bubble {
+    fill: none;
+    stroke: var(--text-3);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .eq.thin {
+    stroke-width: 1;
+  }
+
+  .pipe {
+    stroke: color-mix(in oklab, var(--text-3) 80%, var(--bg));
+    stroke-width: 1.6;
+  }
+
+  .arrow {
+    fill: none;
+    stroke: var(--text-2);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .level,
+  .signal {
+    fill: none;
+    stroke: var(--text-4);
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+  }
+
+  .valve {
+    fill: var(--bg-raised);
+    stroke: var(--text-3);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+    transition:
+      fill var(--dur) var(--ease-out),
+      stroke var(--dur) var(--ease-out);
+  }
+
+  .ground {
+    stroke: var(--line-strong);
+    stroke-width: 1.4;
+  }
+
+  .hatch {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+
+  text {
+    font-family: var(--font-mono);
+  }
+
+  .bubble-t {
+    font-size: 9.5px;
+    font-weight: 600;
+    text-anchor: middle;
+    fill: var(--text-3);
+  }
+
+  .tag {
+    font-size: 12px;
+    font-weight: 500;
+    fill: var(--text-2);
+  }
+
+  .tag-c,
+  .cw-t {
+    text-anchor: middle;
+  }
+
+  .cw-t {
+    font-size: 9.5px;
+    font-weight: 600;
+    fill: var(--text-4);
+  }
+
+  /* leaders and their dots: the only colour in the drawing at rest */
+  .leader {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 1;
+    stroke-dasharray: 2 5;
+  }
+
+  .dot {
+    fill: var(--c);
+  }
+
+  .code {
+    font-size: 15px;
+    fill: var(--text-2);
+  }
+
+  .code .kw {
+    fill: var(--text-3);
+  }
+
+  .code .id {
+    fill: var(--text);
+    font-weight: 600;
+  }
+
+  .code .val {
+    fill: color-mix(in oklab, var(--l-processview) 80%, white);
+  }
+
+  .doc {
+    fill: var(--bg);
+    stroke: var(--line-strong);
+    stroke-width: 1;
+    transition:
+      fill var(--dur-fast) var(--ease-out),
+      stroke var(--dur-fast) var(--ease-out);
+  }
+
+  .doc-i {
+    color: var(--text-3);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .doc-t {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-anchor: middle;
+    fill: var(--text-3);
+  }
+
+  /* ── the batch (src/scripts/hero-plant.ts): hidden at rest, on while data-playing ── */
+  .proc,
+  .read,
+  .flow,
+  .stream,
+  .rotor {
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out);
+  }
+
+  .hp-plant[data-playing] .proc,
+  .hp-plant[data-playing] .read {
+    opacity: 1;
+  }
+
+  .hp-plant[data-playing] .level {
+    opacity: 0;
+  }
+
+  .liquid {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+
+  .liquid rect {
+    fill: color-mix(in oklab, var(--l-processview) 24%, transparent);
+  }
+
+  .liquid .warm {
+    fill: color-mix(in oklab, var(--warn) 42%, transparent);
+    opacity: 0;
+  }
+
+  .surface {
+    fill: none;
+    stroke: var(--l-processview);
+    stroke-width: 1.4;
+  }
+
+  .read {
+    font-size: 10px;
+    font-weight: 600;
+    text-anchor: middle;
+    fill: color-mix(in oklab, var(--l-processview) 80%, white);
+  }
+
+  .read-l {
+    text-anchor: start;
+  }
+
+  /* flows: dashes moving along the pipe, only while the line carries something */
+  .flow,
+  .stream {
+    fill: none;
+    stroke: var(--l-processview);
+    stroke-dasharray: 5 9;
+    stroke-dashoffset: var(--flow);
+    stroke-linecap: round;
+  }
+
+  .flow {
+    stroke-width: 2;
+  }
+
+  .flow.water {
+    stroke: color-mix(in oklab, var(--l-capacity) 70%, white);
+  }
+
+  .stream {
+    stroke-width: 3;
+    stroke-dasharray: 4 6;
+  }
+
+  .flow[data-on],
+  .stream[data-on] {
+    opacity: 0.95;
+    animation: hp-flow 0.8s linear infinite;
+  }
+
+  .stream[data-on] {
+    animation-duration: 0.45s;
+  }
+
+  @keyframes hp-flow {
+    to {
+      --flow: -28;
+    }
+  }
+
+  .rotor {
+    fill: none;
+    stroke: var(--l-processview);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    transform-origin: 210px 304px;
+  }
+
+  .rotor[data-on] {
+    opacity: 1;
+    animation: hp-turn 0.5s linear infinite;
+  }
+
+  @keyframes hp-turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* the impeller seen from the side: its blades narrow and widen as it turns */
+  .impeller {
+    transform-origin: 350px 248px;
+  }
+
+  .impeller[data-on] {
+    animation: hp-paddle 0.42s linear infinite;
+  }
+
+  @keyframes hp-paddle {
+    25% {
+      transform: scaleX(0.05);
+    }
+
+    50% {
+      transform: scaleX(-1);
+    }
+
+    75% {
+      transform: scaleX(0.05);
+    }
+  }
+
+  .valve[data-on] {
+    fill: color-mix(in oklab, var(--ok) 55%, var(--bg-raised));
+    stroke: var(--ok);
+  }
+
+  /* the code line and the leader of each working item light up; the rest wait */
+  .leader-g,
+  .code text {
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  .hp-plant[data-playing] .leader-g:not([data-hot]),
+  .hp-plant[data-playing] .code text[data-line]:not([data-hot]) {
+    opacity: 0.35;
+  }
+
+  .doc-tile[data-on] .doc {
+    fill: color-mix(in oklab, var(--l-processview) 16%, var(--bg));
+    stroke: var(--l-processview);
+  }
+
+  /* ── the slides: a canvas over the drawing, which fades back as they play ── */
+  .hp-slides {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-soft);
+    pointer-events: none;
+  }
+
+  .hp-plant[data-slides-on] .hp-slides {
+    opacity: 1;
+  }
+
+  .hp-plant[data-slides-on] .hp-svg {
+    opacity: 0.04;
+  }
+
+  .hp-caption {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0.3em 0.7em;
+    border-radius: 6px;
+    background: rgb(11 14 23 / 0.78);
+    font: 600 var(--fs-sm) / 1.35 var(--font-display);
+    color: var(--text-2);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out);
+    pointer-events: none;
+  }
+
+  .hp-plant[data-slides-on] .hp-caption[data-on] {
+    opacity: 1;
+  }
+
+  /* ── the end state: the drawing at rest and the button over it (under the documents, where the drawing is empty);
+     the whole drawing is the link ── */
+  .hp-film {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: end;
+    padding: 0 1% 0.5% 0;
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 8px;
+    transition:
+      opacity 0.5s var(--ease-soft),
+      visibility 0s;
+  }
+
+  .hp-plant[data-playing] .hp-film {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s var(--ease-out),
+      visibility 0s linear 0.3s;
+  }
+
+  .hp-film-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1.15rem 0.5rem 0.5rem;
+    border: 1px solid rgb(238 241 246 / 0.22);
+    border-radius: 999px;
+    background: rgb(11 14 23 / 0.86);
+    font: 600 var(--fs-base) / 1 var(--font-display);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .hp-film-ico {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  .hp-film-time {
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .hp-film:hover .hp-film-pill {
+    border-color: rgb(238 241 246 / 0.55);
+    background: rgb(11 14 23 / 0.94);
+  }
+
+  .hp-film:focus-visible {
+    outline: none;
+  }
+
+  .hp-film:focus-visible .hp-film-pill {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .hp-film-link {
+    margin: 0.9rem 0 0;
+  }
+
+  .hp-film-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font: 600 var(--fs-sm) / 1.4 var(--font-display);
+    color: var(--text-2);
+    text-decoration: none;
+  }
+
+  .hp-film-link a:hover {
+    color: var(--text);
+  }
+
+  .hp-film-link svg {
+    color: var(--text-3);
+  }
+
+  :global([data-calm]) .hp-plant :is(.flow, .stream, .rotor, .impeller) {
+    animation: none !important;
+  }
+
+  /* phones: the plant only, cropped to the region of the drawing (x 10–790, y 60–345) */
+  @media (max-width: 640px) {
+    .hp-frame {
+      aspect-ratio: 780 / 285;
+      overflow: hidden;
+    }
+
+    .hp-svg {
+      width: calc(100% * 1200 / 780);
+      max-width: none;
+      margin: calc(-100% * 60 / 780) 0 0 calc(-100% * 10 / 780);
+    }
+
+    .wide {
+      display: none;
+    }
+
+    .hp-film {
+      place-items: center;
+      padding: 0;
+    }
+
+    .hp-film-pill {
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem 0.3rem 0.3rem;
+      font-size: var(--fs-xs);
+    }
+
+    .hp-film-ico {
+      width: 1.6rem;
+      height: 1.6rem;
+    }
+
+    .hp-film-ico svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .hp-caption {
+      max-width: 82%;
+      padding: 0.2em 0.5em;
+      font-size: 0.68rem;
+    }
+  }
+</style>

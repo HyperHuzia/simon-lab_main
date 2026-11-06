@@ -1,0 +1,113 @@
+---
+import type { App } from '../data/apps';
+import { path, type Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+
+interface Props {
+  app: App;
+  lang: Lang;
+  /** heading level for the app name */
+  level?: 'h3' | 'h4';
+}
+
+const { app, lang, level = 'h3' } = Astro.props;
+const ui = t(lang);
+const copy = app.copy[lang];
+const Heading = level;
+const status = app.status === 'beta' ? ui('status.beta') : app.status === 'tool' ? ui('status.tool') : ui('status.soon');
+const href = app.page ? path(`/apps/${app.id}/`, lang) : undefined;
+---
+
+<article class="app-card card" style={`--layer:${app.color}`} data-status={app.status}>
+  <div class="head">
+    <span class="swatch" aria-hidden="true"></span>
+    <span class="status">{status}</span>
+  </div>
+  <Heading class="name">
+    {href ? <a href={href}>{app.name}</a> : app.name}
+  </Heading>
+  <p class="role">{copy.role}</p>
+  <p class="summary">{copy.summary}</p>
+</article>
+
+<style>
+  .app-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 1.4rem 1.4rem 1.3rem;
+    min-height: 100%;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .app-card:has(a):hover {
+    border-color: color-mix(in srgb, var(--layer) 45%, var(--line-strong));
+    background: var(--bg-raised);
+  }
+
+  .app-card[data-status='soon'] {
+    border-style: dashed;
+    background: transparent;
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.1rem;
+  }
+
+  /* the layer's colour as a small plate */
+  .swatch {
+    width: 2rem;
+    height: 0.3rem;
+    border-radius: 999px;
+    background: var(--layer);
+  }
+
+  /* the status as a plain label: no outline, no dot */
+  .status {
+    font: 500 var(--fs-xs) / 1.6 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+  }
+
+  [data-status='soon'] .status {
+    color: var(--text-3);
+  }
+
+  .name {
+    font-size: var(--fs-lg);
+    margin-bottom: 0.25rem;
+  }
+
+  .name a {
+    text-decoration: none;
+  }
+
+  /* the whole card is the link target */
+  .name a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .role {
+    font: 500 var(--fs-sm) / 1.4 var(--font-display);
+    color: color-mix(in oklab, var(--layer) 83%, white);
+    margin-bottom: 0.75rem;
+  }
+
+  [data-status='soon'] .role {
+    color: var(--text-3);
+  }
+
+  .summary {
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+    margin: 0;
+  }
+</style>

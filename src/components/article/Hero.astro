@@ -1,0 +1,250 @@
+---
+// Hero: title, standfirst, two CTAs and a scroll hint over a sticky stage. The visual is a dense laminate named
+// "Chemical engineering project" (`label`, on its top plate); the name gives way and the laminate delaminates into the
+// six application layers as the reader scrolls (scroll-linked --p, written by the scroll engine because the section
+// has data-progress="section"). The section reserves 170svh, so the stage stays pinned for 70% of a screen: the stack
+// separates in place in the right column and is complete (names included) by --p ≈ 0.7, before the hero scrolls away.
+// Calm readers get it exploded.
+import type { Article } from '../../content/bottom-up/types';
+import LayerStack from './LayerStack.astro';
+
+interface Props {
+  hero: Article['hero'];
+  /** the name of the closed laminate */
+  label?: string;
+}
+
+const { hero, label } = Astro.props;
+// long titles (PL, DE run ~25% longer than EN) step down a size so the copy keeps to the first screen
+const long = hero.title.length > 80;
+---
+
+<section class="hero" id="top" data-scrolly data-progress="section" data-chapter="hero">
+  <div class="hero-stage" data-stage data-state="hero" aria-hidden="true">
+    <div class="hero-viz">
+      <div class="hero-stack">
+        <LayerStack mode="hero" label={label} />
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-copy">
+    <p class="hero-eyebrow">{hero.eyebrow}</p>
+    <h1 class:list={['hero-title', { 'is-long': long }]}>{hero.title}</h1>
+    <p class="hero-standfirst">{hero.standfirst}</p>
+    <div class="hero-ctas">
+      <a class="btn btn-solid" href="#environment">
+        {hero.read}
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </a>
+      <a class="btn btn-primary" href="#film" data-film-open>
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8z" fill="currentColor"></path></svg>
+        {hero.watch}
+      </a>
+    </div>
+    <p class="hero-hint"><span class="hint-line" aria-hidden="true"></span>{hero.scrollHint}</p>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    min-height: 170svh;
+    margin-top: calc(-1 * var(--header-h));
+  }
+
+  .hero > * {
+    grid-area: 1 / 1;
+  }
+
+  .hero-stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: clip;
+  }
+
+  /* a faint drawing grid, no coloured light */
+  .hero-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: center;
+    opacity: 0.28;
+    mask-image: radial-gradient(70% 70% at 60% 45%, #000, transparent 85%);
+  }
+
+  /* the visual keeps to the right column and separates in place */
+  .hero-viz {
+    position: absolute;
+    top: calc(var(--header-h) + 3svh);
+    bottom: 4svh;
+    left: 44%;
+    right: max(var(--gutter), calc((100vw - 92rem) / 2));
+  }
+
+  .hero-stack {
+    position: absolute;
+    inset: 12% 0 0 0;
+  }
+
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100svh;
+    width: min(100% - 2 * var(--gutter), 92rem);
+    margin-inline: auto;
+    padding-block: calc(var(--header-h) + 4svh) 6svh;
+  }
+
+  .hero-copy > * {
+    max-width: min(37rem, 42vw);
+  }
+
+  /* tracked Montserrat, like the film's lockup line (and no monospace font on the first screen) */
+  .hero-eyebrow {
+    margin: 0 0 1.4rem;
+    font: 600 0.78rem / 1.4 var(--font-display);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--accent) 83%, white);
+  }
+
+  .hero-title {
+    font-size: min(clamp(2.1rem, 1.3rem + 2.2vw, 3.4rem), 6.6svh);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    text-wrap: balance;
+  }
+
+  .hero-title.is-long {
+    font-size: min(clamp(1.95rem, 1.2rem + 1.9vw, 2.9rem), 5.8svh);
+  }
+
+  .hero-standfirst {
+    font-size: clamp(1.05rem, 0.97rem + 0.3vw, 1.22rem);
+    line-height: 1.6;
+    color: var(--text-2);
+    margin-bottom: 2.2rem;
+  }
+
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .hero-ctas .btn {
+    padding: 0.9em 1.4em;
+  }
+
+  .hero-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: clamp(2rem, 6svh, 4rem) 0 0;
+    font: 600 0.72rem / 1 var(--font-display);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    pointer-events: none;
+  }
+
+  .hint-line {
+    width: 1px;
+    height: 2rem;
+    background: var(--line-strong);
+  }
+
+  :global(.js) .hero-hint {
+    opacity: calc(1 - clamp(0, var(--p, 0) / 0.08, 1));
+  }
+
+  /* no JS: no sticky stage, the copy is the hero */
+  :global(html:not(.js)) .hero {
+    min-height: 0;
+  }
+
+  :global(html:not(.js)) .hero-stage,
+  :global(html:not(.js)) .hero-hint {
+    display: none;
+  }
+
+  :global(html:not(.js)) .hero-title {
+    font-size: clamp(2rem, 1.3rem + 2vw, 3.1rem);
+  }
+
+  :global(html:not(.js)) .hero-copy {
+    min-height: 0;
+  }
+
+  :global(html:not(.js)) .hero-copy > * {
+    max-width: 44rem;
+  }
+
+  @media (max-width: 1000px) and (min-width: 761px) {
+    .hero-viz {
+      left: 40%;
+    }
+  }
+
+  /* phones: the stage is a band at the top, as the chapter stages are on phones; the copy scrolls under it while the
+     stack separates */
+  @media (max-width: 760px) {
+    .hero {
+      min-height: 155svh;
+    }
+
+    .hero-stage {
+      z-index: 2;
+      height: calc(var(--header-h) + 42svh);
+      background: var(--bg);
+      box-shadow: 0 14px 22px -12px var(--bg);
+    }
+
+    .hero-viz {
+      top: calc(var(--header-h) + 1svh);
+      bottom: auto;
+      height: 40svh;
+      left: var(--gutter);
+      right: var(--gutter);
+    }
+
+    .hero-stack {
+      inset: 14% 0 0 0;
+    }
+
+    .hero-copy {
+      justify-content: flex-start;
+      padding-bottom: 4rem;
+    }
+
+    :global(.js) .hero-copy {
+      padding-top: calc(var(--header-h) + 45svh);
+    }
+
+    .hero-copy > * {
+      max-width: none;
+    }
+
+    .hero-title,
+    .hero-title.is-long {
+      font-size: clamp(1.7rem, 1.1rem + 3vw, 2.15rem);
+    }
+
+    .hero-hint {
+      display: none;
+    }
+  }
+</style>

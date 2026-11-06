@@ -1,0 +1,6 @@
+# Search engines and AI agents are welcome. A summary for AI systems: https://simon-lab.org/llms.txt
+# The main pages link their Markdown version (link rel="alternate" type="text/markdown").
+User-agent: *
+Allow: /
+
+Sitemap: https://simon-lab.org/sitemap-index.xml

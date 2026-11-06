@@ -1,0 +1,230 @@
+---
+// Architecture stage.
+//   ar-site  the fly-over clip: from the unit to the whole site (generic surroundings), in a window
+//   ar-wipe  scroll-linked (--p of the active step, written by the engine: the section has data-progress="step"):
+//            the colour top view wipes to line art, the line art to the site plan drawn by the platform's
+//            renderer — a registered triple, identical in size — under a thin scan line; then the full A2 sheet
+//            with its object list and title block. Calm readers get the same three swaps without the moving line.
+import { media, words } from '../../data/media';
+import type { Lang } from '../../i18n/config';
+import MediaLayer from './MediaLayer.astro';
+
+interface Props {
+  lang: Lang;
+  state?: string;
+}
+
+const { lang, state } = Astro.props;
+const show = (s: string) => !state || state === s;
+const fixed = Boolean(state);
+const lineart = media('ar-top-lineart')?.item;
+const maskSrc = lineart?.kind === 'image' ? ([...lineart.webp].sort((a, b) => a.w - b.w).find((s) => s.w >= 1280) ?? lineart.webp.at(-1))?.src : undefined;
+const top = media('ar-top-colour')?.item;
+const ratio = top ? `${top.width} / ${top.height}` : '1920 / 2033';
+const cap = (id: string) => words(id, lang).caption ?? '';
+const sizes = '(min-width: 1000px) 50vw, 100vw';
+---
+
+<div class="st site">
+  {
+    show('ar-site') && (
+      <div class="st-frame site-frame">
+        <div class="st-look" data-look="ar-site" data-on="">
+          <div class="st-window site-window">
+            <MediaLayer id="ar-site" lang={lang} kind="clip" loop={false} sizes="(min-width: 1000px) 60vw, 100vw" eager={fixed} />
+          </div>
+        </div>
+      </div>
+    )
+  }
+  {
+    show('ar-wipe') && (
+      <div class="st-look wipe" data-look="ar-wipe" data-on={fixed ? '' : undefined} data-fixed={fixed ? '' : undefined}>
+        <div class="wipe-frame" style={`aspect-ratio:${ratio}`}>
+          <div class="wipe-layer wipe-colour">
+            <MediaLayer id="ar-top-colour" lang={lang} sizes={sizes} eager={fixed} />
+          </div>
+          <div class="wipe-layer wipe-lines" aria-hidden="true">
+            <i data-mask={maskSrc} style={fixed && maskSrc ? `--mask:url("${maskSrc}")` : undefined} />
+          </div>
+          <div class="wipe-layer wipe-pzt">
+            <MediaLayer id="ar-pzt" lang={lang} sizes={sizes} eager={fixed} />
+          </div>
+          <i class="scan scan-1" aria-hidden="true" />
+          <i class="scan scan-2" aria-hidden="true" />
+        </div>
+        <div class="wipe-sheet">
+          <MediaLayer id="ar-pzt-sheet" lang={lang} sizes="(min-width: 1000px) 60vw, 100vw" eager={fixed} />
+        </div>
+        <p class="wipe-caps" aria-hidden="true">
+          <span class="cap-0">{cap('ar-top-colour')}</span>
+          <span class="cap-1">{cap('ar-top-lineart')}</span>
+          <span class="cap-2">{cap('ar-pzt')}</span>
+          <span class="cap-3">{cap('ar-pzt-sheet')}</span>
+        </p>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .site-window {
+    inset: 0;
+  }
+
+  /* ── the wipe ───────────────────────────────────────────────── */
+  .wipe {
+    --q1: clamp(0, (var(--p, 0) - 0.03) / 0.22, 1);
+    --q2: clamp(0, (var(--p, 0) - 0.3) / 0.2, 1);
+    --q3: clamp(0, (var(--p, 0) - 0.58) / 0.1, 1);
+    display: grid;
+    place-items: center;
+  }
+
+  /* static copies (no JS) show the end of the story: the site plan */
+  .wipe[data-fixed] {
+    --q1: 1;
+    --q2: 1;
+    --q3: 0;
+  }
+
+  .wipe-frame {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    height: min(100cqh - 2.2rem, 100cqw * 2033 / 1920);
+    container-type: size;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--l-architecture) 30%, var(--line));
+    opacity: calc(1 - clamp(0, var(--q3) * 2, 1));
+    transform: translate(-50%, calc(-50% - 1.1rem)) scale(calc(1 - 0.05 * var(--q3)));
+  }
+
+  .wipe-layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .wipe-layer :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  /* line art on a drawing grid: thin lines in the layer's colour on the page ground */
+  .wipe-lines {
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 24px 24px,
+      var(--bg);
+    clip-path: inset(0 0 calc((1 - var(--q1)) * 100%) 0);
+  }
+
+  .wipe-lines i {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in oklab, var(--l-architecture) 83%, white);
+    mask: var(--mask, none) center / 100% 100% no-repeat;
+  }
+
+  .wipe-pzt {
+    clip-path: inset(0 0 calc((1 - var(--q2)) * 100%) 0);
+  }
+
+  /* a thin scan line rides the edge of whichever wipe is running */
+  .scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: var(--l-architecture);
+    pointer-events: none;
+  }
+
+  .scan-1 {
+    transform: translateY(calc(var(--q1) * 100cqh - 1px));
+    opacity: min(1, var(--q1) * 30, (1 - var(--q1)) * 30);
+  }
+
+  .scan-2 {
+    transform: translateY(calc(var(--q2) * 100cqh - 1px));
+    opacity: min(1, var(--q2) * 30, (1 - var(--q2)) * 30);
+  }
+
+  .wipe-sheet {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(100cqw, (100cqh - 2.2rem) * 2400 / 1697);
+    aspect-ratio: 2400 / 1697;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--l-architecture) 45%, var(--line));
+    opacity: clamp(0, var(--q3) * 2 - 1, 1);
+    transform: translate(-50%, calc(-50% - 1.1rem)) scale(calc(0.94 + 0.06 * var(--q3)));
+  }
+
+  .wipe-sheet :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
+
+  .wipe-caps {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1.4em;
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    color: var(--text-3);
+    text-align: center;
+  }
+
+  .wipe-caps span {
+    position: absolute;
+    inset: 0;
+  }
+
+  .cap-0 {
+    opacity: calc(1 - clamp(0, (var(--q1) - 0.4) * 10, 1));
+  }
+
+  .cap-1 {
+    opacity: calc(clamp(0, (var(--q1) - 0.5) * 10, 1) * (1 - clamp(0, (var(--q2) - 0.4) * 10, 1)));
+  }
+
+  .cap-2 {
+    opacity: calc(clamp(0, (var(--q2) - 0.5) * 10, 1) * (1 - clamp(0, (var(--q3) - 0.4) * 10, 1)));
+  }
+
+  .cap-3 {
+    opacity: clamp(0, (var(--q3) - 0.5) * 10, 1);
+  }
+
+  /* calm: the same three swaps, no sweep and no line */
+  :global([data-calm]) .wipe:not([data-fixed]) {
+    --q1: clamp(0, (var(--p, 0) - 0.14) * 1000, 1);
+    --q2: clamp(0, (var(--p, 0) - 0.4) * 1000, 1);
+    --q3: clamp(0, (var(--p, 0) - 0.63) * 1000, 1);
+  }
+
+  :global([data-calm]) .scan,
+  .wipe[data-fixed] .scan {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    .wipe-frame {
+      height: min(100cqh - 1.8rem, 100cqw * 2033 / 1920);
+    }
+
+    .wipe-caps {
+      font-size: 0.64rem;
+    }
+  }
+</style>

@@ -1,0 +1,210 @@
+---
+// A scroll article of the knowledge base (/knowledge/<id>/). Copy per language from src/content/<id>
+// (src/data/article.ts falls back to English when a language has no file yet); media from the reviewed film export
+// (src/data/media.ts). Engine: src/scripts/scrolly.ts; stage components: src/components/article/.
+// "Bottom-up" keeps its delaminating hero, the layer HUD and the film; other articles open with a text hero and
+// close with their text and the calls to action.
+import Chapter from '../components/article/Chapter.astro';
+import FilmBlock from '../components/article/FilmBlock.astro';
+import FilmDialog from '../components/FilmDialog.astro';
+import Hero from '../components/article/Hero.astro';
+import LayerHud from '../components/article/LayerHud.astro';
+import Notes from '../components/article/Notes.astro';
+import Icon from '../components/Icon.astro';
+import { articleFor, type ArticleId } from '../data/article';
+import { knowledgeFor } from '../data/knowledge';
+import { ogImage } from '../data/media';
+import { path, type Lang } from '../i18n/config';
+import Base from '../layouts/Base.astro';
+import '../styles/article.css';
+
+interface Props {
+  lang: Lang;
+  id: ArticleId;
+}
+
+const { lang, id } = Astro.props;
+const article = articleFor(lang, id);
+const kb = knowledgeFor(lang);
+const route = `/knowledge/${id}/`;
+const film = id === 'bottom-up';
+const site = import.meta.env.SITE ?? 'https://simon-lab.org';
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.hero.title,
+    description: article.meta.description,
+    inLanguage: article.lang,
+    author: { '@type': 'Organization', name: 'Simon Lab', url: site },
+    publisher: { '@type': 'Organization', name: 'Simon Lab', url: site },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: kb.hero.eyebrow, item: new URL(path('/knowledge/', lang), site).href },
+      { '@type': 'ListItem', position: 2, name: kb.entries[id].title, item: new URL(path(route, lang), site).href },
+    ],
+  },
+];
+const first = article.chapters[0]?.id ?? '';
+---
+
+<Base
+  lang={lang}
+  route={route}
+  title={article.meta.title}
+  description={article.meta.description}
+  ogType="article"
+  ogImage={ogImage(id) ?? ogImage('default')}
+  jsonLd={jsonLd}
+  markdown={`/${id}.md`}
+  bodyClass={film ? 'page-bu' : 'page-article'}
+>
+  {film && <LayerHud />}
+  <nav class="crumbs" aria-label={kb.hero.eyebrow}>
+    <a href={path('/knowledge/', lang)}>
+      <Icon name="book-open" size={15} />
+      {kb.hero.eyebrow}
+    </a>
+  </nav>
+  <article class="bu" data-article lang={article.lang !== lang ? article.lang : undefined}>
+    {
+      film ? (
+        <Hero hero={article.hero} label={article.labels.project} />
+      ) : (
+        <header class="art-hero">
+          <p class="art-eyebrow">{article.hero.eyebrow}</p>
+          <h1>{article.hero.title}</h1>
+          <p class="art-standfirst">{article.hero.standfirst}</p>
+          <a class="btn btn-solid" href={`#${first}`}>
+            {article.hero.read}
+          </a>
+        </header>
+      )
+    }
+    {article.chapters.map((chapter, index) => <Chapter chapter={chapter} labels={article.labels} lang={lang} index={index} />)}
+    {
+      film ? (
+        <FilmBlock closing={article.closing} lang={lang} />
+      ) : (
+        <section class="art-close" aria-labelledby="art-close-title">
+          <p class="art-eyebrow">{article.closing.eyebrow}</p>
+          <h2 id="art-close-title">{article.closing.title}</h2>
+          {article.closing.body.map((p) => <p set:html={p} />)}
+          <div class="art-ctas">
+            <a class="btn btn-solid" href={path('/beta/', lang)}>{article.closing.cta.beta}</a>
+            <a class="btn" href={path('/apps/', lang)}>{article.closing.cta.apps}</a>
+          </div>
+        </section>
+      )
+    }
+    <Notes notes={article.notes} />
+  </article>
+  {/* the hero's "Watch the film" opens the film in a window instead of jumping to the end of the article */}
+  {film && <FilmDialog lang={lang} title={kb.entries[id].title} />}
+</Base>
+
+<script>
+  import { initStageClips } from '../scripts/article/clips';
+  import { initDocs } from '../scripts/article/docs';
+  import { initEnv } from '../scripts/article/env';
+  import { initFilm, initFilmDialog } from '../scripts/article/film';
+  import { initHud } from '../scripts/article/hud';
+  import { initMedia } from '../scripts/article/media';
+  import { initPac } from '../scripts/article/pac';
+  import { initProcessView } from '../scripts/article/processview';
+  import { initTerminals } from '../scripts/article/terminal';
+  import '../scripts/lazy-video';
+  import { start } from '../scripts/scrolly';
+
+  // every init looks for its own stages and does nothing on a page without them; order matters only within a
+  // stage: clips restart before the batch chart starts following its clip
+  initMedia();
+  initHud();
+  initEnv();
+  initPac();
+  initStageClips();
+  initTerminals();
+  initProcessView();
+  initDocs();
+  initFilm();
+  initFilmDialog();
+  start();
+</script>
+
+<style>
+  /* the same column as the chapters (src/styles/article.css) */
+  .crumbs {
+    width: min(100% - 2 * var(--gutter), 92rem);
+    margin: 1.25rem auto 0;
+    font-size: var(--fs-sm);
+  }
+
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--text-3);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    color: var(--text);
+  }
+
+  .art-hero,
+  .art-close {
+    width: min(100% - 2 * var(--gutter), 92rem);
+    margin-inline: auto;
+  }
+
+  .art-hero {
+    padding-block: clamp(3rem, 2rem + 5vw, 6.5rem) clamp(2rem, 1.5rem + 3vw, 4rem);
+  }
+
+  .art-hero h1 {
+    max-width: 22ch;
+    font-size: var(--fs-3xl);
+    margin-bottom: 1.25rem;
+  }
+
+  .art-eyebrow {
+    margin: 0 0 1rem;
+    font: 600 0.75rem / 1.4 var(--font-display);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .art-standfirst {
+    max-width: 44rem;
+    margin-bottom: 2rem;
+    font-size: var(--fs-lg);
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+
+  .art-close {
+    max-width: 44rem;
+    padding-block: clamp(3rem, 2rem + 4vw, 6rem);
+    text-align: center;
+  }
+
+  .art-close h2 {
+    font-size: var(--fs-2xl);
+  }
+
+  .art-close p {
+    color: var(--text-2);
+  }
+
+  .art-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+</style>

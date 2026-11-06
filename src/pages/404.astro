@@ -1,0 +1,146 @@
+---
+// GitHub Pages serves /404.html for every missing path; the language follows the path prefix (client-side swap).
+import StackMini from '../components/StackMini.astro';
+import { LANG_LABEL, LANG_SHORT, path } from '../i18n/config';
+import { SHELL_KEYS, t } from '../i18n/ui';
+import Base from '../layouts/Base.astro';
+
+const en = t('en');
+const pl = t('pl');
+const de = t('de');
+const L = {
+  en: { title: en('notFound.title'), lede: en('notFound.lede'), home: en('notFound.home'), href: path('/', 'en') },
+  pl: { title: pl('notFound.title'), lede: pl('notFound.lede'), home: pl('notFound.home'), href: path('/', 'pl') },
+  de: { title: de('notFound.title'), lede: de('notFound.lede'), home: de('notFound.home'), href: path('/', 'de') },
+};
+// the header, footer and skip link are rendered once (English): their strings carry ui keys (data-ui, data-ui-aria,
+// listed in SHELL_KEYS in src/i18n/ui.ts) and are swapped here, and their site links get the language prefix
+const UI = { pl: Object.fromEntries(SHELL_KEYS.map((k) => [k, pl(k)])), de: Object.fromEntries(SHELL_KEYS.map((k) => [k, de(k)])) };
+// the language button names the page's language ("Język: Polski, PL")
+const NAMES = { pl: { name: LANG_LABEL.pl, code: LANG_SHORT.pl }, de: { name: LANG_LABEL.de, code: LANG_SHORT.de } };
+---
+
+<Base lang="en" route="/" title="404 | Simon Lab" description={L.en.lede} noindex>
+  <section class="section container nf">
+    <div class="nf-copy">
+      <p class="code">404</p>
+      <h1 data-nf="title">{L.en.title}</h1>
+      <p class="lede" data-nf="lede">{L.en.lede}</p>
+      <a class="btn btn-solid" data-nf="home" href={L.en.href}>{L.en.home}</a>
+    </div>
+    <div class="nf-viz">
+      <StackMini ghost />
+    </div>
+  </section>
+  <script is:inline define:vars={{ L, UI, NAMES }}>
+    var seg = location.pathname.split('/')[1];
+    var l = L[seg];
+    if (l) {
+      document.documentElement.lang = seg;
+      var ui = UI[seg] || {};
+      // runs now for what is parsed (header) and again once the footer exists; prefixing is idempotent
+      var localize = function () {
+        document.querySelectorAll('[data-ui]').forEach(function (el) {
+          var v = ui[el.getAttribute('data-ui')];
+          if (!v) return;
+          if (!el.hasAttribute('data-ui-lines')) {
+            el.textContent = v;
+            return;
+          }
+          // one sentence a line (the footer's motto)
+          el.textContent = '';
+          v.replace(/\.\s+/g, '.\n').split('\n').forEach(function (s) {
+            var line = document.createElement('span');
+            line.textContent = s;
+            el.appendChild(line);
+          });
+        });
+        document.querySelectorAll('[data-ui-aria]').forEach(function (el) {
+          var v = ui[el.getAttribute('data-ui-aria')];
+          if (v) el.setAttribute('aria-label', v);
+        });
+        // the footer's copy buttons ("Kopiuj NIP") and the message read out after a copy
+        document.querySelectorAll('[data-ui-copy]').forEach(function (el) {
+          var what = ui[el.getAttribute('data-ui-copy')];
+          if (what && ui['footer.copy']) el.setAttribute('aria-label', ui['footer.copy'].replace('{what}', what));
+        });
+        document.querySelectorAll('[data-copied]').forEach(function (el) {
+          if (ui['footer.copied']) el.setAttribute('data-copied', ui['footer.copied']);
+        });
+        // the language button and the current language in its list
+        document.querySelectorAll('[data-lang-name]').forEach(function (el) {
+          el.textContent = NAMES[seg].name;
+        });
+        document.querySelectorAll('[data-lang-code]').forEach(function (el) {
+          el.textContent = NAMES[seg].code;
+        });
+        document.querySelectorAll('[data-lang-link]').forEach(function (a) {
+          if (a.getAttribute('data-lang-link') === seg) a.setAttribute('aria-current', 'true');
+          else a.removeAttribute('aria-current');
+        });
+        document.querySelectorAll('.site-header a[href^="/"], .site-footer a[href^="/"]').forEach(function (a) {
+          var href = a.getAttribute('href');
+          if (a.hasAttribute('data-lang-link') || a.hasAttribute('data-no-prefix') || /^\/(pl|de)(\/|$)/.test(href)) return;
+          a.setAttribute('href', '/' + seg + href);
+        });
+      };
+      localize();
+      document.addEventListener('DOMContentLoaded', localize);
+      document.querySelector('[data-nf="title"]').textContent = l.title;
+      document.querySelector('[data-nf="lede"]').textContent = l.lede;
+      var a = document.querySelector('[data-nf="home"]');
+      a.textContent = l.home;
+      a.href = l.href;
+    }
+  </script>
+</Base>
+
+<style>
+  .nf {
+    min-height: calc(100svh - var(--header-h) - 4rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  /* the number as a quiet figure; the heading carries the message */
+  .code {
+    font: 600 clamp(4rem, 2.8rem + 6vw, 8rem) / 0.9 var(--font-display);
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+    margin: 0 0 1.5rem;
+  }
+
+  .nf h1 {
+    font-size: clamp(1.9rem, 1.3rem + 2vw, 3rem);
+    max-width: 18em;
+  }
+
+  .nf .lede {
+    max-width: 34rem;
+    margin-bottom: 2rem;
+  }
+
+  .nf .btn {
+    padding: 0.92em 1.45em;
+  }
+
+  .nf-viz {
+    justify-self: center;
+    width: min(100%, 24rem);
+  }
+
+  @media (max-width: 760px) {
+    .nf {
+      grid-template-columns: 1fr;
+      padding-top: 2rem;
+    }
+
+    .nf-viz {
+      grid-row: 1;
+      width: min(70%, 16rem);
+    }
+  }
+</style>

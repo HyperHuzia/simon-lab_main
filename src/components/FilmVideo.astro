@@ -1,0 +1,32 @@
+---
+// The narrated film for the page's language, as a template: nothing loads until a script clones it (the play button of
+// the article's FilmBlock, the homepage's FilmDialog). EN film for EN and DE pages, PL film for PL; caption tracks
+// en/pl/de, the German track on by default on DE pages.
+import { film, words } from '../data/media';
+import { LANG_LABEL, isLang, type Lang } from '../i18n/config';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const filmId = lang === 'pl' ? 'film-pl' : 'film-en';
+const f = film(filmId);
+const alt = words(filmId, lang).alt;
+const posterSrc = f?.poster ? ([...f.poster.webp].sort((a, b) => a.w - b.w).find((s) => s.w >= 1280) ?? f.poster.webp[f.poster.webp.length - 1]) : undefined;
+---
+
+{
+  f && (
+    <template data-film-video>
+      <video controls playsinline preload="metadata" width={f.width} height={f.height} poster={posterSrc?.src} aria-label={alt}>
+        {f.sources.map((s) => (
+          <source src={s.src} type={s.type} />
+        ))}
+        {f.tracks.map((t) => (
+          <track kind="captions" src={t.src} srclang={t.lang} label={t.label ?? (isLang(t.lang) ? LANG_LABEL[t.lang] : t.lang)} default={lang === 'de' && t.lang === 'de'} />
+        ))}
+      </video>
+    </template>
+  )
+}

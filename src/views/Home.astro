@@ -1,0 +1,244 @@
+---
+// Homepage: the mission first. Hero (the title, one paragraph and the drawing of a plant with its code, which runs its
+// process once and ends on the film) → the mission (#mission) → the mission story (#story) → project as code, the way
+// into the knowledge base → short sections that each lead to a page of the header: the applications, about us with
+// the team and the roadmap (#about) and the beta (#beta); contact is the footer's (#contact, on every page). Calm by
+// design: text first, one scroll story, no forms (/beta/ asks for an email). Copy from src/content/home (per
+// language); the motto from src/i18n/ui.ts.
+import HeroPlant from '../components/home/HeroPlant.astro';
+import MissionStory from '../components/home/MissionStory.astro';
+import FilmDialog from '../components/FilmDialog.astro';
+import Icon from '../components/Icon.astro';
+import { homeFor } from '../data/home';
+import { knowledgeFor } from '../data/knowledge';
+import { ogImage } from '../data/media';
+import { path, type Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+import Base from '../layouts/Base.astro';
+import '../styles/home.css';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const home = homeFor(lang);
+const ui = t(lang);
+const site = import.meta.env.SITE ?? 'https://simon-lab.org';
+// the organization, and the website it publishes (WebSite gives search engines the site's name)
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${site}/#organization`,
+    name: 'Simon Lab',
+    legalName: 'Szymon Wojciechowski Simon-Lab',
+    description: home.meta.description,
+    url: site,
+    logo: new URL('/brand/logo-neon.svg', site).href,
+    address: { '@type': 'PostalAddress', addressLocality: 'Zabrze', addressCountry: 'PL' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${site}/#website`,
+    name: 'Simon Lab',
+    url: `${site}/`,
+    inLanguage: lang,
+    publisher: { '@id': `${site}/#organization` },
+  },
+];
+---
+
+<Base lang={lang} route="/" title={home.meta.title} description={home.meta.description} ogImage={ogImage('default')} jsonLd={jsonLd} markdown="/site.md" bodyClass="page-home">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-grid">
+      <div>
+        <p class="hp-eyebrow">{home.hero.eyebrow}</p>
+        <h1 id="hero-title">{home.hero.title}</h1>
+      </div>
+      <p class="hero-lede">{home.hero.lede}</p>
+    </div>
+    <HeroPlant lang={lang} copy={home.hero} />
+  </section>
+
+  <section class="hp-sec mission" id="mission" aria-labelledby="mission-title">
+    <div class="mission-grid">
+      <header>
+        <p class="hp-eyebrow">{home.mission.eyebrow}</p>
+        {/* each phrase of the motto stays on one line (no break inside "AI-Ready") */}
+        <h2 class="hp-title" id="mission-title">
+          {ui('site.motto').split(/(?<=\.)\s+/).map((part, i) => <>{i > 0 && ' '}<span class="phrase">{part}</span></>)}
+        </h2>
+      </header>
+      <div class="mission-body">
+        {home.mission.body.map((p) => <p>{p}</p>)}
+        <p class="mission-close">{home.mission.close}</p>
+      </div>
+    </div>
+  </section>
+
+  <MissionStory copy={home.story} />
+
+  <section class="hp-sec pac" id="project-as-code" aria-labelledby="pac-title">
+    <div class="mission-grid">
+      <header>
+        <p class="hp-eyebrow">{home.pac.eyebrow}</p>
+        <h2 class="hp-title" id="pac-title">{home.pac.title}</h2>
+      </header>
+      <div class="mission-body">
+        {home.pac.body.map((p) => <p>{p}</p>)}
+        <p class="mission-close">{home.pac.result}</p>
+        <a class="hp-more" href={path('/knowledge/', lang)}>{home.pac.more} <Icon name="arrow-right" size={15} /></a>
+      </div>
+    </div>
+  </section>
+
+  {/* the short sections under the story: heading on the left, a sentence or two and the way on on the right */}
+  <section class="hp-sec teaser" id="applications" aria-labelledby="applications-title">
+    <div class="mission-grid">
+      <header>
+        <p class="hp-eyebrow">{home.apps.eyebrow}</p>
+        <h2 class="hp-title" id="applications-title">{home.apps.title}</h2>
+      </header>
+      <div class="mission-body">
+        <p>{home.apps.lede}</p>
+        <p class="teaser-links">
+          <a class="hp-more" href={path('/apps/', lang)}>{home.apps.all} <Icon name="arrow-right" size={15} /></a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-sec teaser" id="about" aria-labelledby="about-title">
+    <div class="mission-grid">
+      <header>
+        <p class="hp-eyebrow">{home.about.eyebrow}</p>
+        <h2 class="hp-title" id="about-title">{home.about.title}</h2>
+      </header>
+      <div class="mission-body">
+        <p>{home.about.body}</p>
+        <p class="teaser-links">
+          <a class="hp-more" href={path('/team/', lang)}>{home.about.team} <Icon name="arrow-right" size={15} /></a>
+        </p>
+        <p>{home.about.roadmap.body}</p>
+        <p class="teaser-links">
+          <a class="hp-more" href={path('/roadmap/', lang)}>{home.about.roadmap.link} <Icon name="arrow-right" size={15} /></a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-sec teaser" id="beta" aria-labelledby="beta-title">
+    <div class="mission-grid">
+      <header>
+        <p class="hp-eyebrow">{home.beta.eyebrow}</p>
+        <h2 class="hp-title" id="beta-title">{home.beta.title}</h2>
+      </header>
+      <div class="mission-body">
+        <p>{home.beta.body}</p>
+        <p class="teaser-links">
+          <a class="hp-more" href={path('/beta/', lang)}>{home.beta.join} <Icon name="arrow-right" size={15} /></a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <FilmDialog lang={lang} title={knowledgeFor(lang).entries['bottom-up'].title} />
+</Base>
+
+<script>
+  import { initFilmDialog } from '../scripts/article/film';
+  import { initHeroPlant } from '../scripts/hero-plant';
+  import { initMissionStory } from '../scripts/mission-story';
+  import { start } from '../scripts/scrolly';
+
+  initHeroPlant();
+  initFilmDialog();
+  initMissionStory();
+  start();
+</script>
+
+<style>
+  /* hero: the title on the left, one paragraph on the right, the drawing under both */
+  .hero {
+    width: min(100% - 2 * var(--gutter), var(--wide));
+    margin-inline: auto;
+    padding-block: clamp(3.5rem, 2rem + 6vw, 7.5rem) clamp(1rem, 0.5rem + 2vw, 2rem);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 1.5rem clamp(2rem, 5vw, 5rem);
+    align-items: end;
+  }
+
+  .hero h1 {
+    max-width: 16ch;
+    margin-bottom: 0;
+  }
+
+  .hero-lede {
+    max-width: 36rem;
+    margin: 0;
+    font-size: var(--fs-lg);
+    line-height: 1.65;
+    color: var(--text-2);
+  }
+
+  /* text sections: the heading on the left, the prose on the right */
+  .mission-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 5vw, 5rem);
+    align-items: start;
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .mission-grid .hp-title {
+    margin-bottom: 0;
+  }
+
+  .phrase {
+    white-space: nowrap;
+  }
+
+  .mission-body {
+    max-width: 40rem;
+  }
+
+  .mission-body > p {
+    font-size: var(--fs-lg);
+    line-height: 1.65;
+    color: var(--text-2);
+  }
+
+  .mission-body > .mission-close {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* the short sections: closer together, one or two links under the text */
+  .teaser {
+    padding-top: clamp(3rem, 2rem + 3.5vw, 5.5rem);
+  }
+
+  .mission-body > .teaser-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.75rem;
+  }
+
+  .mission-body > .teaser-links:not(:last-child) {
+    margin-bottom: 1.75rem;
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid,
+    .mission-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

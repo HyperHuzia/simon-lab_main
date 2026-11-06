@@ -1,0 +1,413 @@
+---
+// Site header: logo, seven links (the last one the beta page, a link like the others) and a discreet language menu.
+// "Sign in" (the platform) has its place reserved: it shows again when SIGN_IN is set in src/config.ts. Below 1180px
+// the links move into a menu panel; the language menu stays in the bar. Strings carry data-ui / data-ui-aria keys so
+// the single 404 page can swap them (src/pages/404.astro).
+import { PLATFORM_URL, SIGN_IN } from '../config';
+import { LANGS, LANG_LABEL, LANG_SHORT, path, type Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  route: string;
+}
+
+const { lang, route } = Astro.props;
+const ui = t(lang);
+const home = path('/', lang);
+const nav = [
+  { href: `${home}#mission`, key: 'nav.mission', match: null },
+  { href: path('/apps/', lang), key: 'nav.apps', match: '/apps/' },
+  { href: path('/knowledge/', lang), key: 'nav.knowledge', match: '/knowledge/' },
+  { href: path('/roadmap/', lang), key: 'nav.roadmap', match: '/roadmap/' },
+  { href: path('/team/', lang), key: 'nav.team', match: '/team/' },
+  { href: '#contact', key: 'nav.contact', match: null },
+  { href: path('/beta/', lang), key: 'nav.beta', match: '/beta/' },
+] as const;
+const current = (match: string | null) => (match && route.startsWith(match) ? 'page' : undefined);
+---
+
+<header class="site-header" data-header>
+  <div class="bar container">
+    <a class="brand" href={home} aria-label="Simon Lab">
+      <img src="/brand/logo-header.svg" alt="SIMON-LAB" width="128" height="34" />
+    </a>
+
+    <nav class="nav" aria-label={ui('nav.main')} data-ui-aria="nav.main">
+      <ul id="site-nav" data-nav>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={current(item.match)} data-ui={item.key}>
+                {ui(item.key)}
+              </a>
+            </li>
+          ))
+        }
+        {
+          SIGN_IN && (
+            <li class="in-panel">
+              <a class="signin" href={PLATFORM_URL}>
+                <Icon name="log-in" size={16} />
+                <span data-ui="nav.signin">{ui('nav.signin')}</span>
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </nav>
+
+    <div class="tools">
+      <details class="lang" data-lang-menu>
+        {/* the accessible name contains the visible code (WCAG 2.5.3): "Language: English, EN" */}
+        <summary>
+          <Icon name="globe" size={15} />
+          <span class="visually-hidden"><span data-ui="nav.language">{ui('nav.language')}</span>: <span data-lang-name>{LANG_LABEL[lang]}</span>, </span>
+          <span data-lang-code>{LANG_SHORT[lang]}</span>
+          <Icon name="chevron-down" size={13} class="chev" />
+        </summary>
+        <ul class="lang-list">
+          {
+            LANGS.map((l) => (
+              <li>
+                <a href={path(route, l)} hreflang={l} lang={l} aria-current={l === lang ? 'true' : undefined} data-lang-link={l}>
+                  {LANG_LABEL[l]}
+                  {l === lang && <Icon name="check" size={14} />}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </details>
+      {
+        SIGN_IN && (
+          <a class="signin in-bar" href={PLATFORM_URL}>
+            <Icon name="log-in" size={16} />
+            <span data-ui="nav.signin">{ui('nav.signin')}</span>
+          </a>
+        )
+      }
+      <button class="menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" data-menu-toggle>
+        <span class="visually-hidden" data-label-open data-ui="nav.menu">{ui('nav.menu')}</span>
+        <span class="visually-hidden" data-label-close hidden data-ui="nav.close">{ui('nav.close')}</span>
+        <span class="burger" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const langMenu = document.querySelector<HTMLDetailsElement>('[data-lang-menu]');
+  if (header && toggle && nav) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      header.toggleAttribute('data-open', open);
+      toggle.querySelector('[data-label-open]')?.toggleAttribute('hidden', open);
+      toggle.querySelector('[data-label-close]')?.toggleAttribute('hidden', !open);
+    };
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+      if (langMenu) langMenu.open = false;
+    });
+    nav.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      setOpen(false);
+      if (langMenu?.open) {
+        langMenu.open = false;
+        langMenu.querySelector('summary')?.focus();
+      }
+    });
+    // a soft backdrop once the page has scrolled under the header
+    const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  if (langMenu) {
+    // one menu open at a time; a click anywhere else closes the language list
+    langMenu.addEventListener('toggle', () => {
+      if (langMenu.open && header?.hasAttribute('data-open')) toggle?.click();
+    });
+    document.addEventListener('click', (e) => {
+      if (langMenu.open && !langMenu.contains(e.target as Node)) langMenu.open = false;
+    });
+  }
+  // keep the hash when switching language (e.g. #contact)
+  document.querySelectorAll<HTMLAnchorElement>('[data-lang-link]').forEach((a) => {
+    a.addEventListener('click', () => {
+      if (location.hash) a.href = a.href.split('#')[0] + location.hash;
+    });
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    transition:
+      background var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out);
+    border-bottom: 1px solid transparent;
+  }
+
+  /* without JavaScript the scroll state never arrives: keep the backdrop on, content scrolls under it */
+  :global(html:not(.js)) .site-header,
+  .site-header[data-scrolled],
+  .site-header[data-open] {
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom-color: var(--line);
+  }
+
+  .bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  /* the header variant of the logo (scripts/make-logos.mjs): its lettering is as tall as the menu's */
+  .brand img {
+    height: 34px;
+    width: auto;
+    aspect-ratio: 410.76 / 109.48; /* the logo's viewBox: the width is known before the SVG arrives */
+  }
+
+  .nav {
+    margin-left: auto;
+  }
+
+  .nav ul {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav a:not(.signin) {
+    display: block;
+    padding: 0.5rem 0.7rem;
+    font: 500 var(--fs-sm) / 1 var(--font-display);
+    color: var(--text-2);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .nav a:not(.signin):hover,
+  .nav a[aria-current='page'] {
+    color: var(--text);
+  }
+
+  .nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.55em;
+  }
+
+  .tools {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  /* language menu: a small summary, the list drops below it */
+  .lang {
+    position: relative;
+  }
+
+  .lang summary {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: var(--radius-sm);
+    font: 500 0.78rem / 1 var(--font-mono);
+    color: var(--text-3);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .lang summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lang summary:hover,
+  .lang[open] summary {
+    color: var(--text);
+  }
+
+  .lang :global(.chev) {
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .lang[open] :global(.chev) {
+    transform: rotate(180deg);
+  }
+
+  .lang-list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    min-width: 10rem;
+    margin: 0;
+    padding: 0.35rem;
+    list-style: none;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 16px 32px -20px rgb(0 0 0 / 0.7);
+  }
+
+  .lang-list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 6px;
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+    text-decoration: none;
+  }
+
+  .lang-list a:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .lang-list a[aria-current='true'] {
+    color: var(--text);
+  }
+
+  .signin {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.65rem;
+    font: 500 var(--fs-sm) / 1 var(--font-display);
+    color: var(--text-2);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .signin:hover {
+    color: var(--text);
+  }
+
+  .in-panel {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .burger,
+  .burger::before,
+  .burger::after {
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    margin: auto;
+    background: currentColor;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .burger {
+    position: relative;
+  }
+
+  .burger::before,
+  .burger::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .burger::before {
+    top: -5px;
+  }
+
+  .burger::after {
+    top: 5px;
+  }
+
+  [data-open] .burger {
+    background: transparent;
+  }
+
+  [data-open] .burger::before {
+    transform: translateY(5px) rotate(45deg);
+  }
+
+  [data-open] .burger::after {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+
+  @media (max-width: 1180px) {
+    .menu-toggle {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .in-bar {
+      display: none;
+    }
+
+    .tools {
+      margin-left: auto;
+    }
+
+    .nav {
+      position: fixed;
+      inset: var(--header-h) 0 auto 0;
+      display: none;
+      padding: 0.75rem var(--gutter) 1.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+    }
+
+    [data-open] .nav {
+      display: block;
+    }
+
+    .nav ul {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .nav a:not(.signin) {
+      padding: 0.9rem 0.25rem;
+      font-size: var(--fs-base);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .in-panel {
+      display: block;
+    }
+
+    .in-panel .signin {
+      padding: 1rem 0.25rem;
+      font-size: var(--fs-base);
+    }
+  }
+</style>

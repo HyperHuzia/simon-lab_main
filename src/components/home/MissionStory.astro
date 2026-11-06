@@ -1,0 +1,742 @@
+---
+// The mission story under the mission statement. A classic plant project takes shape, falls into chaos and is put in
+// order on the platform; then iterations run, each one is tested, and a scope change and a change in the law go
+// through the same machinery.
+//
+// A sticky stage (HTML and inline SVG, no media) follows the text steps through the scroll engine
+// (src/scripts/scrolly.ts): CSS reads the stage's data-state (ms-<step id>) for the layout of the nodes. The iteration
+// panel (rows of documents, their test results, the change marks), the zeros and ones on the bus and the pings are
+// driven by src/scripts/mission-story.ts. The stage is decorative (aria-hidden); the steps carry the story. The server
+// renders the final state, which is what readers without JavaScript see; the engine switches to the first state
+// before the stage comes into view, and motion runs only while it is in view.
+//
+// Nodes are placed in stage units (cqw/cqh) from the tables below, so one set of numbers drives the nodes and the
+// SVG links (viewBox 0 0 100 100, stretched over the stage).
+import { ICONS, type IconName } from '../icons';
+import type { HomeCopy, StoryNodeId } from '../../content/home/types';
+import { appById } from '../../data/apps';
+import Icon from '../Icon.astro';
+
+interface Props {
+  copy: HomeCopy['story'];
+}
+
+const { copy } = Astro.props;
+
+type Flag = keyof HomeCopy['story']['flags'];
+type StoryNode = {
+  id: StoryNodeId;
+  icon: IconName;
+  /** the application this part of the project becomes */
+  app: string;
+  /** classic layout: centre x, y (% of the stage) */
+  classic: [number, number];
+  /** chaos layout: centre x, y and a tilt in degrees */
+  chaos: [number, number, number];
+  flag?: Flag;
+  /** chaos: an abandoned topic (faded) or one with missing data (dashed) */
+  look?: 'faded' | 'dashed';
+  /** the stimulus this application signals with a ping */
+  ping?: 'scope' | 'law';
+};
+
+const NODES: StoryNode[] = [
+  { id: 'idea', icon: 'lightbulb', app: 'capacityindex', classic: [50, 12], chaos: [46, 11, -3], ping: 'scope' },
+  { id: 'lab', icon: 'flask-conical', app: 'labgate', classic: [22, 30], chaos: [18, 34, 5], look: 'faded' },
+  { id: 'process', icon: 'gauge', app: 'processview', classic: [78, 30], chaos: [80, 25, -6], flag: 'capacity' },
+  { id: 'calc', icon: 'calculator', app: 'mechgraph', classic: [27, 51], chaos: [31, 56, 4], flag: 'conflict' },
+  { id: 'control', icon: 'cpu', app: 'iongrid', classic: [73, 51], chaos: [70, 47, -4], flag: 'missing', look: 'dashed' },
+  { id: 'machine', icon: 'cog', app: 'plantmesh', classic: [50, 69], chaos: [55, 73, 3], flag: 'emissions' },
+  { id: 'arch', icon: 'building-2', app: 'architecture', classic: [24, 87], chaos: [20, 86, -6], flag: 'noPermit' },
+  { id: 'permit', icon: 'scroll-text', app: 'permit', classic: [76, 87], chaos: [80, 92, 4], ping: 'law' },
+];
+
+/** ordered layout: one row per application, left edges aligned at x 30 (order) or at x 7 (iterate and after, as in
+ * the CSS), each on the common bus 3.5 units to its left */
+const ROW_Y = NODES.map((_, i) => 9 + i * 11.6);
+const ORDER_X = 30;
+const ITER_X = 7;
+const BUS_X = 3.5;
+
+const byId = Object.fromEntries(NODES.map((n) => [n.id, n])) as Record<StoryNodeId, StoryNode>;
+const CLASSIC_LINKS: [StoryNodeId, StoryNodeId][] = [
+  ['idea', 'process'],
+  ['idea', 'lab'],
+  ['process', 'calc'],
+  ['lab', 'control'],
+  ['calc', 'machine'],
+  ['control', 'machine'],
+  ['machine', 'arch'],
+  ['process', 'permit'],
+];
+// in the chaos some links break (conflict, missing data) and the permits drift away from the architecture
+const CHAOS_LINKS: [StoryNodeId, StoryNodeId, 'ok' | 'bad'][] = [
+  ['idea', 'process', 'ok'],
+  ['process', 'calc', 'bad'],
+  ['calc', 'machine', 'ok'],
+  ['control', 'machine', 'bad'],
+  ['machine', 'arch', 'ok'],
+];
+
+const line = (a: [number, number], b: [number, number]) => `M${a[0]} ${a[1]}L${b[0]} ${b[1]}`;
+const chaosAt = (id: StoryNodeId): [number, number] => [byId[id].chaos[0], byId[id].chaos[1]];
+const bus = (busX: number, nodeX: number) => `M${busX} ${ROW_Y[0]}V${ROW_Y[ROW_Y.length - 1]}` + ROW_Y.map((y) => `M${busX} ${y}H${nodeX}`).join('');
+
+const nodeStyle = (n: StoryNode, i: number) =>
+  [
+    `--cx:${n.classic[0]}`,
+    `--cy:${n.classic[1]}`,
+    `--hx:${n.chaos[0]}`,
+    `--hy:${n.chaos[1]}`,
+    `--hr:${n.chaos[2]}deg`,
+    `--oy:${ROW_Y[i]}`,
+    `--c:${appById(n.app)?.color ?? 'var(--l-soon)'}`,
+  ].join(';');
+
+/** the iterations: one document per application in each row, and the documents the tests reject. A stimulus mark
+ * opens the rows it starts. The script times the rows; the results are fixed here. */
+const ROWS: { bad: StoryNodeId[]; mark?: 'scope' | 'law' }[] = [
+  { bad: ['process', 'machine'] },
+  { bad: ['control'] },
+  { bad: [] },
+  { bad: ['calc'], mark: 'scope' },
+  { bad: [] },
+  { bad: ['arch', 'permit'], mark: 'law' },
+  { bad: [] },
+];
+const symbol = (name: IconName) => ICONS[name].replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+---
+
+<section class="ms" id="story" aria-labelledby="story-title">
+  <header class="hp-head ms-head">
+    <p class="hp-eyebrow">{copy.eyebrow}</p>
+    <h2 class="hp-title" id="story-title">{copy.title}</h2>
+  </header>
+
+  <div class="ms-scrolly" data-scrolly>
+    <div class="ms-sticky">
+      <div class="ms-stage" data-stage data-state="ms-law" data-story aria-hidden="true" style={`--bus-x:${BUS_X}cqw`}>
+        <svg class="ms-defs" width="0" height="0">
+          <symbol id="ms-doc" viewBox="0 0 24 24" set:html={symbol('file-text')} />
+          <symbol id="ms-pass" viewBox="0 0 24 24" set:html={symbol('file-check')} />
+          <symbol id="ms-fail" viewBox="0 0 24 24" set:html={symbol('file-x')} />
+        </svg>
+
+        <svg class="ms-links" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <g class="ms-l-classic">{CLASSIC_LINKS.map(([a, b]) => <path d={line(byId[a].classic, byId[b].classic)} />)}</g>
+          <g class="ms-l-chaos">{CHAOS_LINKS.map(([a, b, q]) => <path class={q} d={line(chaosAt(a), chaosAt(b))} />)}</g>
+          <path class="ms-l-order" d={bus(ORDER_X - 3, ORDER_X)} />
+          <path class="ms-l-iter" d={bus(BUS_X, ITER_X)} />
+        </svg>
+
+        {/* zeros and ones travel here, on the bus of the iterate layout (pooled by the script) */}
+        <div class="ms-bits" data-bits></div>
+
+        {
+          NODES.map((n, i) => {
+            const app = appById(n.app);
+            return (
+              <div class:list={['ms-node', n.look && `look-${n.look}`]} data-node={n.id} style={nodeStyle(n, i)}>
+                <Icon name={n.icon} size={15} class="ms-ico" />
+                <span class="ms-names">
+                  <span class="ms-generic">{copy.nodes[n.id]}</span>
+                  <span class="ms-app">{app?.name}</span>
+                </span>
+                {n.flag && (
+                  <span class:list={['ms-flag', `flag-${n.flag}`]}>
+                    <Icon name="triangle-alert" size={11} stroke={2} />
+                    {copy.flags[n.flag]}
+                  </span>
+                )}
+                <span class="ms-flash" data-flash />
+                {n.ping && <span class:list={['ms-ping', `ping-${n.ping}`]} data-ping={n.ping} />}
+              </div>
+            );
+          })
+        }
+
+        {/* the final state is rendered (data-on, data-checked); the script resets and replays it */}
+        <div class="ms-iters" data-iters>
+          <p class="ms-iters-head">{copy.iteration}</p>
+          {
+            ROWS.map((row, r) => (
+              <>
+                {row.mark && (
+                  <p class:list={['ms-mark', `mark-${row.mark}`]} data-mark={row.mark} data-on>
+                    <span>{row.mark === 'scope' ? copy.scope : copy.law}</span>
+                  </p>
+                )}
+                <div class:list={['ms-row', { fail: row.bad.length > 0 }]} data-row={r} data-on data-checked>
+                  <span class="ms-rn">{String(r + 1).padStart(2, '0')}</span>
+                  {NODES.map((n) => (
+                    <span class:list={['ms-tile', { bad: row.bad.includes(n.id) }]} data-tile data-on>
+                      <svg class="ms-doc" viewBox="0 0 24 24">
+                        <use href="#ms-doc" />
+                      </svg>
+                      <svg class="ms-pass" viewBox="0 0 24 24">
+                        <use href="#ms-pass" />
+                      </svg>
+                      <svg class="ms-fail" viewBox="0 0 24 24">
+                        <use href="#ms-fail" />
+                      </svg>
+                    </span>
+                  ))}
+                  <span class="ms-scan" data-scan />
+                </div>
+              </>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <ol class="ms-steps">
+      {
+        copy.steps.map((step) => (
+          <li class="ms-step" data-step data-state={`ms-${step.id}`}>
+            <h3>{step.title}</h3>
+            <p>{step.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="ms-outro">
+    <p class="lead">{copy.outro[0]}</p>
+    <p>{copy.outro[1]}</p>
+  </div>
+</section>
+
+<style>
+  .ms {
+    width: min(100% - 2 * var(--gutter), var(--wide));
+    margin-inline: auto;
+    padding-top: clamp(4.5rem, 3rem + 5vw, 8rem);
+  }
+
+  /* desktop: steps on the left, the stage pinned on the right */
+  .ms-scrolly {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    column-gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  .ms-sticky {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+  }
+
+  .ms-steps {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    padding: 18svh 0 30svh;
+    list-style: none;
+  }
+
+  .ms-step {
+    min-height: 62svh;
+    max-width: 30rem;
+  }
+
+  /* the steps with motion stay longer under the reading line, so the iterations can be watched */
+  .ms-step:is([data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law']) {
+    min-height: 90svh;
+  }
+
+  .ms-step h3 {
+    font-size: var(--fs-xl);
+    margin-bottom: 0.6rem;
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .ms-step p {
+    color: var(--text-2);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  :global(.js) .ms-step:not([data-active]) :is(h3, p) {
+    color: var(--text-3);
+  }
+
+  /* the stage: a box in stage units; everything inside is placed in cqw / cqh */
+  .ms-stage {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    container-type: size;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 100% 10%,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 7.5% 100%,
+      var(--bg-raised);
+    overflow: hidden;
+    --fs-node: 0.8rem;
+  }
+
+  .ms-defs {
+    position: absolute;
+  }
+
+  .ms-links {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .ms-links path {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .ms-links .bad {
+    stroke: color-mix(in oklab, var(--alert) 70%, transparent);
+    stroke-dasharray: 3 3;
+  }
+
+  .ms-links > * {
+    opacity: 0;
+  }
+
+  /* the bus traffic: one glyph per bit, moved by the script along the bus line */
+  .ms-bits {
+    position: absolute;
+    left: var(--bus-x);
+    top: 0;
+    width: 0;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .ms-bits :global(.ms-bit) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font: 600 0.62rem / 1 var(--font-mono);
+    color: color-mix(in oklab, var(--l-processview) 85%, white);
+    opacity: 0;
+  }
+
+  /* nodes: centred in classic and chaos, left-aligned in a column once in order */
+  .ms-node {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.45em 0.7em;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--bg);
+    font: 500 var(--fs-node) / 1.2 var(--font-display);
+    color: var(--text-2);
+    white-space: nowrap;
+    --x: var(--cx);
+    --y: var(--cy);
+    --ax: -50%;
+    --r: 0deg;
+    --s: 1;
+    --squeeze: 1;
+    transform: translate(calc((50 + (var(--x) - 50) * var(--squeeze)) * 1cqw), calc(var(--y) * 1cqh)) translate(var(--ax), -50%) rotate(var(--r))
+      scale(var(--s));
+    transform-origin: left center;
+    opacity: 0;
+  }
+
+  .ms-node :global(.ms-ico) {
+    flex: none;
+    color: var(--text-3);
+  }
+
+  .ms-names {
+    display: grid;
+  }
+
+  .ms-generic,
+  .ms-app {
+    grid-area: 1 / 1;
+  }
+
+  .ms-app {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .ms-flag {
+    position: absolute;
+    right: -0.4rem;
+    bottom: calc(100% - 0.45rem);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.15em 0.5em;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--alert) 60%, transparent);
+    background: var(--bg);
+    font: 500 0.68rem / 1.3 var(--font-body);
+    color: color-mix(in oklab, var(--alert) 83%, white);
+    opacity: 0;
+  }
+
+  .flag-capacity,
+  .flag-missing {
+    border-color: color-mix(in oklab, var(--warn) 60%, transparent);
+    color: color-mix(in oklab, var(--warn) 83%, white);
+  }
+
+  /* an application handing over its document (flash), and the one that signals a change (ping) */
+  .ms-flash,
+  .ms-ping {
+    position: absolute;
+    inset: -1px;
+    border: 1px solid var(--c);
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ms-ping {
+    --c: var(--pc);
+  }
+
+  .ping-scope {
+    --pc: var(--l-capacity);
+  }
+
+  .ping-law {
+    --pc: var(--warn);
+  }
+
+  /* iterations: rows of documents to the right of the ordered column, one document per application */
+  .ms-iters {
+    position: absolute;
+    left: 33cqw;
+    top: 5cqh;
+    width: 63cqw;
+    opacity: 0;
+    --rn: 5cqw;
+    --tile: 6.1cqw;
+    --tgap: 0.9cqw;
+  }
+
+  .ms-iters-head {
+    margin: 0 0 0.8cqw;
+    font: 600 0.66rem / 1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .ms-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--rn) repeat(8, var(--tile));
+    column-gap: var(--tgap);
+    align-items: center;
+    margin-bottom: var(--tgap);
+  }
+
+  .ms-rn {
+    font: 500 0.66rem / 1 var(--font-mono);
+    color: var(--text-3);
+    opacity: 0;
+  }
+
+  .ms-tile {
+    display: grid;
+    place-items: center;
+    width: var(--tile);
+    height: var(--tile);
+    border: 1px solid color-mix(in oklab, var(--g) 50%, transparent);
+    border-radius: 5px;
+    background: color-mix(in oklab, var(--g) 10%, transparent);
+    color: color-mix(in oklab, var(--g) 80%, white);
+    opacity: 0;
+    transform: scale(0.6);
+    --g: var(--text-3);
+  }
+
+  .ms-tile svg {
+    grid-area: 1 / 1;
+    width: 62%;
+    height: 62%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .ms-pass,
+  .ms-fail {
+    opacity: 0;
+  }
+
+  /* the test pass over a row: a frame that blinks over its documents */
+  .ms-scan {
+    position: absolute;
+    top: calc(var(--tgap) * -0.5);
+    bottom: calc(var(--tgap) * -0.5);
+    left: calc(var(--rn) + var(--tgap) * 0.5);
+    right: calc(var(--tgap) * -0.5);
+    border: 1px solid color-mix(in oklab, var(--accent) 70%, transparent);
+    border-radius: 7px;
+    background: color-mix(in oklab, var(--accent) 9%, transparent);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ms-row[data-on] .ms-rn,
+  .ms-tile[data-on] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* tested: documents that pass turn green with a check, the rejected ones red with a cross */
+  .ms-row[data-checked] .ms-tile {
+    --g: var(--ok);
+  }
+
+  .ms-row[data-checked] .ms-tile.bad {
+    --g: var(--alert);
+  }
+
+  .ms-row[data-checked] .ms-rn {
+    color: color-mix(in oklab, var(--ok) 85%, white);
+  }
+
+  .ms-row.fail[data-checked] .ms-rn {
+    color: color-mix(in oklab, var(--alert) 85%, white);
+  }
+
+  .ms-row[data-checked] .ms-tile:not(.bad) .ms-pass,
+  .ms-row[data-checked] .ms-tile.bad .ms-fail {
+    opacity: 1;
+  }
+
+  .ms-row[data-checked] .ms-doc {
+    opacity: 0;
+  }
+
+  .ms-mark {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.2cqw 0 var(--tgap) calc(var(--rn) + var(--tgap));
+    font: 600 0.66rem / 1.3 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--m) 83%, white);
+    opacity: 0;
+    --m: var(--l-capacity);
+  }
+
+  .ms-mark.mark-law {
+    --m: var(--warn);
+  }
+
+  .ms-mark::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: color-mix(in oklab, var(--m) 60%, transparent);
+  }
+
+  .ms-mark[data-on] {
+    opacity: 1;
+  }
+
+  /* ── states ─────────────────────────────────────────────────────────────── */
+
+  /* idea: the client's idea alone */
+  [data-state='ms-idea'] [data-node='idea'] {
+    opacity: 1;
+  }
+
+  /* classic and chaos: every part visible, linked ad hoc */
+  :is([data-state='ms-classic'], [data-state='ms-chaos']) .ms-node {
+    opacity: 1;
+  }
+
+  [data-state='ms-classic'] .ms-l-classic,
+  [data-state='ms-chaos'] .ms-l-chaos {
+    opacity: 1;
+  }
+
+  [data-state='ms-chaos'] .ms-node {
+    --x: var(--hx);
+    --y: var(--hy);
+    --r: var(--hr);
+  }
+
+  [data-state='ms-chaos'] .ms-flag {
+    opacity: 1;
+  }
+
+  [data-state='ms-chaos'] .look-faded {
+    opacity: 0.45;
+  }
+
+  [data-state='ms-chaos'] .look-dashed {
+    border-style: dashed;
+  }
+
+  /* order and after: one column of applications on a common bus */
+  :is([data-state='ms-order'], [data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law']) .ms-node {
+    opacity: 1;
+    --x: 30;
+    --y: var(--oy);
+    --ax: 0%;
+    color: var(--text);
+  }
+
+  :is([data-state='ms-order'], [data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law'])
+    .ms-node
+    :global(.ms-ico) {
+    color: color-mix(in oklab, var(--c) 83%, white);
+  }
+
+  :is([data-state='ms-order'], [data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law']) .ms-generic {
+    position: absolute;
+    opacity: 0;
+  }
+
+  :is([data-state='ms-order'], [data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law']) .ms-app {
+    position: static;
+    opacity: 1;
+  }
+
+  [data-state='ms-order'] .ms-l-order,
+  :is([data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law']) .ms-l-iter {
+    opacity: 1;
+  }
+
+  /* iterate and after: the column moves left and the iteration panel opens beside it */
+  :is([data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law']) .ms-node {
+    --x: 7;
+    --s: 0.9;
+  }
+
+  :is([data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law']) .ms-iters {
+    opacity: 1;
+  }
+
+  /* the stimulus lands on its application: scope on CapacityIndex, law on Permit */
+  :is([data-state='ms-scope'], [data-state='ms-law']) [data-node='idea'] {
+    border-color: var(--l-capacity);
+  }
+
+  [data-state='ms-law'] [data-node='permit'] {
+    border-color: var(--warn);
+  }
+
+  /* motion: only while the stage is in view (the switch to the first state on approach is instant) */
+  [data-inview] .ms-node {
+    transition:
+      transform var(--dur-slow) var(--ease-out),
+      opacity var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out),
+      color var(--dur) var(--ease-out);
+  }
+
+  [data-inview] :is(.ms-links > *, .ms-flag, .ms-generic, .ms-app, .ms-iters, .ms-mark, .ms-rn) {
+    transition: opacity var(--dur) var(--ease-out);
+  }
+
+  [data-inview] .ms-tile {
+    transition:
+      opacity 260ms var(--ease-out),
+      transform 260ms var(--ease-out);
+  }
+
+  [data-inview] .ms-tile svg {
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  /* the mission in one line under the story, with room after the stage */
+  .ms-outro {
+    max-width: 44rem;
+    margin: clamp(3rem, 2rem + 4vw, 6rem) auto 0;
+    text-align: center;
+  }
+
+  .ms-outro p {
+    color: var(--text-2);
+  }
+
+  .ms-outro .lead {
+    font: 600 var(--fs-xl) / 1.3 var(--font-display);
+    color: var(--text);
+  }
+
+  /* phones: the stage on top (square), the steps scrolling under it */
+  @media (max-width: 760px) {
+    .ms-scrolly {
+      display: block;
+    }
+
+    .ms-sticky {
+      top: var(--header-h);
+      z-index: 2;
+      padding: 0.75rem 0 0.5rem;
+      background: var(--bg);
+    }
+
+    .ms-stage {
+      aspect-ratio: 1;
+      width: min(100%, 48svh);
+      margin-inline: auto;
+      --fs-node: 0.68rem;
+    }
+
+    /* a square stage is narrower: classic and chaos pull toward the centre, the links with them, and long names wrap */
+    :is([data-state='ms-idea'], [data-state='ms-classic'], [data-state='ms-chaos']) .ms-node {
+      --squeeze: 0.76;
+    }
+
+    .ms-l-classic,
+    .ms-l-chaos {
+      transform: scaleX(0.76);
+      transform-box: view-box;
+      transform-origin: 50% 50%;
+    }
+
+    .ms-generic {
+      max-width: 8.5em;
+      white-space: normal;
+    }
+
+    /* the column of names takes more of a narrow stage: the documents start further right */
+    .ms-iters {
+      left: 38cqw;
+      width: 59cqw;
+      --rn: 5.5cqw;
+      --tile: 5.7cqw;
+      --tgap: 0.75cqw;
+    }
+
+    .ms-steps {
+      position: relative;
+      z-index: 1;
+      padding: 6svh 0 24svh;
+    }
+
+    .ms-step {
+      min-height: 46svh;
+    }
+
+    .ms-step:is([data-state='ms-iterate'], [data-state='ms-validate'], [data-state='ms-scope'], [data-state='ms-law']) {
+      min-height: 70svh;
+    }
+  }
+</style>

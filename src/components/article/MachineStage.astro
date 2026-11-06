@@ -1,0 +1,124 @@
+---
+// MechGraph stage: the vessel and agitator as renders on the dark stage (alpha stills over a neutral contact shadow).
+//   mg-turntable  the master clip: the machine turns, opens along the shaft, shows its insides (it ends in the particle
+//                 tracks, so it carries the "visualization" badge too)
+//   mg-section    section: impeller, working level, half-pipe cooling jacket
+//   mg-shaft      the overhung shaft (deflection, critical speed) and the shell to EN 13445
+//   mg-tracks     particle tracks from the solids nozzle, with a "visualization" badge (they are not a CFD result)
+// Callouts sit at the renders' exported anchors and draw on with a clip-path wipe when their look comes on.
+import { anchors, CALLOUT_WORDS } from '../../data/media';
+import { zoomPoint, zoomStyle, type Zoom } from '../../data/stages';
+import type { Lang } from '../../i18n/config';
+import Callout from './Callout.astro';
+import MediaLayer from './MediaLayer.astro';
+
+interface Props {
+  lang: Lang;
+  labels: Record<string, string>;
+  /** fixed state for static copies (no-JS figures) */
+  state?: string;
+}
+
+const { lang, labels, state } = Astro.props;
+// the vessel fills the stage height: renders at 1.38x their 16:9 frame, callouts mapped through the same zoom
+const ZOOM: Zoom = { s: 1.38, ox: 0.5, oy: 0.52 };
+const sizes = '(min-width: 1000px) 82vw, 138vw';
+type Spec = { anchor: string; word: string; side: 'l' | 'r'; rise: 'up' | 'down'; run: number };
+const LOOKS: { state: string; id: string; callouts: Spec[]; badge?: boolean }[] = [
+  {
+    state: 'mg-section',
+    id: 'mg-section',
+    callouts: [
+      { anchor: 'liquid-surface', word: 'liquid-surface', side: 'r', rise: 'up', run: 110 },
+      { anchor: 'impeller', word: 'impeller', side: 'l', rise: 'up', run: 36 },
+      { anchor: 'shell', word: 'jacket', side: 'r', rise: 'down', run: 46 },
+    ],
+  },
+  {
+    state: 'mg-shaft',
+    id: 'mg-shaft',
+    callouts: [
+      { anchor: 'shaft', word: 'shaft', side: 'l', rise: 'up', run: 30 },
+      { anchor: 'shell', word: 'shell', side: 'r', rise: 'down', run: 46 },
+    ],
+  },
+  {
+    state: 'mg-tracks',
+    id: 'mg-tracks',
+    badge: true,
+    callouts: [
+      { anchor: 'nozzle-n1', word: 'nozzle-n1', side: 'r', rise: 'down', run: 70 },
+      { anchor: 'tracks', word: 'tracks', side: 'r', rise: 'down', run: 96 },
+    ],
+  },
+];
+const looks = LOOKS.filter((l) => !state || l.state === state).map((l) => {
+  const points = anchors(l.id);
+  return {
+    ...l,
+    callouts: l.callouts.flatMap((c, i) => {
+      const p = points[c.anchor];
+      return p ? [{ ...c, ...zoomPoint(p, ZOOM), text: CALLOUT_WORDS[c.word][lang], delay: 0.35 + i * 0.28 }] : [];
+    }),
+  };
+});
+const showClip = !state || state === 'mg-turntable';
+---
+
+<div class="st machine">
+  <div class="st-frame">
+    <div class="st-floor" aria-hidden="true"></div>
+    {
+      showClip && (
+        <div class="st-look st-clip" data-look="mg-turntable" data-on="">
+          <div class="st-scale" style={zoomStyle(ZOOM)}>
+            <MediaLayer id="mg-master" lang={lang} kind="clip" loop={false} sizes={sizes} eager={Boolean(state)} />
+          </div>
+          {/* the master clip (and its poster) ends in the particle tracks: they are never shown without the note */}
+          <span class="st-badge machine-badge">
+            <i aria-hidden="true" />
+            {labels.visualization}
+          </span>
+        </div>
+      )
+    }
+    {
+      looks.map((l) => (
+        <div class="st-look" data-look={l.state} data-on={state ? '' : undefined}>
+          <div class="st-scale" style={zoomStyle(ZOOM)}>
+            <MediaLayer id={l.id} lang={lang} sizes={sizes} eager={Boolean(state)} />
+          </div>
+          {l.callouts.map((c) => (
+            <Callout x={c.x} y={c.y} text={c.text} side={c.side} rise={c.rise} run={c.run} delay={c.delay} on={Boolean(state)} />
+          ))}
+          {l.badge && (
+            <span class="st-badge machine-badge">
+              <i aria-hidden="true" />
+              {labels.visualization}
+            </span>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .machine .st-floor {
+    bottom: -10%;
+    width: 52%;
+  }
+
+  .machine-badge {
+    top: 2%;
+    left: 2%;
+  }
+
+  /* phones: callout labels flip towards the middle, the badge keeps to the bottom corner */
+  @media (max-width: 760px) {
+    .machine-badge {
+      top: auto;
+      bottom: 0;
+    }
+  }
+</style>

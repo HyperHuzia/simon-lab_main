@@ -1,0 +1,128 @@
+---
+// A reviewed still (AVIF + WebP, responsive) or a short muted loop (lazy, poster first), with a localized caption.
+// Videos start only when in view and never under reduced motion or Save-Data (src/scripts/lazy-video.ts); their
+// posters load when they come near, except for the page's hero. `tile`: a gallery tile, every one the same 16:9 frame
+// as the application's slides; screens and renders fill it, documents, sheets and pictures far from 16:9 sit whole in
+// it on their own background colour.
+import { words, type Figure, type ImageItem } from '../data/media';
+import type { Lang } from '../i18n/config';
+
+interface Props {
+  item: Figure;
+  lang: Lang;
+  /** above the fold: load eagerly with high priority */
+  priority?: boolean;
+  /** CSS sizes attribute; defaults to the content column */
+  sizes?: string;
+  /** hide the caption (still announced through alt) */
+  bare?: boolean;
+  /** a gallery tile: a 16:9 frame */
+  tile?: boolean;
+  class?: string;
+}
+
+const { item, lang, priority = false, sizes = '(min-width: 1240px) 1200px, 100vw', bare = false, tile = false, class: className } = Astro.props;
+const w = words(item.id, lang);
+const srcset = (list: { w: number; src: string }[]) => list.map((s) => `${s.src} ${s.w}w`).join(', ');
+const image: ImageItem = item.item.kind === 'image' ? item.item : item.item.poster;
+// a WebP of at least 1280 px (or the largest) as the fallback src; a single-file asset (src) has no renditions
+const fallback = image.src ?? [...image.webp].sort((a, b) => a.w - b.w).find((x) => x.w >= 1280)?.src ?? image.webp[image.webp.length - 1]?.src;
+const poster = item.item.kind === 'video' ? fallback : undefined;
+// in a tile, a document, a sheet or a picture whose proportions are far from the frame's is shown whole
+const ratio = image.width / Math.max(1, image.height);
+const whole = tile && (item.id.startsWith('doc-') || item.id.endsWith('-sheet') || ratio < 1.5 || ratio > 2);
+---
+
+<figure class:list={['figure', className, { 'figure--tile': tile, 'figure--whole': whole }]} style={image.bg ? `--ph:${image.bg}` : undefined}>
+  {
+    item.item.kind === 'image' ? (
+      <picture>
+        {image.avif.length > 0 && <source type="image/avif" srcset={srcset(image.avif)} sizes={sizes} />}
+        {image.webp.length > 0 && <source type="image/webp" srcset={srcset(image.webp)} sizes={sizes} />}
+        <img
+          src={fallback}
+          alt={w.alt}
+          width={image.width}
+          height={image.height}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchpriority={priority ? 'high' : 'auto'}
+        />
+      </picture>
+    ) : (
+      <video
+        data-lazy-video
+        muted
+        playsinline
+        loop
+        preload="none"
+        width={item.item.width}
+        height={item.item.height}
+        poster={priority ? poster : undefined}
+        data-poster={priority ? undefined : poster}
+        aria-label={w.alt}
+      >
+        {item.item.sources.map((s) => (
+          <source data-src={s.src} type={s.type} />
+        ))}
+      </video>
+    )
+  }
+  {!bare && w.caption && <figcaption>{w.caption}</figcaption>}
+</figure>
+
+<script>
+  import '../scripts/lazy-video';
+</script>
+
+<style>
+  .figure {
+    margin: 0;
+  }
+
+  .figure img,
+  .figure video {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    background: var(--ph, var(--bg-raised));
+    border: 1px solid var(--line);
+  }
+
+  /* a tile: one 16:9 frame; the picture fills it, or sits whole in it on its own background colour */
+  .figure--tile picture {
+    display: block;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--ph, var(--bg-raised));
+    border: 1px solid var(--line);
+  }
+
+  .figure--tile picture img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .figure--tile video {
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .figure--whole img,
+  .figure--whole video {
+    object-fit: contain;
+  }
+
+  figcaption {
+    margin-top: 0.7rem;
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-3);
+    max-width: var(--measure);
+  }
+</style>

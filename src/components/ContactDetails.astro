@@ -1,0 +1,174 @@
+---
+// The company's address, email and phone in the footer, behind one button. The rows keep their place from the start
+// (the address takes two lines, broken before the postal code); the labels stay visible and a small tile that says
+// "Show contact details" sits at the start of the column where the details will appear, about as wide as a tax number
+// with its copy button below: a click writes the details into the same rows and lifts the tile, so the footer does
+// not move. The details are stored as character codes (CONTACT in
+// src/config.ts) and written only on the click, so the HTML never carries them as text and harvesters find nothing.
+// The labels carry data-ui keys for the 404 page.
+import { CONTACT } from '../config';
+import type { Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  /** unique on the page */
+  uid: string;
+}
+
+const { lang, uid } = Astro.props;
+const ui = t(lang);
+---
+
+<div class="cd" data-contact>
+  <dl class="cd-table" id={`cd-${uid}`} tabindex="-1">
+    <div class="cd-row">
+      <dt data-ui="footer.address">{ui('footer.address')}</dt>
+      <dd class="cd-two" data-kind="lines" data-code={CONTACT.address[0]} data-code2={CONTACT.address[1]} aria-hidden="true"></dd>
+    </div>
+    <div class="cd-row">
+      <dt data-ui="footer.email">{ui('footer.email')}</dt>
+      <dd data-kind="email" data-code={CONTACT.mailbox.code} data-domain={CONTACT.mailbox.domain} aria-hidden="true"></dd>
+    </div>
+    <div class="cd-row">
+      <dt data-ui="footer.phone">{ui('footer.phone')}</dt>
+      <dd data-kind="phone" data-code={CONTACT.phone} aria-hidden="true"></dd>
+    </div>
+  </dl>
+  <button type="button" class="cd-cover" data-contact-show aria-controls={`cd-${uid}`}>
+    <Icon name="mail" size={16} />
+    <span data-ui="footer.details">{ui('footer.details')}</span>
+  </button>
+</div>
+
+<script>
+  const decode = (codes = '') =>
+    codes
+      .split(',')
+      .map((c) => String.fromCharCode(Number(c)))
+      .join('');
+
+  document.querySelectorAll<HTMLElement>('[data-contact]').forEach((box) => {
+    const button = box.querySelector<HTMLButtonElement>('[data-contact-show]');
+    const table = box.querySelector<HTMLElement>('.cd-table');
+    if (!button || !table) return;
+    button.addEventListener('click', () => {
+      table.querySelectorAll<HTMLElement>('dd[data-code]').forEach((dd) => {
+        const text = decode(dd.dataset.code);
+        if (dd.dataset.kind === 'lines') {
+          dd.replaceChildren(text, document.createElement('br'), decode(dd.dataset.code2));
+          return;
+        }
+        const link = document.createElement('a');
+        if (dd.dataset.kind === 'email') {
+          const address = `${text}@${dd.dataset.domain}`;
+          link.href = `mailto:${address}`;
+          link.textContent = address;
+        } else {
+          link.href = `tel:${text.replace(/\s+/g, '')}`;
+          link.textContent = text;
+        }
+        dd.replaceChildren(link);
+      });
+      table.querySelectorAll('dd').forEach((dd) => dd.removeAttribute('aria-hidden'));
+      button.remove();
+      table.focus();
+    });
+  });
+</script>
+
+<style>
+  .cd {
+    position: relative;
+  }
+
+  /* label | value, aligned with the tax numbers below (--cd-label sets the column); each row keeps its height */
+  .cd-table {
+    display: grid;
+    grid-template-columns: var(--cd-label, max-content) minmax(0, 1fr);
+    column-gap: 1.25rem;
+    row-gap: 0.45rem;
+    margin: 0;
+  }
+
+  .cd-table:focus {
+    outline: none;
+  }
+
+  .cd-row {
+    display: contents;
+  }
+
+  dt {
+    color: var(--text-3);
+  }
+
+  dd {
+    min-height: 1.6em;
+    margin: 0;
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+
+  .cd-two {
+    min-height: 3.2em;
+  }
+
+  dd :global(a) {
+    color: var(--text-2);
+    text-decoration: none;
+  }
+
+  dd :global(a:hover) {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--text-3);
+    text-underline-offset: 0.2em;
+  }
+
+  /* a small tile at the start of the column of values (the labels stay readable), as tall as the three rows and
+     about as wide as a tax number with its copy button below; all of it is the button; its left edge follows the
+     label column and the gap of .cd-table */
+  .cd-cover {
+    position: absolute;
+    top: -0.25rem;
+    bottom: -0.25rem;
+    left: calc(var(--cd-label, 6.5rem) + 1.25rem - 0.6rem);
+    width: 9.8rem;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg-raised);
+    color: var(--text-2);
+    font: 500 var(--fs-xs) / 1.35 var(--font-body);
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .cd-cover :global(svg) {
+    color: var(--text-3);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .cd-cover:hover {
+    border-color: var(--text-4);
+    color: var(--text);
+  }
+
+  .cd-cover:hover :global(svg) {
+    color: var(--accent);
+  }
+
+  .cd-cover:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>

@@ -1,0 +1,193 @@
+---
+// Chapter 2 stage: one model in two mirrors. On the left what the AI agent reads (a text excerpt of the model, or the
+// unit as edges), on the right what the engineer sees in the application (the P&ID, the cabinet, the render), split by
+// a thin mirror line in the layer's colour. States: mirror-pv (ProcessView), mirror-ig (IonGrid), mirror-pm
+// (PlantMesh). When a pair comes on, both halves unfold from the mirror line; between pairs they cross-fade, no zoom;
+// calm readers get them at once. The excerpts come from the media export (texts: tools/agent-views.mjs in the media
+// repository, real ids of the demonstration project), the pictures from its reviewed captures and renders. On narrow
+// screens the halves stand one above the other.
+import { LAYERS } from '../../data/article';
+import { text } from '../../data/media';
+import type { Lang } from '../../i18n/config';
+import MediaLayer from './MediaLayer.astro';
+
+interface Props {
+  lang: Lang;
+  labels: Record<string, string>;
+  /** fixed state for static copies (no-JS figures) */
+  state?: string;
+}
+
+const { lang, labels, state } = Astro.props;
+const fixed = Boolean(state);
+const color = (id: string) => LAYERS.find((l) => l.id === id)?.color ?? 'var(--accent)';
+type Half = { text: string } | { image: string };
+const PAIRS: { state: string; layer: string; agent: Half; engineer: string }[] = [
+  { state: 'mirror-pv', layer: 'processview', agent: { text: 'pv-model' }, engineer: 'pv-mirror' },
+  { state: 'mirror-ig', layer: 'iongrid', agent: { text: 'ig-netlist' }, engineer: 'ig-open' },
+  { state: 'mirror-pm', layer: 'plantmesh', agent: { image: 'pm-wire' }, engineer: 'pm-final' },
+];
+const shown = fixed ? PAIRS.filter((p) => p.state === state) : PAIRS;
+const sizes = '(min-width: 1000px) 32vw, 92vw';
+---
+
+<div class="st mirror" data-fixed={fixed ? '' : undefined}>
+  <div class="st-frame mirror-frame">
+    {
+      shown.map((pair) => (
+        <div class="st-look mr" data-look={pair.state} data-on={fixed ? '' : undefined} style={`--lc:${color(pair.layer)}`}>
+          <div class="mr-half mr-agent">
+            <p class="mr-tag">
+              <span>{labels.agentView}</span>
+              {'text' in pair.agent && <span class="mr-chip">{labels.excerpt}</span>}
+            </p>
+            {'text' in pair.agent ? (
+              <pre class="mr-code" lang="en">{text(pair.agent.text) ?? ''}</pre>
+            ) : (
+              <div class="mr-pic">
+                <MediaLayer id={pair.agent.image} lang={lang} sizes={sizes} eager={fixed} />
+              </div>
+            )}
+          </div>
+          <div class="mr-line" aria-hidden="true" />
+          <div class="mr-half mr-engineer">
+            <p class="mr-tag">
+              <span>{labels.engineerView}</span>
+            </p>
+            <div class="mr-pic">
+              <MediaLayer id={pair.engineer} lang={lang} sizes={sizes} eager={fixed} />
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .mirror-frame {
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-sunken);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+
+  .mr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  }
+
+  .mr-half {
+    position: relative;
+    container-type: size;
+    overflow: hidden;
+    transition: clip-path 0.7s var(--ease-out);
+  }
+
+  /* both halves unfold from the mirror line when their pair comes on */
+  .mr-agent {
+    clip-path: inset(0 0 0 100%);
+  }
+
+  .mr-engineer {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .mr[data-on] .mr-half {
+    clip-path: inset(0);
+  }
+
+  .mr[data-on] .mr-engineer {
+    transition-delay: 0.08s;
+  }
+
+  .mr-line {
+    background: linear-gradient(transparent, var(--lc) 18%, var(--lc) 82%, transparent);
+    opacity: 0.85;
+  }
+
+  /* the half's label stays legible over a picture: a small dark plate under it */
+  .mr-tag {
+    position: absolute;
+    z-index: 1;
+    top: 0.55rem;
+    left: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    background: rgb(8 10 17 / 0.78);
+    font: 600 var(--fs-xs) / 1.3 var(--font-display);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--lc) 83%, white);
+  }
+
+  .mr-chip {
+    padding: 0 0.55em;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    font: 500 0.92em / 1.6 var(--font-mono);
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--text-3);
+  }
+
+  /* the excerpt as the AI agent reads it: monospace, sized so its widest row fits the half */
+  .mr-code {
+    position: absolute;
+    inset: 2.6rem 0.9rem 0.9rem;
+    margin: 0;
+    overflow: hidden;
+    font: 400 clamp(7.5px, 2.3cqi, 13px) / 1.55 var(--font-mono);
+    color: var(--text-2);
+    white-space: pre;
+    tab-size: 2;
+  }
+
+  .mr-pic {
+    position: absolute;
+    inset: 0;
+  }
+
+  .mr-pic :global(.mlayer) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    aspect-ratio: auto;
+    background: transparent;
+  }
+
+  .mr-pic :global(img) {
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+
+  :global([data-calm]) .mr-half,
+  .mirror[data-fixed] .mr-half {
+    transition: none;
+  }
+
+  @media (max-width: 760px) {
+    .mirror-frame {
+      width: min(100cqw, 100cqh * 9 / 11);
+      aspect-ratio: 9 / 11;
+    }
+
+    .mr {
+      grid-template-columns: none;
+      grid-template-rows: minmax(0, 1fr) 1px minmax(0, 1fr);
+    }
+
+    .mr-line {
+      background: linear-gradient(90deg, transparent, var(--lc) 18%, var(--lc) 82%, transparent);
+    }
+
+    .mr-half,
+    .mr[data-on] .mr-half {
+      clip-path: none;
+    }
+  }
+</style>

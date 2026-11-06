@@ -1,0 +1,140 @@
+---
+// The page shell: <head> (meta, hreflang alternates, Open Graph, structured data), header, main, footer.
+// `route` is the language-neutral path ("/", "/knowledge/bottom-up/", "/apps/mechgraph/"); every language version of a page
+// shares it, which is what the alternates and the language switch are built from.
+import '../styles/fonts.css';
+import '../styles/global.css';
+import montserratLatin from '@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url';
+import notoSansLatin from '@fontsource-variable/noto-sans/files/noto-sans-latin-wght-normal.woff2?url';
+import montserratPl from '../assets/fonts/montserrat-pl-wght-normal.woff2?url';
+import notoSansPl from '../assets/fonts/noto-sans-pl-wght-normal.woff2?url';
+import monoLatin from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
+import monoPl from '../assets/fonts/jetbrains-mono-pl-wght-normal.woff2?url&no-inline';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { LANGS, OG_LOCALE, path, type Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  route: string;
+  title: string;
+  description: string;
+  /** absolute path of the share image (1200×630) under public/ */
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** absolute path of the page's Markdown summary for AI agents (public/*.md), linked as rel="alternate" */
+  markdown?: string;
+  noindex?: boolean;
+  /** extra class on <body> (e.g. a page theme) */
+  bodyClass?: string;
+}
+
+const { lang, route, title, description, ogImage = '/og/default.jpg', ogType = 'website', jsonLd, markdown, noindex = false, bodyClass } = Astro.props;
+const site = import.meta.env.SITE ?? 'https://simon-lab.org';
+const canonical = new URL(path(route, lang), site).href;
+const alternates = LANGS.map((l) => ({ lang: l, href: new URL(path(route, l), site).href }));
+const ui = t(lang);
+const ldBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+// The two text fonts (the files fonts.css declares) load with the page instead of after the stylesheet, so they are
+// usually there before the first paint; Polish pages also need the Polish subsets. A file inlined into the CSS needs none.
+const fontPreloads = [montserratLatin, notoSansLatin, ...(lang === 'pl' ? [montserratPl, notoSansPl] : [])].filter((href) => !href.startsWith('data:'));
+// JetBrains Mono sets only small labels and codes: the script below adds it once the page has loaded (the ranges of
+// src/styles/fonts-mono.css, which the article's terminal still loads with itself).
+const mono = [
+  [monoLatin, 'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD'],
+  [monoPl, 'U+0104-0107, U+0118-0119, U+0141-0144, U+015A-015B, U+0179-017C'],
+];
+---
+
+<!doctype html>
+<html lang={lang} dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {/* A noindex page (404) has no address of its own: no canonical, no alternates. */}
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {!noindex && alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={alternates[0].href} />}
+    {/* the same page as Markdown, for AI agents that read the site (also listed in /llms.txt) */}
+    {!noindex && markdown && <link rel="alternate" type="text/markdown" href={new URL(markdown, site).href} title="Markdown summary for AI agents" />}
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <meta name="theme-color" content="#0b0e17" />
+    <meta name="color-scheme" content="dark" />
+    {fontPreloads.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+    <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/assets/favicon.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="Simon Lab" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={new URL(ogImage, site).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={OG_LOCALE[lang]} />
+    {LANGS.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={OG_LOCALE[l]} />)}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(ogImage, site).href} />
+
+    {ldBlocks.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
+
+    {/* before first paint: html.js (enhanced layouts) and data-calm (reduced motion or Save-Data: no autoplay) */}
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        var c = navigator.connection;
+        if ((c && c.saveData) || matchMedia('(prefers-reduced-motion: reduce)').matches) d.setAttribute('data-calm', '');
+      })();
+    </script>
+
+    {/* the mono font once the page has loaded and its largest text is painted (a fast page can finish loading before the
+        first paint), so it never competes with the text fonts; until then labels use the system monospace, which is
+        just as wide (0.6 em), so the swap moves nothing */}
+    <script is:inline define:vars={{ mono }}>
+      addEventListener('load', function () {
+        if (!window.FontFace || !document.fonts) return;
+        var add = function () {
+          mono.forEach(function (face) {
+            document.fonts.add(new FontFace('JetBrains Mono Variable', 'url(' + face[0] + ') format("woff2")', { weight: '100 800', unicodeRange: face[1], display: 'swap' }));
+          });
+        };
+        var types = (window.PerformanceObserver && PerformanceObserver.supportedEntryTypes) || [];
+        var type = types.indexOf('largest-contentful-paint') >= 0 ? 'largest-contentful-paint' : types.indexOf('paint') >= 0 ? 'paint' : '';
+        if (!type) return add();
+        var seen = new PerformanceObserver(function () {
+          seen.disconnect();
+          setTimeout(add, 0);
+        });
+        seen.observe({ type: type, buffered: true });
+      });
+    </script>
+
+    <slot name="head" />
+
+    {/* Old links used ?lang=pl / ?lang=de on English URLs: send them to the localized route. */}
+    {
+      lang === 'en' && (
+        <script is:inline>
+          {`(function(){var q=new URLSearchParams(location.search).get('lang');if(q==='pl'||q==='de'){location.replace('/'+q+(location.pathname==='/'?'/':location.pathname)+location.hash);}})();`}
+        </script>
+      )
+    }
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main" data-ui="skip">{ui('skip')}</a>
+    <Header lang={lang} route={route} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

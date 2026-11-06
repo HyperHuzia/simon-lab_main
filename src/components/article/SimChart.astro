@@ -1,0 +1,460 @@
+---
+// The batch beside the pv-sim clip, as three small multiples on the same time axis (temperature with its 60 °C limit,
+// level, NaOH dosed), side by side under the app frame — never a dual axis. The playhead follows the clip's
+// currentTime (src/scripts/article/sim-chart.ts): each line is revealed up to it (clip-path), phase chips light as it
+// passes the phases, the step name comes from labels.s1…s8, "batch 30 % ✓" shows at the end. Hovering a plot
+// inspects any moment. Until processview/hud.json is exported the panel renders its frame and a pending note.
+import { simModel } from '../../data/sim';
+import type { Lang } from '../../i18n/config';
+
+interface Props {
+  labels: Record<string, string>;
+  lang: Lang;
+  /** static copy (no-JS figure): drawn complete */
+  final?: boolean;
+}
+
+const { labels, lang, final = false } = Astro.props;
+const sim = simModel();
+const nf = (v: number, d = 1) => new Intl.NumberFormat(lang, { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+const clock = (s: number) => [Math.floor(s / 3600), Math.floor((s % 3600) / 60), Math.floor(s % 60)].map((v) => String(v).padStart(2, '0')).join(':');
+// "no value yet" is shown as an en dash (also in src/scripts/article/sim-chart.ts)
+const NONE = '…';
+const rows = [
+  { key: 'temp', name: labels.temp, end: sim ? `${nf(sim.final.tempC)} °C` : NONE },
+  { key: 'level', name: labels.level, end: sim ? `${nf(sim.final.level, 0)} %` : NONE },
+  { key: 'mass', name: labels.dosed, end: sim ? `${nf(sim.final.massKg / 1000)} t` : NONE },
+] as const;
+const phases = ['filling', 'mixing', 'dosing', 'cooling'] as const;
+const steps = Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8].map((n) => [n, labels[`s${n}`]]));
+const summary = sim
+  ? `${labels.temp} ≤ ${nf(sim.final.tempMax)} °C (${labels.limit}) · ${labels.level} ${nf(sim.final.level, 0)} % · ${labels.dosed} ${nf(sim.final.massKg / 1000)} t · ${labels.simClock} ${clock(sim.final.clockS)}`
+  : labels.timelapse;
+const lastStep = sim ? sim.series.step[sim.series.step.length - 1] : 0;
+---
+
+<div class="sim" data-sim data-pending={sim ? undefined : ''} data-done={final ? '' : undefined} style={`--t:${final ? 1 : 0}`}>
+  <div class="sim-head">
+    <span class="sim-clock"><span class="sim-lbl">{labels.simClock}</span> <b data-clock>{final && sim ? clock(sim.final.clockS) : '00:00:00'}</b></span>
+    <span class="sim-step">
+      <span class="sim-step-n" data-step-n>{labels.step} {final && lastStep ? lastStep : NONE}</span>
+      <span class="sim-step-name" data-step-name>{final && lastStep ? steps[lastStep] : ''}</span>
+    </span>
+    <span class="sim-rate">{labels.timelapse}</span>
+  </div>
+
+  <div class="sim-panels" role="img" aria-label={summary} data-plots>
+    {
+      rows.map((r) => (
+        <div class="sim-panel">
+          <p class="sim-meta">
+            <span class="sim-name">{r.name}</span>
+            <b class="sim-val" data-val={r.key}>
+              {final ? r.end : NONE}
+            </b>
+          </p>
+          <div class="sim-plot" data-plot>
+            {sim && (
+              <>
+                <svg class="sim-base" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+                  <path d={sim.paths[r.key].line} />
+                </svg>
+                <div class="sim-lit">
+                  <svg viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="area" d={sim.paths[r.key].area} />
+                    <path class="line" d={sim.paths[r.key].line} />
+                  </svg>
+                </div>
+                {r.key === 'temp' && (
+                  <div class="sim-limit" style={`--ly:${sim.limit.y}`}>
+                    <span>
+                      <i aria-hidden="true">!</i>
+                      {labels.limit}
+                    </span>
+                  </div>
+                )}
+                <i class="sim-dot" data-dot={r.key} aria-hidden="true" />
+              </>
+            )}
+            <i class="sim-playhead" aria-hidden="true" />
+            <i class="sim-hover" aria-hidden="true" />
+          </div>
+        </div>
+      ))
+    }
+    {!sim && <span class="sim-pending" aria-hidden="true">processview/hud.json</span>}
+  </div>
+
+  <div class="sim-foot">
+    <ol class="sim-phases">
+      {
+        phases.map((p) => (
+          <li data-phase={p} data-at={sim ? sim.phases[p] : 1} data-on={final ? '' : undefined}>
+            {labels[p]}
+          </li>
+        ))
+      }
+    </ol>
+    <span class="sim-done" data-done-chip>
+      <i aria-hidden="true"></i>{labels.batchDone}
+    </span>
+  </div>
+  {sim && !final && <script type="application/json" data-sim-series set:html={JSON.stringify({ ...sim.series, steps })} />}
+</div>
+
+<style>
+  /* --series: the plotted lines' colour (the layer's); --ground: the panel's surface (labels mask lines with it) */
+  .sim {
+    --t: 0;
+    --series: var(--l-processview);
+    --ground: var(--bg-raised);
+    position: relative;
+    width: 100%;
+    padding: 0.8rem 1rem 0.85rem;
+    border-radius: var(--radius);
+    background: var(--ground);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--series) 22%, var(--line));
+    font-size: 0.78rem;
+    color: var(--text-2);
+  }
+
+  .sim-head {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    min-width: 0;
+  }
+
+  .sim-clock {
+    flex: none;
+    font-family: var(--font-mono);
+  }
+
+  .sim-clock b {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  .sim-lbl,
+  .sim-rate {
+    font: 500 0.68rem / 1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .sim-rate {
+    flex: none;
+    margin-left: auto;
+  }
+
+  .sim-step {
+    display: flex;
+    gap: 0.5em;
+    min-width: 0;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .sim-step-n {
+    flex: none;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: color-mix(in oklab, var(--series) 83%, white);
+  }
+
+  .sim-step-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sim-panels {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.1rem;
+    margin-top: 0.7rem;
+  }
+
+  .sim-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0 0 0.3rem;
+  }
+
+  .sim-name {
+    color: var(--text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sim-val {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .sim-plot {
+    position: relative;
+    height: 3.1rem;
+    container-type: size;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sim-plot svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .sim-base path {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    stroke-linejoin: round;
+  }
+
+  .sim-lit {
+    position: absolute;
+    inset: -4px 0;
+    clip-path: inset(0 calc((1 - var(--t)) * 100%) 0 0);
+  }
+
+  .sim-lit svg {
+    inset: 4px 0;
+    height: calc(100% - 8px);
+  }
+
+  .sim-lit .line {
+    fill: none;
+    stroke: var(--series);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .sim-lit .area {
+    fill: color-mix(in srgb, var(--series) 11%, transparent);
+  }
+
+  .sim-limit {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--ly) * 1%);
+    border-top: 1px solid color-mix(in srgb, var(--alert) 80%, transparent);
+  }
+
+  .sim-limit span {
+    position: absolute;
+    left: 0;
+    bottom: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    padding: 0 0.3em 0 0;
+    background: var(--ground);
+    font: 500 0.64rem/1 var(--font-mono);
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+
+  .sim-limit i {
+    display: inline-grid;
+    place-items: center;
+    width: 1.1em;
+    height: 1.1em;
+    border-radius: 50%;
+    background: var(--alert);
+    color: var(--bg);
+    font: 800 0.6rem/1 var(--font-display);
+    font-style: normal;
+  }
+
+  .sim-dot {
+    --y: 100;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--series);
+    box-shadow: 0 0 0 2px var(--ground);
+    transform: translate(calc(var(--t) * 100cqw - 50%), calc(var(--y) * 1cqh - 50%));
+    opacity: min(1, calc(var(--t) * 40));
+  }
+
+  .sim-playhead,
+  .sim-hover {
+    position: absolute;
+    top: -0.25rem;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    background: rgb(238 241 246 / 0.4);
+    transform: translateX(calc(var(--t) * 100cqw));
+    opacity: min(1, calc(var(--t) * 40));
+  }
+
+  .sim-hover {
+    display: none;
+    background: rgb(238 241 246 / 0.85);
+    transform: translateX(calc(var(--h, 0) * 100cqw));
+    opacity: 1;
+  }
+
+  .sim[data-inspect] .sim-hover {
+    display: block;
+  }
+
+  .sim-pending {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.9rem;
+    text-align: center;
+    font: 500 0.68rem/1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .sim-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+  }
+
+  .sim-phases {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sim-phases li {
+    padding: 0.28em 0.7em;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font: 500 0.7rem/1.2 var(--font-mono);
+    color: var(--text-3);
+    transition:
+      color var(--dur) var(--ease-out),
+      border-color var(--dur) var(--ease-out),
+      background-color var(--dur) var(--ease-out);
+  }
+
+  .sim-phases li[data-on] {
+    color: var(--text);
+    border-color: color-mix(in srgb, var(--series) 45%, var(--line));
+    background: color-mix(in srgb, var(--series) 8%, transparent);
+  }
+
+  /* the running phase: its full colour edge */
+  .sim-phases li[data-now] {
+    border-color: var(--series);
+  }
+
+  .sim-done {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    padding: 0.3em 0.75em;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--ok) 55%, transparent);
+    background: color-mix(in srgb, var(--ok) 12%, transparent);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    color: var(--text);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+
+  .sim-done i {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--ok);
+  }
+
+  .sim[data-done] .sim-done {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 760px) {
+    .sim {
+      padding: 0.6rem 0.7rem 0.65rem;
+      font-size: 0.68rem;
+      border-radius: 12px;
+    }
+
+    .sim-head {
+      gap: 0.7rem;
+    }
+
+    .sim-rate {
+      display: none;
+    }
+
+    .sim-panels {
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+
+    .sim-meta {
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .sim-plot {
+      height: 2.1rem;
+    }
+
+    .sim-limit span {
+      font-size: 0;
+      gap: 0;
+    }
+
+    .sim-limit i {
+      font-size: 0.55rem;
+    }
+
+    .sim-foot {
+      margin-top: 0.5rem;
+      gap: 0.35rem;
+    }
+
+    .sim-phases {
+      gap: 0.25rem;
+    }
+
+    .sim-phases li {
+      padding: 0.2em 0.5em;
+      font-size: 0.6rem;
+    }
+
+    .sim-done {
+      font-size: 0.6rem;
+    }
+  }
+</style>

@@ -1,0 +1,322 @@
+---
+// The team page (/team/): a cover photo, then four members on equal terms in the same card (portrait, name, role,
+// about, goal, motto, one row each, parted by a faint line; Szymon's card has a goal and no motto), and the home lab's
+// card at the end (a small photo instead of a portrait, fields of its own). Light on purpose and without explanations.
+// Copy from src/content/team (per language; German shows the English copy, marked lang="en", with English alt texts);
+// photos from the media repo's team intake (covered labels and screens, no metadata) through the gated export.
+import Figure from '../components/Figure.astro';
+import Avatar from '../components/team/Avatar.astro';
+import { media, ogImage } from '../data/media';
+import { teamFor } from '../data/team';
+import type { Lang } from '../i18n/config';
+import Base from '../layouts/Base.astro';
+import '../styles/home.css';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = teamFor(lang);
+// a language without its own copy shows the English one: the content says so, for screen readers and translators
+const contentLang = copy.lang;
+const cover = media('team-plant');
+const portrait = media('team-portrait');
+const lab = media('team-homelab');
+---
+
+<Base lang={lang} route="/team/" title={copy.meta.title} description={copy.meta.description} ogImage={ogImage('team') ?? ogImage('default')}>
+  <section class="hp-sec team" aria-labelledby="team-title" lang={contentLang !== lang ? contentLang : undefined}>
+    <header class="hp-head">
+      <p class="hp-eyebrow">{copy.hero.eyebrow}</p>
+      <h1 class="hp-title" id="team-title">{copy.hero.title}</h1>
+      <p class="hp-lede lead">{copy.hero.lede}</p>
+    </header>
+
+    {cover && <Figure item={cover} lang={contentLang} bare priority class="cover" sizes="(min-width: 1260px) 1216px, 100vw" />}
+
+    <ul class="members">
+      {
+        copy.members.map((m) => (
+          <li class="member" id={m.id}>
+            <div class="portrait">
+              {m.id === 'szymon' ? portrait && <Figure item={portrait} lang={contentLang} bare sizes="176px" /> : <Avatar who={m.id} />}
+            </div>
+            <div class="head">
+              <h2>{m.name}</h2>
+              <p class="role">{m.role}</p>
+            </div>
+            <dl class="fields">
+              <div class="field">
+                <dt>{copy.fields.about}</dt>
+                <dd>
+                  {m.about.map((p) => (
+                    <p>{p}</p>
+                  ))}
+                </dd>
+              </div>
+              {m.goal && (
+                <div class="field">
+                  <dt>{copy.fields.goal}</dt>
+                  <dd>
+                    {m.goal.map((p) => (
+                      <p>{p}</p>
+                    ))}
+                  </dd>
+                </div>
+              )}
+              {m.motto && (
+                <div class="field">
+                  <dt>{copy.fields.motto}</dt>
+                  <dd class="motto">
+                    {m.motto.map((p) => (
+                      <p>{p}</p>
+                    ))}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </li>
+        ))
+      }
+      <li class="member lab" id="homelab">
+        <div class="portrait lab-photo">{lab && <Figure item={lab} lang={contentLang} bare sizes="176px" />}</div>
+        <div class="head">
+          <p class="lab-eyebrow">{copy.lab.eyebrow}</p>
+          <h2>{copy.lab.name}</h2>
+          <p class="role">{copy.lab.role}</p>
+        </div>
+        <dl class="fields">
+          <div class="field">
+            <dt>{copy.lab.fields.about}</dt>
+            <dd><p>{copy.lab.about}</p></dd>
+          </div>
+          <div class="field">
+            <dt>{copy.lab.fields.risk}</dt>
+            <dd><p>{copy.lab.risk}</p></dd>
+          </div>
+          <div class="field">
+            <dt>{copy.lab.fields.why}</dt>
+            <dd><p>{copy.lab.why}</p></dd>
+          </div>
+        </dl>
+      </li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .team {
+    padding-top: clamp(3rem, 2rem + 5vw, 6.5rem);
+  }
+
+  .team .hp-title {
+    font-size: var(--fs-3xl);
+  }
+
+  .lead {
+    color: var(--text);
+  }
+
+  .team :global(.cover) {
+    margin: 0 0 clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    aspect-ratio: 3 / 1;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .team :global(.cover img) {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: cover;
+    object-position: 35% 70%;
+  }
+
+  /* the members: one card each, the same fields in the same order */
+  .members {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* the portrait on the left, the name and the fields beside it */
+  .member {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(1.5rem, 4vw, 3.5rem);
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+  }
+
+  .head,
+  .fields {
+    grid-column: 2;
+  }
+
+  .portrait {
+    grid-row: 1 / span 2;
+    width: 11rem;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .portrait :global(.figure),
+  .portrait :global(.avatar) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .portrait :global(picture) {
+    display: block;
+    height: 100%;
+  }
+
+  .portrait :global(img) {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: cover;
+  }
+
+  .member h2 {
+    margin: 0.4rem 0 0.25rem;
+    font-size: var(--fs-2xl);
+  }
+
+  .role {
+    margin: 0;
+    font: 500 var(--fs-sm) / 1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+  }
+
+  .fields {
+    display: grid;
+    margin: 1.75rem 0 0;
+  }
+
+  /* one row per field, the label beside its text; a faint line between the rows */
+  .field {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 46rem);
+    column-gap: 2rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .field:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .field:last-child {
+    padding-bottom: 0;
+  }
+
+  .fields dt {
+    padding-top: 0.3rem;
+    font: 600 var(--fs-xs) / 1.4 var(--font-display);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .fields dd {
+    margin: 0;
+  }
+
+  .fields dd p {
+    line-height: 1.65;
+    color: var(--text-2);
+  }
+
+  .fields dd p:last-child {
+    margin-bottom: 0;
+  }
+
+  .motto p {
+    color: var(--text);
+  }
+
+  /* the home lab: the same card, a little apart (dashed edge, no fill), its photo a small rounded frame */
+  .lab {
+    border-style: dashed;
+    background: transparent;
+  }
+
+  .portrait.lab-photo {
+    height: 8.25rem;
+    aspect-ratio: auto;
+    border-radius: var(--radius-sm);
+  }
+
+  /* the photo is wider than its frame: it fills the frame, cropped (the Figure's own rule keeps its proportions) */
+  .lab .lab-photo :global(img) {
+    height: 100%;
+    border: 0;
+  }
+
+  .lab-eyebrow {
+    margin: 0;
+    font: 600 var(--fs-xs) / 1.4 var(--font-display);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .lab h2 {
+    font-size: var(--fs-xl);
+  }
+
+  @media (max-width: 700px) {
+    .team :global(.cover) {
+      aspect-ratio: 16 / 9;
+    }
+
+    /* on a phone the name sits beside a smaller portrait and the fields run under both, each label above its text */
+    .member {
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      grid-template-rows: auto;
+      column-gap: 1.1rem;
+    }
+
+    .portrait {
+      grid-row: auto;
+      width: 5.5rem;
+    }
+
+    .portrait.lab-photo {
+      height: 4.1rem;
+    }
+
+    .head {
+      align-self: center;
+    }
+
+    .member h2 {
+      margin-top: 0;
+      font-size: var(--fs-xl);
+    }
+
+    .fields {
+      grid-column: 1 / -1;
+      margin-top: 1.4rem;
+    }
+
+    .field {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 0.35rem;
+      padding: 0.9rem 0;
+    }
+  }
+</style>

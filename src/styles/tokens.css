@@ -1,0 +1,79 @@
+/* Design tokens: a calm dark look. The hues come from the "Bottom-Up" film (brand/palette.json and docs/BRAND.md in
+   simon-lab-media), mixed toward grey for the page: colour marks lines, dots and small labels, never large glowing
+   surfaces. No glows and no gradients outside the logo. */
+:root {
+  color-scheme: dark;
+
+  /* surfaces */
+  --bg: #0b0e17;
+  --bg-raised: #11151f;
+  --bg-sunken: #080a11;
+  --grid: #171c29;
+  --line: #222a3b;
+  --line-strong: #343e57;
+
+  /* text */
+  --text: #eef1f6;
+  --text-2: #b6bdcb;
+  --text-3: #8a93a5;
+  --text-4: #5b6170;
+
+  /* one quiet interactive colour: focus ring, current page, small highlights. A cool grey that no layer uses, so a
+     colour on the page always means one application. */
+  --accent: #a9b8d2;
+
+  /* the film's neon, for the logo and the film itself only */
+  --neon-cyan: #00f5ff;
+  --neon-violet: #9d00ff;
+  --neon-magenta: #ff00aa;
+
+  /* platform layers, bottom-up: the film's hues mixed 62% with grey (OKLab) */
+  --l-capacity: #68d0dd;
+  --l-processview: #67b5de;
+  --l-mechgraph: #7888df;
+  --l-iongrid: #975de0;
+  --l-plantmesh: #b95cc8;
+  --l-architecture: #da61a9;
+  --l-soon: #5b6170;
+
+  /* status */
+  --ok: #6bc29f;
+  --warn: #d3ab79;
+  --alert: #d97385;
+
+  /* type; the "Fallback" faces (fonts.css) are Arial matched to the web fonts' metrics, for the moment before they load */
+  --font-display: 'Montserrat Variable', 'Montserrat', 'Montserrat Fallback', system-ui, sans-serif;
+  --font-body: 'Noto Sans Variable', 'Noto Sans', 'Noto Sans Fallback', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-base: 1.0625rem;
+  --fs-lg: 1.1875rem;
+  --fs-xl: clamp(1.3rem, 1.15rem + 0.6vw, 1.6rem);
+  --fs-2xl: clamp(1.75rem, 1.35rem + 1.7vw, 2.5rem);
+  --fs-3xl: clamp(2.2rem, 1.55rem + 2.8vw, 3.5rem);
+
+  /* layout */
+  --measure: 40rem;
+  --wide: 76rem;
+  --gutter: clamp(1rem, 0.4rem + 3vw, 3rem);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --header-h: 4rem;
+
+  /* motion: one ease family, spring-like out curve for state changes */
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --dur-fast: 180ms;
+  --dur: 520ms;
+  --dur-slow: 900ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur: 1ms;
+    --dur-slow: 1ms;
+  }
+}

@@ -1,0 +1,38 @@
+---
+// The knowledge base (/knowledge/): the illustrated articles and the ones in preparation. Copy from
+// src/content/knowledge; the list itself from src/data/knowledge.ts.
+import KnowledgeList from '../components/KnowledgeList.astro';
+import { knowledgeFor } from '../data/knowledge';
+import { ogImage } from '../data/media';
+import type { Lang } from '../i18n/config';
+import Base from '../layouts/Base.astro';
+import '../styles/home.css';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = knowledgeFor(lang);
+---
+
+<Base lang={lang} route="/knowledge/" title={copy.meta.title} description={copy.meta.description} ogImage={ogImage('knowledge') ?? ogImage('default')}>
+  <section class="hp-sec kb" aria-labelledby="kb-title">
+    <header class="hp-head">
+      <p class="hp-eyebrow">{copy.hero.eyebrow}</p>
+      <h1 class="hp-title" id="kb-title">{copy.hero.title}</h1>
+      <p class="hp-lede">{copy.hero.lede}</p>
+    </header>
+    <KnowledgeList lang={lang} level="h2" />
+  </section>
+</Base>
+
+<style>
+  .kb {
+    padding-top: clamp(3rem, 2rem + 5vw, 6.5rem);
+  }
+
+  .kb .hp-title {
+    font-size: var(--fs-3xl);
+  }
+</style>

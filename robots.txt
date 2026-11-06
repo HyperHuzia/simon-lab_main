@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://simon-lab.org/sitemap.xml
