@@ -1,0 +1,72 @@
+---
+// "Write to us": no form, nothing collected. The button assembles the mailbox in the browser from character codes
+// (MAILBOX in src/config.ts), opens a message with the given subject and shows the address beside the button, so the
+// HTML never carries it as text. Without JavaScript it leads to the contact details in the footer (#contact). Used by
+// the beta page and the services page.
+import { MAILBOX } from '../config';
+import Icon from './Icon.astro';
+
+interface Props {
+  label: string;
+  subject: string;
+}
+
+const { label, subject } = Astro.props;
+---
+
+<p class="write">
+  <a class="btn btn-solid" href="#contact" data-mailto data-code={MAILBOX.code} data-domain={MAILBOX.domain} data-subject={subject}>
+    <Icon name="mail" size={16} />
+    <span>{label}</span>
+  </a>
+  <span class="address" data-address aria-live="polite"></span>
+</p>
+
+<script>
+  const decode = (codes = '') =>
+    codes
+      .split(',')
+      .map((c) => String.fromCharCode(Number(c)))
+      .join('');
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-mailto]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      const address = `${decode(link.dataset.code)}@${link.dataset.domain}`;
+      // the address beside the button, for readers without a mail app
+      const shown = link.parentElement?.querySelector<HTMLElement>('[data-address]');
+      if (shown && !shown.firstChild) {
+        const a = document.createElement('a');
+        a.href = `mailto:${address}`;
+        a.textContent = address;
+        shown.append(a);
+      }
+      window.location.href = `mailto:${address}?subject=${encodeURIComponent(link.dataset.subject ?? '')}`;
+    });
+  });
+</script>
+
+<style>
+  .write {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin: 2rem 0 0;
+  }
+
+  .write .btn {
+    gap: 0.55rem;
+  }
+
+  .address {
+    font: 500 var(--fs-base) / 1.4 var(--font-display);
+  }
+
+  .address :global(a) {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--text-3);
+    text-underline-offset: 0.2em;
+  }
+</style>

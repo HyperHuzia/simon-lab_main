@@ -1,0 +1,228 @@
+---
+// The engineering services page (/services/), where "Services" in the header leads: Simon Lab takes on engineering
+// orders for chemical plants. The owner's slogan, the disciplines (one per application, bottom-up, a dot in the
+// layer's colour and a link to the application's page), why an order is fast and who checks it, what the client
+// receives, and orders by email (no form). Copy from src/content/services (per language); the applications' names and
+// roles from src/data/apps.ts.
+import Icon from '../components/Icon.astro';
+import MailtoButton from '../components/MailtoButton.astro';
+import Slogan from '../components/Slogan.astro';
+import { appById } from '../data/apps';
+import { ogImage } from '../data/media';
+import { servicesFor } from '../data/services';
+import { path, type Lang } from '../i18n/config';
+import Base from '../layouts/Base.astro';
+import '../styles/home.css';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = servicesFor(lang);
+const site = import.meta.env.SITE ?? 'https://simon-lab.org';
+const disciplines = copy.disciplines.items.map((d) => {
+  const app = appById(d.app);
+  if (!app) throw new Error(`services: no application "${d.app}" in src/data/apps.ts`);
+  return { ...d, app };
+});
+// the services and their disciplines, offered by the organization the homepage describes
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: copy.hero.eyebrow,
+  description: copy.meta.description,
+  url: new URL(path('/services/', lang), site).href,
+  provider: { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Simon Lab', url: site },
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: copy.disciplines.title,
+    itemListElement: disciplines.map((d) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: d.name, description: d.body } })),
+  },
+};
+---
+
+<Base lang={lang} route="/services/" title={copy.meta.title} description={copy.meta.description} ogImage={ogImage('default')} jsonLd={jsonLd} markdown="/services.md">
+  <section class="hp-sec sv-hero" aria-labelledby="sv-title">
+    <header class="hp-head">
+      <p class="hp-eyebrow">{copy.hero.eyebrow}</p>
+      <h1 class="hp-title" id="sv-title"><Slogan text={copy.hero.title} /></h1>
+      <p class="hp-lede">{copy.hero.lede}</p>
+    </header>
+  </section>
+
+  <section class="hp-sec" aria-labelledby="sv-disciplines-title">
+    <header class="hp-head">
+      <p class="hp-eyebrow">{copy.disciplines.eyebrow}</p>
+      <h2 class="hp-title" id="sv-disciplines-title">{copy.disciplines.title}</h2>
+    </header>
+    <ul class="sv-list">
+      {
+        disciplines.map((d) => (
+          <li class="sv-row" style={`--layer:${d.app.color}`}>
+            <h3 class="sv-name">{d.name}</h3>
+            <div class="sv-body">
+              <p>{d.body}</p>
+              <a class="hp-more" href={path(`/apps/${d.app.id}/`, lang)}>
+                {d.app.name}: {d.app.copy[lang].role}
+                <Icon name="arrow-right" size={15} />
+              </a>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {/* why it is fast and who checks it, side by side */}
+  <section class="hp-sec">
+    <div class="sv-pair">
+      <section aria-labelledby="sv-fast-title">
+        <p class="hp-eyebrow">{copy.fast.eyebrow}</p>
+        <h2 class="hp-title" id="sv-fast-title">{copy.fast.title}</h2>
+        {copy.fast.body.map((p) => <p>{p}</p>)}
+        <a class="hp-more" href={path('/knowledge/project-as-code/', lang)}>
+          {copy.fast.more}
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </section>
+      <section aria-labelledby="sv-checked-title">
+        <p class="hp-eyebrow">{copy.checked.eyebrow}</p>
+        <h2 class="hp-title" id="sv-checked-title">{copy.checked.title}</h2>
+        {copy.checked.body.map((p) => <p>{p}</p>)}
+      </section>
+    </div>
+  </section>
+
+  <section class="hp-sec" aria-labelledby="sv-delivery-title">
+    <div class="sv-split">
+      <header>
+        <p class="hp-eyebrow">{copy.delivery.eyebrow}</p>
+        <h2 class="hp-title" id="sv-delivery-title">{copy.delivery.title}</h2>
+      </header>
+      <div class="sv-split-body">
+        <p>{copy.delivery.lede}</p>
+        <ul>{copy.delivery.points.map((point) => <li>{point}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-sec sv-order" aria-labelledby="sv-order-title">
+    <header class="hp-head">
+      <p class="hp-eyebrow">{copy.order.eyebrow}</p>
+      <h2 class="hp-title" id="sv-order-title">{copy.order.title}</h2>
+      <p class="hp-lede">{copy.order.body}</p>
+    </header>
+    <MailtoButton label={copy.order.write} subject={copy.hero.eyebrow} />
+  </section>
+</Base>
+
+<style>
+  .sv-hero {
+    padding-top: clamp(3rem, 2rem + 5vw, 6.5rem);
+  }
+
+  .sv-hero .hp-title {
+    font-size: var(--fs-3xl);
+  }
+
+  /* the disciplines: the name on the left, what it covers and its application on the right, a line between */
+  .sv-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .sv-row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 0.75rem clamp(1.5rem, 5vw, 5rem);
+    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sv-name {
+    position: relative;
+    margin: 0;
+    padding-left: 1.4rem;
+    font-size: var(--fs-xl);
+    line-height: 1.3;
+  }
+
+  /* the layer's colour as a dot */
+  .sv-name::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--layer);
+  }
+
+  .sv-body {
+    max-width: 40rem;
+  }
+
+  .sv-body p {
+    margin: 0 0 0.9rem;
+    font-size: var(--fs-lg);
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+
+  /* two short sections side by side */
+  .sv-pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 5vw, 5rem);
+  }
+
+  .sv-pair > section {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .sv-pair p:not(.hp-eyebrow),
+  .sv-split-body {
+    font-size: var(--fs-lg);
+    line-height: 1.65;
+    color: var(--text-2);
+  }
+
+  /* heading on the left, the text on the right */
+  .sv-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 5vw, 5rem);
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .sv-split-body {
+    max-width: 40rem;
+  }
+
+  .sv-split-body ul {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  .sv-split-body li {
+    margin-bottom: 0.4rem;
+  }
+
+  .sv-order {
+    padding-bottom: clamp(3rem, 2rem + 4vw, 6rem);
+  }
+
+  @media (max-width: 760px) {
+    .sv-row,
+    .sv-pair,
+    .sv-split {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

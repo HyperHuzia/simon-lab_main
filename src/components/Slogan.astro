@@ -1,0 +1,17 @@
+---
+// The services page's slogan, as the services page's heading and the homepage's short section show it: a word with a
+// hyphen ("AI-native", "KI-nativ") never breaks at the hyphen, so a phone shows it whole.
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+{text.split(/(\S+-\S+)/).map((part) => (part.includes('-') ? <span class="whole">{part}</span> : part))}
+
+<style>
+  .whole {
+    white-space: nowrap;
+  }
+</style>

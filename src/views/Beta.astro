@@ -1,10 +1,7 @@
 ---
 // The beta page (/beta/), where "Join the beta" in the header leads: no form, nothing collected. Whoever wants to join
-// writes an email. "Write to us" assembles the address in the browser from character codes (MAILBOX in
-// src/config.ts), opens a message with the page's title as its subject and shows the address beside the button, so
-// the HTML never carries it as text. Without JavaScript the button leads to the contact details in the footer.
-import Icon from '../components/Icon.astro';
-import { MAILBOX } from '../config';
+// writes an email: "Write to us" (MailtoButton) opens a message with the page's title as its subject.
+import MailtoButton from '../components/MailtoButton.astro';
 import { ogImage } from '../data/media';
 import type { Lang } from '../i18n/config';
 import { t } from '../i18n/ui';
@@ -26,39 +23,9 @@ const ui = t(lang);
       <h1 class="hp-title" id="beta-title">{ui('beta.title')}</h1>
       <p class="hp-lede">{ui('beta.lede')}</p>
     </header>
-    <p class="write">
-      <a class="btn btn-solid" href="#contact" data-mailto data-code={MAILBOX.code} data-domain={MAILBOX.domain} data-subject={ui('beta.title')}>
-        <Icon name="mail" size={16} />
-        <span>{ui('beta.write')}</span>
-      </a>
-      <span class="address" data-address aria-live="polite"></span>
-    </p>
+    <MailtoButton label={ui('beta.write')} subject={ui('beta.title')} />
   </section>
 </Base>
-
-<script>
-  const decode = (codes = '') =>
-    codes
-      .split(',')
-      .map((c) => String.fromCharCode(Number(c)))
-      .join('');
-
-  document.querySelectorAll<HTMLAnchorElement>('[data-mailto]').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-      const address = `${decode(link.dataset.code)}@${link.dataset.domain}`;
-      // the address beside the button, for readers without a mail app
-      const shown = link.parentElement?.querySelector<HTMLElement>('[data-address]');
-      if (shown && !shown.firstChild) {
-        const a = document.createElement('a');
-        a.href = `mailto:${address}`;
-        a.textContent = address;
-        shown.append(a);
-      }
-      window.location.href = `mailto:${address}?subject=${encodeURIComponent(link.dataset.subject ?? '')}`;
-    });
-  });
-</script>
 
 <style>
   .beta {
@@ -68,28 +35,5 @@ const ui = t(lang);
 
   .beta .hp-title {
     font-size: var(--fs-3xl);
-  }
-
-  .write {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 1.5rem;
-    margin: 2rem 0 0;
-  }
-
-  .write .btn {
-    gap: 0.55rem;
-  }
-
-  .address {
-    font: 500 var(--fs-base) / 1.4 var(--font-display);
-  }
-
-  .address :global(a) {
-    color: var(--text);
-    text-decoration: underline;
-    text-decoration-color: var(--text-3);
-    text-underline-offset: 0.2em;
   }
 </style>

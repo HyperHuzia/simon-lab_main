@@ -1,6 +1,6 @@
 ---
-// Site header: logo, seven links (the last one the beta page, a link like the others) and a discreet language menu.
-// "Sign in" (the platform) has its place reserved: it shows again when SIGN_IN is set in src/config.ts. Below 1180px
+// Site header: logo, eight links (the last one the beta page, a link like the others) and a discreet language menu.
+// "Sign in" (the platform) has its place reserved: it shows again when SIGN_IN is set in src/config.ts. Below 1240px
 // the links move into a menu panel; the language menu stays in the bar. Strings carry data-ui / data-ui-aria keys so
 // the single 404 page can swap them (src/pages/404.astro).
 import { PLATFORM_URL, SIGN_IN } from '../config';
@@ -19,6 +19,7 @@ const home = path('/', lang);
 const nav = [
   { href: `${home}#mission`, key: 'nav.mission', match: null },
   { href: path('/apps/', lang), key: 'nav.apps', match: '/apps/' },
+  { href: path('/services/', lang), key: 'nav.services', match: '/services/' },
   { href: path('/knowledge/', lang), key: 'nav.knowledge', match: '/knowledge/' },
   { href: path('/roadmap/', lang), key: 'nav.roadmap', match: '/roadmap/' },
   { href: path('/team/', lang), key: 'nav.team', match: '/team/' },
@@ -363,7 +364,8 @@ const current = (match: string | null) => (match && route.startsWith(match) ? 'p
     transform: translateY(-5px) rotate(-45deg);
   }
 
-  @media (max-width: 1180px) {
+  /* eight links fit on one line from 1202px in German, the longest labels */
+  @media (max-width: 1240px) {
     .menu-toggle {
       display: inline-flex;
       align-items: center;

@@ -10,6 +10,7 @@ The site is published in English (default), Polish (`/pl/`) and German (`/de/`);
 - [Project as code](https://simon-lab.org/knowledge/project-as-code/): why a plant project works better as structured, versioned data; one model, generated documents, revisions, checks that run like tests, open formats
 - [Bottom-up chemical engineering](https://simon-lab.org/knowledge/bottom-up/): the platform's applications followed layer by layer through an anonymized caustic soda (NaOH) batch dissolution unit
 - [Applications](https://simon-lab.org/apps/): all applications
+- [Engineering services](https://simon-lab.org/services/): engineering orders for chemical plants, a whole project or one discipline (process engineering and process automation, mechanical design, automation and power, 3D modeling, architecture and BIM), built as code on the platform, delivered fast and checked by experienced engineers; the client receives the documents and the project as data
 - [Roadmap](https://simon-lab.org/roadmap/): the steps from the private beta to the launch with trusted partners at ACHEMA 2027 (Frankfurt, 14–18 June 2027)
 - [Join the beta](https://simon-lab.org/beta/): how to join the private beta: write an email (no forms); for companies, individual engineers and research projects
 - [Team](https://simon-lab.org/team/): Szymon (Head of Engineering) and the AI models Opus, Astra and Grok, presented as equal team members (a light page)
@@ -28,6 +29,7 @@ The site is published in English (default), Polish (`/pl/`) and German (`/de/`);
 - [Project as code, summarized](https://simon-lab.org/project-as-code.md)
 - [Bottom-up chemical engineering, summarized](https://simon-lab.org/bottom-up.md)
 - [Roadmap, summarized](https://simon-lab.org/roadmap.md)
+- [Engineering services, summarized](https://simon-lab.org/services.md)
 - [ProcessView, summarized](https://simon-lab.org/apps/process-view.md)
 - [LabelHash, summarized](https://simon-lab.org/apps/labelhash.md)
 

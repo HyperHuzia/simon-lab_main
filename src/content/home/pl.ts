@@ -117,6 +117,10 @@ export const home: HomeCopy = {
     lede: 'Każda aplikacja obejmuje jedną branżę projektu instalacji i wymienia dane z pozostałymi. Dokumenty powstają ze wspólnego modelu.',
     all: 'Wszystkie aplikacje',
   },
+  services: {
+    body: 'Simon Lab przyjmuje też zlecenia projektowe, cały projekt instalacji chemicznej albo jedną jego branżę: budowane jako kod na platformie, realizowane szybko i sprawdzane przez doświadczonych inżynierów.',
+    link: 'Usługi inżynierskie',
+  },
   about: {
     eyebrow: 'Firma',
     title: 'O nas',

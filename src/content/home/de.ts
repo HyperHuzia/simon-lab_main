@@ -117,6 +117,10 @@ export const home: HomeCopy = {
     lede: 'Jede Anwendung deckt ein Gewerk eines Anlagenprojekts ab und tauscht Daten mit den anderen aus. Dokumente entstehen aus dem gemeinsamen Modell.',
     all: 'Alle Anwendungen',
   },
+  services: {
+    body: 'Simon Lab übernimmt auch Ingenieuraufträge, ein ganzes Projekt einer Chemieanlage oder ein einzelnes Gewerk daraus: als Code auf der Plattform gebaut, schnell geliefert und von erfahrenen Ingenieuren geprüft.',
+    link: 'Ingenieurleistungen',
+  },
   about: {
     eyebrow: 'Unternehmen',
     title: 'Über uns',

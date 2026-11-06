@@ -6,7 +6,7 @@ The problem it addresses is the broken chain. Process engineering still runs on 
 
 The answer is project as code: the project is defined once, as structured and versioned data, in one application per discipline. Documents are generated from that model, every change is a revision, and the model is checked against physics, limits and geometry whenever it changes. Engineers stay in charge of every decision; the platform keeps the project consistent, so iterations, scope changes and changes in regulations run through the whole project quickly.
 
-Simon Lab runs a private beta with trusted partners; open source is coming soon.
+Simon Lab runs a private beta with trusted partners; open source is coming soon. It also takes on engineering orders for chemical plants, a whole project or one discipline, built as code on the platform, delivered fast and checked by experienced engineers.
 
 ## Website
 - Canonical URL: https://simon-lab.org/
@@ -15,6 +15,7 @@ Simon Lab runs a private beta with trusted partners; open source is coming soon.
   - Project as code: https://simon-lab.org/knowledge/project-as-code/ (summary: https://simon-lab.org/project-as-code.md)
   - Bottom-up chemical engineering: https://simon-lab.org/knowledge/bottom-up/ (summary: https://simon-lab.org/bottom-up.md)
 - Applications: https://simon-lab.org/apps/
+- Engineering services: https://simon-lab.org/services/ (summary: https://simon-lab.org/services.md)
 - Roadmap: https://simon-lab.org/roadmap/ (summary: https://simon-lab.org/roadmap.md)
 - Team: https://simon-lab.org/team/
 - Join the beta: https://simon-lab.org/beta/

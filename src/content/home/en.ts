@@ -117,6 +117,10 @@ export const home: HomeCopy = {
     lede: 'Each application covers one discipline of a plant project and exchanges data with the others. Documents are generated from the shared model.',
     all: 'All applications',
   },
+  services: {
+    body: 'Simon Lab also takes on engineering orders, a whole chemical plant project or one discipline of it: built as code on the platform, delivered fast and checked by experienced engineers.',
+    link: 'Engineering services',
+  },
   about: {
     eyebrow: 'Company',
     title: 'About us',

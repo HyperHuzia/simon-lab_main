@@ -1,18 +1,20 @@
 ---
 // Homepage: the mission first. Hero (the title, one paragraph and the drawing of a plant with its code, which runs its
 // process once and ends on the film) → the mission (#mission) → the mission story (#story) → project as code, the way
-// into the knowledge base → short sections that each lead to a page of the header: the applications, about us with
-// the team and the roadmap (#about) and the beta (#beta); contact is the footer's (#contact, on every page). Calm by
-// design: text first, one scroll story, no forms (/beta/ asks for an email). Copy from src/content/home (per
-// language); the motto from src/i18n/ui.ts.
+// into the knowledge base → short sections that each lead to a page of the header: the applications, the engineering
+// services (#services, with the services page's slogan), about us with the team and the roadmap (#about) and the beta
+// (#beta); contact is the footer's (#contact, on every page). Calm by design: text first, one scroll story, no forms
+// (/beta/ and /services/ ask for an email). Copy from src/content/home (per language); the motto from src/i18n/ui.ts.
 import HeroPlant from '../components/home/HeroPlant.astro';
 import MissionStory from '../components/home/MissionStory.astro';
+import Slogan from '../components/Slogan.astro';
 import FilmDialog from '../components/FilmDialog.astro';
 import Icon from '../components/Icon.astro';
 import { homeFor } from '../data/home';
 import { knowledgeFor } from '../data/knowledge';
 import { ogImage } from '../data/media';
 import { SAME_AS } from '../data/profiles';
+import { servicesFor } from '../data/services';
 import { path, type Lang } from '../i18n/config';
 import { t } from '../i18n/ui';
 import Base from '../layouts/Base.astro';
@@ -24,6 +26,7 @@ interface Props {
 
 const { lang } = Astro.props;
 const home = homeFor(lang);
+const services = servicesFor(lang);
 const ui = t(lang);
 const site = import.meta.env.SITE ?? 'https://simon-lab.org';
 // the organization, and the website it publishes (WebSite gives search engines the site's name)
@@ -109,6 +112,21 @@ const jsonLd = [
         <p>{home.apps.lede}</p>
         <p class="teaser-links">
           <a class="hp-more" href={path('/apps/', lang)}>{home.apps.all} <Icon name="arrow-right" size={15} /></a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="hp-sec teaser" id="services" aria-labelledby="services-title">
+    <div class="mission-grid">
+      <header>
+        <p class="hp-eyebrow">{services.hero.eyebrow}</p>
+        <h2 class="hp-title" id="services-title"><Slogan text={services.hero.title} /></h2>
+      </header>
+      <div class="mission-body">
+        <p>{home.services.body}</p>
+        <p class="teaser-links">
+          <a class="hp-more" href={path('/services/', lang)}>{home.services.link} <Icon name="arrow-right" size={15} /></a>
         </p>
       </div>
     </div>

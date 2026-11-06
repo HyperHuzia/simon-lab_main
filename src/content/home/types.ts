@@ -41,6 +41,8 @@ export interface HomeCopy {
   pac: { eyebrow: string; title: string; body: string[]; result: string; more: string };
   /** the sections below are short: each leads to its page in the header */
   apps: { eyebrow: string; title: string; lede: string; all: string };
+  /** the engineering services: the eyebrow and the slogan come from the services page (src/content/services) */
+  services: { body: string; link: string };
   about: { eyebrow: string; title: string; body: string; team: string; roadmap: { body: string; link: string } };
   beta: { eyebrow: string; title: string; body: string; join: string };
 }
