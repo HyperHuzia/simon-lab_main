@@ -31,6 +31,12 @@ The site is published in English (default), Polish (`/pl/`) and German (`/de/`);
 - [ProcessView, summarized](https://simon-lab.org/apps/process-view.md)
 - [LabelHash, summarized](https://simon-lab.org/apps/labelhash.md)
 
+## Films and profiles
+- [Bottom-up chemical engineering, the film (English, captions EN and DE)](https://www.youtube.com/watch?v=ZyQvklua8tI): one project through the applications, about two minutes
+- [The same film in Polish](https://www.youtube.com/watch?v=_thAoadoBa8)
+- [YouTube channel](https://www.youtube.com/@Simon-Lab-org)
+- [LinkedIn company page](https://www.linkedin.com/company/simon-lab-org/)
+
 ## Company
 - Szymon Wojciechowski Simon-Lab, Zabrze, Poland
 - VAT EU: PL6482629454; NIP: 6482629454; REGON: 544133932

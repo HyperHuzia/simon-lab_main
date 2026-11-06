@@ -37,6 +37,8 @@ const jsonLd = [
     url: site,
     logo: new URL('/brand/logo-neon.svg', site).href,
     address: { '@type': 'PostalAddress', addressLocality: 'Zabrze', addressCountry: 'PL' },
+    // the organization's own profiles, so search engines tie them to the site (GitHub waits for the open source)
+    sameAs: ['https://www.youtube.com/@Simon-Lab-org', 'https://www.linkedin.com/company/simon-lab-org/'],
   },
   {
     '@context': 'https://schema.org',
