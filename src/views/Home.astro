@@ -12,6 +12,7 @@ import Icon from '../components/Icon.astro';
 import { homeFor } from '../data/home';
 import { knowledgeFor } from '../data/knowledge';
 import { ogImage } from '../data/media';
+import { SAME_AS } from '../data/profiles';
 import { path, type Lang } from '../i18n/config';
 import { t } from '../i18n/ui';
 import Base from '../layouts/Base.astro';
@@ -37,8 +38,9 @@ const jsonLd = [
     url: site,
     logo: new URL('/brand/logo-neon.svg', site).href,
     address: { '@type': 'PostalAddress', addressLocality: 'Zabrze', addressCountry: 'PL' },
-    // the organization's own profiles, so search engines tie them to the site (GitHub waits for the open source)
-    sameAs: ['https://www.youtube.com/@Simon-Lab-org', 'https://www.linkedin.com/company/simon-lab-org/'],
+    // the organization's own profiles (src/data/profiles.ts), so search engines tie them to the site; GitHub waits for
+    // the open source
+    sameAs: SAME_AS,
   },
   {
     '@context': 'https://schema.org',

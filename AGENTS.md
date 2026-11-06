@@ -31,7 +31,9 @@ The applications, bottom-up: CapacityIndex (0), ProcessView (1), MechGraph and I
 | `src/styles/` | Design tokens (calm dark), global styles, homepage and article styles |
 | `public/media/`, `public/og/` | Exported media and share images. Generated, see below |
 | `public/` | `CNAME`, `robots.txt`, `llms.txt`, `site.md`, `roadmap.md`, `project-as-code.md`, `bottom-up.md`, `apps/*.md`, `licenses.txt`, redirects from old URLs, `brand/`, `assets/`, and the recruitment page `last-job-before-ai-takes-over/` (kept as is) |
-| `scripts/check-copy.mjs` | The copy check over `dist/` (`npm run check:copy`) |
+| `scripts/check-copy.mjs` | The copy check over `dist/` and `docs/profiles/` (`npm run check:copy`) |
+| `src/content/profiles/`, `src/data/profiles.ts` | The profiles outside the site (YouTube, LinkedIn): their copy per language, and the facts (addresses, settings, limits). See "Profiles outside the site" |
+| `scripts/profiles.mjs`, `scripts/social-assets.mjs`, `docs/profiles/` | The profiles' texts ready to paste (`npm run profiles`) and their images (`npm run social`), written into `docs/profiles/` |
 
 ## Languages
 
@@ -86,6 +88,16 @@ The articles and the app pages follow the production's claims table (in the medi
 - What the AI agent reads in the article's mirrors are excerpts of the demonstration project's own data (the export's `texts`, written by the media repo's `tools/agent-views.mjs`: element ids, terminals and wires only, gated like every other export).
 - "Project as code" takes in whatever a project already has (DXF, STEP, IFC, E57 point clouds, PDF, DOCX, XLSX, CSV, XML, JSON: the owner's statement; the AI agent turns them into the form the project needs) and gives out PDF, IFC, 3D Tiles, XLSX and CSV. Its code listing, the drawing of line L-104 and the revision log are examples: the notes at the end of the article say so, the steps carry no notes of their own.
 
+## Profiles outside the site
+
+The YouTube channel (@Simon-Lab-org: the film in English and in Polish), the LinkedIn page (company/simon-lab-org) and the search engines' tools (Search Console, Bing Webmaster Tools) are set up from this repository, so their texts follow the site:
+
+- `src/content/profiles/{en,pl,de}.ts` hold the copy, English first and the same facts in Polish and German: the channel's description, the films' titles, descriptions, chapters and tags, LinkedIn's tagline and About. `en.ts` also holds what the platforms keep once (the channel's keywords, LinkedIn's specialties and services, the images' line). Placeholders take what the site holds: `{motto}`, `{apps}` (the applications' roles from `src/data/apps.ts`), the pages' addresses.
+- `src/data/profiles.ts` holds the facts: addresses and IDs, the settings that are not text (YouTube's country and upload defaults, LinkedIn's industry, size, founding year and button, the services' location and pricing), the chapters' start times and the platforms' limits. The homepage's `sameAs` comes from here. Its imports carry `.ts`, so Node loads it without a bundler.
+- `npm run profiles` writes `docs/profiles/` (README, `youtube.md`, `linkedin.md`: every text in a box ready to paste, with its length and the platform's limit) and fails when a text is over a limit or `public/llms.txt` misses a profile. `npm run social` draws `docs/profiles/images/` in Chromium (Playwright) from the brand SVGs, the fonts, the tokens, the film's posters and the exported pictures, so nothing new enters the site that way.
+- LinkedIn articles are `src/content/profiles/articles/<id>.<lang>.ts`, written from the site's articles; `npm run profiles` renders each as Markdown and as HTML for the article editor. A draft stays out of the repository until the owner approves it: the repository is public.
+- A change to a profile goes into the code first, then through `npm run profiles` (and `npm run social`) to the platform; the code and `docs/profiles/` are committed together. Account details (who signs in where) stay out of the repository.
+
 ## Commands
 
 ```bash
@@ -93,8 +105,10 @@ npm ci              # install (Node >= 22.23.4; CI uses Node 24)
 npm run dev         # dev server
 npm run check       # astro check (types, templates)
 npm run build       # static build into dist/
-npm run check:copy  # copy rules over dist/ (after a build)
+npm run check:copy  # copy rules over dist/ and docs/profiles/ (after a build)
 npm run preview     # serve dist/
+npm run profiles    # the profiles' texts into docs/profiles/, checked against the platforms' limits
+npm run social      # the profiles' images into docs/profiles/images/ (Playwright's Chromium)
 ```
 
 ## Implementation notes

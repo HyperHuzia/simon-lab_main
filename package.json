@@ -9,7 +9,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "check:copy": "node scripts/check-copy.mjs"
+    "check:copy": "node scripts/check-copy.mjs",
+    "profiles": "node scripts/profiles.mjs",
+    "social": "node scripts/social-assets.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "8.1.2",
@@ -23,6 +25,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
+    "playwright": "1.59.1",
     "typescript": "5.9.3"
   },
   "engines": {

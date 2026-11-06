@@ -3,13 +3,15 @@
 //   · application names are one word: "CapacityIndex", never "Capacity Index"
 // It reads what visitors and machines read: page text and the attributes people hear or see (alt, title, aria-label,
 // placeholder, meta content), plus the published .md, .txt and .vtt files. Scripts, styles, SVG drawings and code
-// comments are not copy. The recruitment page is kept as published and is left out.
+// comments are not copy. The recruitment page is kept as published and is left out. The texts of the profiles outside
+// the site (docs/profiles, written by `npm run profiles`) follow the same rules.
 //
 //   node scripts/check-copy.mjs [dist]        exit 1 when a rule is broken, with file and context
 import fs from 'node:fs';
 import path from 'node:path';
 
 const dist = path.resolve(process.argv[2] ?? 'dist');
+const profiles = path.resolve('docs/profiles');
 const SKIP = [/^last-job-before-ai-takes-over\//, /^licenses\.txt$/];
 const RULES = [
   { name: 'em dash', re: /—/g },
@@ -35,17 +37,20 @@ function htmlCopy(html) {
 }
 
 const files = [];
-(function walk(dir) {
+function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const abs = path.join(dir, entry.name);
     if (entry.isDirectory()) walk(abs);
     else if (/\.(html|md|txt|vtt)$/.test(entry.name)) files.push(abs);
   }
-})(dist);
+}
+walk(dist);
+if (fs.existsSync(profiles)) walk(profiles);
 
 let hits = 0;
 for (const abs of files) {
-  const rel = path.relative(dist, abs).split(path.sep).join('/');
+  // the site's files by their path in dist/, the profiles' by their path in the repository
+  const rel = (abs.startsWith(profiles) ? path.relative(process.cwd(), abs) : path.relative(dist, abs)).split(path.sep).join('/');
   if (SKIP.some((re) => re.test(rel))) continue;
   const raw = fs.readFileSync(abs, 'utf8');
   const copy = rel.endsWith('.html') ? htmlCopy(raw) : decode(raw);
