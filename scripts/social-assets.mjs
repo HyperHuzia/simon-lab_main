@@ -124,7 +124,7 @@ for (const file of articles) {
   const image = fileUrl('public', ...a.cover.image.split('/').filter(Boolean));
   const picture = a.cover.card
     ? `<img src="${image}" style="position:absolute;right:110px;top:50%;transform:translateY(-50%);width:880px;border:2px solid ${C.lineStrong};border-radius:10px;background:#fff">`
-    : `<img src="${image}" style="position:absolute;right:40px;top:50%;transform:translateY(-50%);width:1060px">`;
+    : `<img src="${image}" style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:1240px">`;
   shots.push({
     file: `linkedin-article-${a.id}-${a.lang}-1920x1080.jpg`,
     w: 1920,
