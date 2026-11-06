@@ -154,6 +154,7 @@ lLines.push(
   '',
   '## Services',
   '',
+  `- Page: ${ls.services.page}`,
   `- Services from LinkedIn’s list (${count('LinkedIn services', services.items.length, LIMITS.linkedin.services)}): ${services.items.join(', ')}`,
   `- Location: ${ls.services.location}; pricing: ${ls.services.pricing}; messages: ${ls.services.messages}`,
   '',

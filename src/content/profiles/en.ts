@@ -114,7 +114,8 @@ export const shared: ProfilesShared = {
       'Process automation',
     ],
     services: {
-      // the closest entries of LinkedIn's own list of services; it has no chemical, process or BIM entries
+      // the closest entries of LinkedIn's own list of services, which has no chemical, process or BIM entries (in the
+      // Polish interface: Projektowanie inżynierskie, Projektowanie 3D, Architektura)
       items: ['Engineering Design', '3D Design', 'Architecture'],
       description:
         'Engineering for chemical plants, a whole project or one discipline: process engineering and process automation, mechanical design with strength calculations (FEM) and flow simulations (CFD), automation and power, 3D modeling, architecture and BIM models. The project is built as code on the Simon Lab platform, so orders are delivered fast, and experienced engineers check every deliverable. Clients receive the documents and the project as data. {services}',
