@@ -91,7 +91,7 @@ for (const [film, f] of Object.entries(yt.films)) {
     `## Film in ${f.language}: ${P.filmUrl(film)}`,
     '',
     `- Video language ${f.language}, ${f.duration}; captions: ${f.captions}`,
-    `- Thumbnail: images/youtube-thumbnail-${film}-1280x720.jpg once the channel has the intermediate features`,
+    `- Thumbnail: images/youtube-thumbnail-${film}-1280x720.jpg`,
     '',
     `### Tags (${count(`YouTube tags (${film} film)`, P.tagLength(tags), LIMITS.youtube.tags)})`,
     '',

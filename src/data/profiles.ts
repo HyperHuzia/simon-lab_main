@@ -33,8 +33,7 @@ export const PROFILES = {
         { title: 'LinkedIn', url: 'https://www.linkedin.com/company/simon-lab-org/' },
       ],
       uploadDefaults: 'category Science & Technology, video language English, not made for kids',
-      features:
-        'standard. Clickable links in descriptions and custom thumbnails need the intermediate features (the owner verifies a phone number in Studio); until then the thumbnails are the logo frame picked from each film.',
+      features: 'intermediate, phone verified by the owner on 2026-11-07: clickable links in descriptions and custom thumbnails.',
     },
     playlist: 'Simon Lab: Bottom-up',
     films: {
