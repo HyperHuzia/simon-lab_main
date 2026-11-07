@@ -6,8 +6,8 @@
 //
 //   npm run social        writes docs/profiles/images/
 //
-// youtube-profile-800.png and linkedin-logo-400.png (the SL mark without a background: its gradient reads on the light
-// and the dark pages of both platforms, like the favicon), youtube-banner-2560x1440.png (the text inside the 1546×423
+// youtube-profile-800.png and linkedin-logo-400.png (the SL mark without a background; both platforms lay a transparent
+// picture on white, checked 2026-11-07, so it reads as a white tile), youtube-banner-2560x1440.png (the text inside the 1546×423
 // area every device shows), linkedin-cover-1128x191.png (the left part kept clear: LinkedIn lays the logo over it),
 // linkedin-service-<app>-1920.jpg (the samples of work in LinkedIn's Services section),
 // youtube-thumbnail-<film>-1280x720.jpg (the film's opening frame with a language tag) and, for every LinkedIn article

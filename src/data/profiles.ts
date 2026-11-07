@@ -88,7 +88,7 @@ export const PROFILES = {
 /** The platforms' limits the texts are checked against. */
 export const LIMITS = {
   youtube: { channel: 1000, title: 100, description: 5000, tags: 500, keywords: 500 },
-  linkedin: { tagline: 120, about: 2000, specialties: 20, services: 10, servicesDescription: 500, servicesMedia: 8 },
+  linkedin: { tagline: 120, about: 2000, specialties: 20, services: 10, servicesDescription: 500, servicesMedia: 8, servicesMediaTitle: 58 },
   article: { title: 150, seoTitle: 60, seoDescription: [140, 160], words: 1000, hashtags: 3 },
 } as const;
 

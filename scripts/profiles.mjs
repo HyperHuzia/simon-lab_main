@@ -165,7 +165,12 @@ lLines.push(
   '',
   `### Samples of work (${count('LinkedIn services media', media.pictures.length + 1, LIMITS.linkedin.servicesMedia)}), the pictures from images/`,
 );
-for (const m of media.pictures) lLines.push('', `- images/${m.file}: ${m.title}`, '', ...box(m.description));
+for (const m of media.pictures) {
+  count(`LinkedIn services media title (${m.file})`, m.title.length, LIMITS.linkedin.servicesMediaTitle);
+  count(`LinkedIn services media description (${m.file})`, m.description.length, LIMITS.linkedin.servicesDescription);
+  lLines.push('', `- images/${m.file}: ${m.title}`, '', ...box(m.description));
+}
+count('LinkedIn services media title (the film)', media.film.title.length, LIMITS.linkedin.servicesMediaTitle);
 lLines.push('', `- Link: ${media.film.url}`, '', ...box(media.film.title));
 
 // LinkedIn articles: src/content/profiles/articles/<id>.<lang>.ts; drafts stay out of the public repository
