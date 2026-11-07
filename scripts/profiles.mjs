@@ -45,7 +45,7 @@ fs.writeFileSync(
     `- Google: ${PROFILES.search.google}`,
     `- Bing: ${PROFILES.search.bing}`,
     '',
-    '`npm run social` draws the images into [images/](images/) from the site’s own brand files: the channel’s picture and banner, the LinkedIn logo and cover, the films’ thumbnails and the covers of the LinkedIn articles.',
+    '`npm run social` draws the images into [images/](images/) from the site’s own brand files: the channel’s picture and banner, the LinkedIn logo and cover (the logos without a background, for light and dark pages), the samples of work in LinkedIn’s Services section, the films’ thumbnails and the covers of the LinkedIn articles.',
     '',
     '## Changing a profile',
     '',
@@ -118,6 +118,7 @@ fs.writeFileSync(path.join(out, 'youtube.md'), yLines.join('\n') + '\n');
 // LinkedIn
 const ls = li.settings;
 const services = P.linkedinServices();
+const media = P.linkedinServicesMedia();
 const specialties = P.linkedinSpecialties();
 const lLines = [
   `# LinkedIn: ${ls.name}`,
@@ -161,7 +162,11 @@ lLines.push(
   `### Description (${count('LinkedIn services description', services.description.length, LIMITS.linkedin.servicesDescription)})`,
   '',
   ...box(services.description),
+  '',
+  `### Samples of work (${count('LinkedIn services media', media.pictures.length + 1, LIMITS.linkedin.servicesMedia)}), the pictures from images/`,
 );
+for (const m of media.pictures) lLines.push('', `- images/${m.file}: ${m.title}`, '', ...box(m.description));
+lLines.push('', `- Link: ${media.film.url}`, '', ...box(media.film.title));
 
 // LinkedIn articles: src/content/profiles/articles/<id>.<lang>.ts; drafts stay out of the public repository
 const articlesDir = path.join(root, 'src', 'content', 'profiles', 'articles');

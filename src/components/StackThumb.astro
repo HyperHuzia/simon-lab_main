@@ -3,58 +3,10 @@
 // applications index (StackExplorer) in the same iso projection and proportions (30 × 18 plates, 5.2 apart, MechGraph
 // and IonGrid as halves 1.1 apart, rounded corners, an underside in a dark tone of each layer's colour), on the right,
 // with the layers named on the left at the height of their plates. Phones get the stack alone (the names would be too
-// small to read). Decorative: the row's title says what it is.
-import { LAYERS } from '../data/article';
+// small to read). Decorative: the row's title says what it is. The drawing itself is src/data/stack-drawing.ts.
+import { STACK_BOX, STACK_LEVELS as levels, STACK_PLATES as plates } from '../data/stack-drawing';
 
-// orthographic iso projection, as the big stack: rotateZ(-38°), then rotateX(58°)
-const RZ = (-38 * Math.PI) / 180;
-const RX = (58 * Math.PI) / 180;
-const project = (x: number, y: number, z: number): [number, number] => {
-  const xr = x * Math.cos(RZ) - y * Math.sin(RZ);
-  const yr = x * Math.sin(RZ) + y * Math.cos(RZ);
-  return [xr, yr * Math.cos(RX) - z * Math.sin(RX)];
-};
-const W = 30;
-const D = 18;
-const GAP = 5.2;
-const HALF = 0.55;
-const RADIUS = 1.15;
-const THICK = 0.4;
-
-/** a rounded rectangle in the plate's plane, as points (corner arcs in 5 steps) */
-const outline = (x0: number, x1: number, z: number) => {
-  const corners: [number, number, number][] = [
-    [x1 - RADIUS, -D / 2 + RADIUS, -90],
-    [x1 - RADIUS, D / 2 - RADIUS, 0],
-    [x0 + RADIUS, D / 2 - RADIUS, 90],
-    [x0 + RADIUS, -D / 2 + RADIUS, 180],
-  ];
-  return corners.flatMap(([cx, cy, from]) =>
-    Array.from({ length: 6 }, (_, k) => {
-      const a = ((from + k * 18) * Math.PI) / 180;
-      return project(cx + RADIUS * Math.cos(a), cy + RADIUS * Math.sin(a), z);
-    }),
-  );
-};
-const path = (pts: [number, number][]) => `M${pts.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join('L')}Z`;
-const plates = LAYERS.map((l) => {
-  const x0 = l.span === 'right' ? HALF : -W / 2;
-  const x1 = l.span === 'left' ? -HALF : W / 2;
-  const z = (l.level - 1) * GAP;
-  return { ...l, top: path(outline(x0, x1, z)), under: path(outline(x0, x1, z - THICK)) };
-});
-// the names on the left, one per level, at the height of the plate's centre
-const levels = [1, 2, 3, 4, 5].map((lv) => ({
-  lv,
-  y: project(0, 0, (lv - 1) * GAP)[1],
-  name: `${lv - 1} ${LAYERS.filter((l) => l.level === lv)
-    .map((l) => l.name)
-    .join(' · ')}`,
-}));
-const all = plates.flatMap((p) => p.top.match(/-?\d+\.\d+/g)!.map(Number));
-const xs = all.filter((_, i) => i % 2 === 0);
-const ys = all.filter((_, i) => i % 2 === 1);
-const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys) + THICK + 1];
+const { minX, maxX, minY, maxY } = STACK_BOX;
 const LABEL_W = 50;
 const pad = 3;
 const full = [minX - LABEL_W - pad, minY - pad, maxX - minX + LABEL_W + 2 * pad, maxY - minY + 2 * pad];

@@ -2,7 +2,7 @@
 // is picked up; a language without its own file falls back to English (and the article element then carries
 // lang="en").
 import type { Article, Chapter } from '../content/article-types';
-import { STACK } from './apps';
+import { LAYERS, type LayerDef } from './stack-drawing';
 import { SCRUBBED } from './stages';
 import type { Lang } from '../i18n/config';
 
@@ -22,16 +22,7 @@ export function articleFor(lang: Lang, id: ArticleId = 'bottom-up'): Article {
   return (own ?? en)!;
 }
 
-/** The six live layers, bottom-up, with their colours; MechGraph and IonGrid share level 3 as two halves. */
-export type LayerDef = { id: string; name: string; level: number; span: 'full' | 'left' | 'right'; color: string };
-
-export const LAYERS: LayerDef[] = STACK.map((app) => ({
-  id: app.id,
-  name: app.name,
-  level: (app.layer ?? 0) + 1,
-  span: app.id === 'mechgraph' ? 'left' : app.id === 'iongrid' ? 'right' : 'full',
-  color: app.color,
-}));
+export { LAYERS, type LayerDef };
 
 export const layerById = (id: string | undefined) => LAYERS.find((l) => l.id === id);
 

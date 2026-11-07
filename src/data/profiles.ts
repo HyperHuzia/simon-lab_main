@@ -9,6 +9,7 @@ import { profiles as de } from '../content/profiles/de.ts';
 import { profiles as en, shared } from '../content/profiles/en.ts';
 import { profiles as pl } from '../content/profiles/pl.ts';
 import type { FilmId, ProfilesCopy } from '../content/profiles/types.ts';
+import { services as enServices } from '../content/services/en.ts';
 import { path, type Lang } from '../i18n/config.ts';
 import { t } from '../i18n/ui.ts';
 import { STACK } from './apps.ts';
@@ -87,7 +88,7 @@ export const PROFILES = {
 /** The platforms' limits the texts are checked against. */
 export const LIMITS = {
   youtube: { channel: 1000, title: 100, description: 5000, tags: 500, keywords: 500 },
-  linkedin: { tagline: 120, about: 2000, specialties: 20, services: 10, servicesDescription: 500 },
+  linkedin: { tagline: 120, about: 2000, specialties: 20, services: 10, servicesDescription: 500, servicesMedia: 8 },
   article: { title: 150, seoTitle: 60, seoDescription: [140, 160], words: 1000, hashtags: 3 },
 } as const;
 
@@ -163,5 +164,19 @@ export const linkedinAbout = (lang: Lang) => COPIES[lang].linkedin.about.map((p)
 export const linkedinSpecialties = () => [...shared.linkedin.specialties];
 export const linkedinServices = () => ({ items: [...shared.linkedin.services.items], description: fill(shared.linkedin.services.description, { lang: 'en' }) });
 
-/** the line under the motto on the YouTube banner and the LinkedIn cover */
+/**
+ * The samples of work in LinkedIn's Services section: a picture per discipline, named as on the services page (its
+ * file comes from `npm run social`), then the film in English as a link.
+ */
+export function linkedinServicesMedia() {
+  const pictures = shared.linkedin.services.media.map((m) => {
+    const discipline = enServices.disciplines.items.find((d) => d.app === m.app);
+    if (!discipline) throw new Error(`profiles: the services page has no discipline "${m.app}"`);
+    return { file: `linkedin-service-${m.app}-1920.jpg`, image: m.image, title: discipline.name, description: [discipline.body, m.note].filter(Boolean).join(' ') };
+  });
+  const film = youtubeFilm('en', 'en')!;
+  return { pictures, film: { url: filmUrl('en'), title: film.title } };
+}
+
+/** the line on the YouTube banner and the LinkedIn cover */
 export const imageLine = () => shared.imageLine;

@@ -119,6 +119,13 @@ export const shared: ProfilesShared = {
       items: ['Engineering Design', '3D Design', 'Architecture'],
       description:
         'Engineering for chemical plants, a whole project or one discipline: process engineering and process automation, mechanical design with strength calculations (FEM) and flow simulations (CFD), automation and power, 3D modeling, architecture and BIM models. The project is built as code on the Simon Lab platform, so orders are delivered fast, and experienced engineers check every deliverable. Clients receive the documents and the project as data. {services}',
+      media: [
+        { app: 'processview', image: '/media/processview/pv-sim-dosing-2400.webp' },
+        { app: 'mechgraph', image: '/media/mechgraph/mg-section-1920.webp' },
+        { app: 'iongrid', image: '/media/iongrid/ig-open-1920.webp' },
+        { app: 'plantmesh', image: '/media/plantmesh/pm-final-1920.webp' },
+        { app: 'architecture', image: '/media/architecture/ar-bim-2400.webp', note: 'A BIM model of another project.' },
+      ],
     },
   },
   imageLine: 'Computational engineering for chemical projects',

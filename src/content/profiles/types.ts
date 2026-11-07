@@ -51,10 +51,11 @@ export interface ProfilesShared {
   linkedin: {
     /** up to 20 */
     specialties: string[];
-    /** the Services section: services picked from LinkedIn's list (up to 10) and a description (up to 500 characters) */
-    services: { items: string[]; description: string };
+    /** the Services section: services picked from LinkedIn's list (up to 10), a description (up to 500 characters) and
+     * up to 8 samples of work: one exported picture per discipline of the services page, with a note where it is needed */
+    services: { items: string[]; description: string; media: { app: string; image: string; note?: string }[] };
   };
-  /** the line under the motto on the YouTube banner and the LinkedIn cover */
+  /** the line on the YouTube banner and the LinkedIn cover */
   imageLine: string;
 }
 

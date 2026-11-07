@@ -119,3 +119,41 @@ Process automation
 ```text
 Engineering for chemical plants, a whole project or one discipline: process engineering and process automation, mechanical design with strength calculations (FEM) and flow simulations (CFD), automation and power, 3D modeling, architecture and BIM models. The project is built as code on the Simon Lab platform, so orders are delivered fast, and experienced engineers check every deliverable. Clients receive the documents and the project as data. https://simon-lab.org/services/
 ```
+
+### Samples of work (6/8), the pictures from images/
+
+- images/linkedin-service-processview-1920.jpg: Process engineering and process automation
+
+```text
+P&ID, dynamic process simulation and control programs, tested on an emulated PLC before anything is bought.
+```
+
+- images/linkedin-service-mechgraph-1920.jpg: Mechanical design
+
+```text
+Machines and vessels from dedicated calculations: mixing, shafts, strength calculations (FEM) and flow simulations (CFD), with drawings and reports from the same model.
+```
+
+- images/linkedin-service-iongrid-1920.jpg: Automation and power
+
+```text
+Control cabinets and their power supply, built from manufacturers’ catalogue components, with heat-loss data and engineering registers.
+```
+
+- images/linkedin-service-plantmesh-1920.jpg: 3D modeling
+
+```text
+The unit assembled in 3D: piping isometrics, support structures, service access and clash detection.
+```
+
+- images/linkedin-service-architecture-1920.jpg: Architecture and BIM
+
+```text
+The unit in its building and on its site: architectural arrangement and georeferenced OpenBIM models, up to the site plan. A BIM model of another project.
+```
+
+- Link: https://youtu.be/ZyQvklua8tI
+
+```text
+Simon Lab · Bottom-up chemical engineering
+```
