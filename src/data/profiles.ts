@@ -5,6 +5,7 @@
 // docs/profiles/ and checks them against the platforms' limits; `npm run social` draws the images. The site takes the
 // profiles' addresses from here (sameAs in the homepage's JSON-LD).
 // The imports carry their .ts extension so that Node loads this module without a bundler (scripts/*.mjs).
+import { ads as polishAds } from '../content/profiles/ads.pl.ts';
 import { profiles as de } from '../content/profiles/de.ts';
 import { profiles as en, shared } from '../content/profiles/en.ts';
 import { profiles as pl } from '../content/profiles/pl.ts';
@@ -89,6 +90,8 @@ export const LIMITS = {
   youtube: { channel: 1000, title: 100, description: 5000, tags: 500, keywords: 500 },
   linkedin: { tagline: 120, about: 2000, specialties: 20, services: 10, servicesDescription: 500, servicesMedia: 8, servicesMediaTitle: 58 },
   article: { title: 150, seoTitle: 60, seoDescription: [140, 160], words: 1000, hashtags: 3 },
+  // a responsive search ad: up to 15 headlines and 4 descriptions (at least 3 and 2), a display path of two parts
+  googleAds: { headline: 30, headlines: [3, 15], description: 90, descriptions: [2, 4], path: 15, sitelink: 25, sitelinkLine: 35, callout: 25 },
 } as const;
 
 /** the profiles' addresses, for sameAs */
@@ -175,6 +178,21 @@ export function linkedinServicesMedia() {
   });
   const copy = en.youtube.films.en!;
   return { pictures, film: { upload: filmUpload('en'), title: fill(copy.title, { lang: 'en' }), description: fill(copy.lede, { lang: 'en' }) } };
+}
+
+/**
+ * The Google Ads campaign in Polish with the addresses filled (every address carries the ref, see GoogleAdsCopy) and
+ * each group's ad complete: its own headlines after the shared ones, its own descriptions before the shared ones.
+ */
+export function googleAds() {
+  const a = polishAds;
+  const ref = (route: string) => `${pageUrl(route, a.lang)}?ref=${a.ref}`;
+  return {
+    ...a,
+    url: ref(a.page),
+    groups: a.groups.map((g) => ({ ...g, headlines: [...a.headlines, ...g.headlines], descriptions: [...g.descriptions, ...a.descriptions] })),
+    sitelinks: a.sitelinks.map((s) => ({ ...s, url: ref(s.page) })),
+  };
 }
 
 /** the line on the YouTube banner and the LinkedIn cover */

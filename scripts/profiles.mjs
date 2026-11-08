@@ -41,6 +41,7 @@ fs.writeFileSync(
     '|---|---|---|',
     `| YouTube | ${yt.url} | [youtube.md](youtube.md) |`,
     `| LinkedIn | ${li.url} | [linkedin.md](linkedin.md) |`,
+    '| Google Ads | a search campaign in Polish | [google-ads.md](google-ads.md) |',
     '',
     `- Google: ${PROFILES.search.google}`,
     `- Bing: ${PROFILES.search.bing}`,
@@ -245,6 +246,64 @@ for (const a of articles) {
 // drafts stay out of the committed linkedin.md: only approved and published articles are listed
 if (published.length) lLines.push('', '## Articles', '', ...published);
 fs.writeFileSync(path.join(out, 'linkedin.md'), lLines.join('\n') + '\n');
+
+// Google Ads: the search campaign's texts, checked against the ad's limits
+const ga = P.googleAds();
+const GL = LIMITS.googleAds;
+const many = (what, n, [lo, hi]) => {
+  if (n < lo || n > hi) problems.push(`Google Ads ${what}: ${n}, from ${lo} to ${hi}`);
+  return `${n}, ${lo} to ${hi}`;
+};
+const zl = (n) => `${n.toFixed(2).replace('.', ',')} zł`;
+const gLines = [
+  '# Google Ads: a search campaign in Polish',
+  '',
+  GENERATED,
+  '',
+  '- Network: Google Search only (no Display Network, no search partners); location Poland (people in it), language Polish.',
+  '- Bidding: manual CPC, a default per ad group and a bid of its own where a keyword has one; keywords in phrase and exact match only; the schedule and the budget are set in the account, not here.',
+  '- No Google tag on the site, no conversion tracking: the ads’ addresses carry `?ref=' + ga.ref + '`, and "Write to us" adds the source to the email’s subject.',
+  `- Final URL of every ad: ${ga.url}`,
+];
+for (const g of ga.groups) {
+  gLines.push(
+    '',
+    `## Ad group: ${g.name} (max CPC ${zl(g.cpc)})`,
+    '',
+    `- Display path: simon-lab.org/${g.path.map((p, i) => `${p} (${count(`Google Ads path ${i + 1} (${g.name})`, p.length, GL.path)})`).join('/')}`,
+    '',
+    `### Keywords`,
+    '',
+    ...box(g.keywords.map((k) => (g.bids?.[k] ? `${k}   max CPC ${zl(g.bids[k])}` : k)).join('\n')),
+    '',
+    `### Headlines (${many(`headlines (${g.name})`, g.headlines.length, GL.headlines)})`,
+    '',
+    ...g.headlines.map((h) => `- ${h} (${count(`Google Ads headline "${h}"`, h.length, GL.headline)})`),
+    '',
+    `### Descriptions (${many(`descriptions (${g.name})`, g.descriptions.length, GL.descriptions)})`,
+    '',
+    ...g.descriptions.map((d) => `- ${d} (${count(`Google Ads description "${d.slice(0, 30)}…"`, d.length, GL.description)})`),
+  );
+  for (const k of Object.keys(g.bids ?? {})) if (!g.keywords.includes(k)) problems.push(`Google Ads: the bid for ${k} names no keyword of "${g.name}"`);
+}
+gLines.push(
+  '',
+  '## Sitelinks',
+  '',
+  ...ga.sitelinks.flatMap((s) => [
+    `- ${s.text} (${count(`Google Ads sitelink "${s.text}"`, s.text.length, GL.sitelink)}): ${s.url}`,
+    ...s.lines.map((l) => `  - ${l} (${count(`Google Ads sitelink line "${l}"`, l.length, GL.sitelinkLine)})`),
+  ]),
+  '',
+  '## Callouts',
+  '',
+  ...ga.callouts.map((c) => `- ${c} (${count(`Google Ads callout "${c}"`, c.length, GL.callout)})`),
+  '',
+  '## Negative keywords (campaign)',
+  '',
+  ...box(ga.negatives.join('\n')),
+);
+fs.writeFileSync(path.join(out, 'google-ads.md'), gLines.join('\n') + '\n');
 
 // llms.txt lists every profile
 const llms = fs.readFileSync(path.join(root, 'public', 'llms.txt'), 'utf8');

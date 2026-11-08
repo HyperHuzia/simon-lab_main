@@ -61,6 +61,40 @@ export interface ProfilesShared {
 }
 
 /**
+ * A Google Ads search campaign's texts in one language (src/content/profiles/ads.<lang>.ts): ad groups, each with its own
+ * responsive search ad (the shared headlines and descriptions plus its own), keywords and bids, and the assets of the
+ * campaign. The ads lead to one of the site's pages with `?ref=<ref>`, which "Write to us" names in the email's subject,
+ * so an inquiry from an ad can be told apart without a tag or a cookie. The budget and the account stay out of the
+ * repository.
+ */
+export interface GoogleAdsCopy {
+  lang: Lang;
+  /** the page the ads lead to (a route), and the ref added to its address */
+  page: string;
+  ref: string;
+  /** headlines and descriptions every group's ad carries */
+  headlines: string[];
+  descriptions: string[];
+  groups: {
+    name: string;
+    /** the default maximum cost per click in the account's currency (manual CPC) */
+    cpc: number;
+    /** written in Google's notation: "phrase match" or [exact match] */
+    keywords: string[];
+    /** keywords with a bid of their own */
+    bids?: Record<string, number>;
+    /** the two parts of the display path after the domain */
+    path: [string, string];
+    headlines: string[];
+    descriptions: string[];
+  }[];
+  sitelinks: { text: string; page: string; lines: [string, string] }[];
+  callouts: string[];
+  /** negative keywords for the whole campaign */
+  negatives: string[];
+}
+
+/**
  * One block of a LinkedIn article, in the order of its editor: headings, paragraphs, lists, quotes, embedded links, and a
  * film uploaded to LinkedIn itself (Media, Video), which plays in the article instead of leading to YouTube.
  */

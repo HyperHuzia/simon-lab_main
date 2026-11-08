@@ -2,7 +2,8 @@
 // "Write to us": no form, nothing collected. The button assembles the mailbox in the browser from character codes
 // (MAILBOX in src/config.ts), opens a message with the given subject and shows the address beside the button, so the
 // HTML never carries it as text. Without JavaScript it leads to the contact details in the footer (#contact). Used by
-// the beta page and the services page.
+// the beta page and the services page. A page opened from an ad (`?ref=google-ads`, src/content/profiles/ads.pl.ts)
+// names the ad in the subject, read from the address at the click and stored nowhere: no tag, no cookie.
 import { MAILBOX } from '../config';
 import Icon from './Icon.astro';
 
@@ -29,6 +30,10 @@ const { label, subject } = Astro.props;
       .map((c) => String.fromCharCode(Number(c)))
       .join('');
 
+  // the sources a subject may name; any other ref is ignored, so an address cannot write into the email
+  const SOURCES: Record<string, string> = { 'google-ads': 'Google Ads' };
+  const source = SOURCES[new URLSearchParams(window.location.search).get('ref') ?? ''];
+
   document.querySelectorAll<HTMLAnchorElement>('[data-mailto]').forEach((link) => {
     link.addEventListener('click', (event) => {
       event.preventDefault();
@@ -41,7 +46,8 @@ const { label, subject } = Astro.props;
         a.textContent = address;
         shown.append(a);
       }
-      window.location.href = `mailto:${address}?subject=${encodeURIComponent(link.dataset.subject ?? '')}`;
+      const subject = [link.dataset.subject ?? '', source && `(${source})`].filter(Boolean).join(' ');
+      window.location.href = `mailto:${address}?subject=${encodeURIComponent(subject)}`;
     });
   });
 </script>
