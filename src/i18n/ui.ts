@@ -89,7 +89,7 @@ export const SHELL_KEYS: UiKey[] = [
 
 const pl: Record<UiKey, string> = {
   'site.name': 'Simon Lab',
-  'site.motto': 'Oparte na kodzie. Gotowe na AI. Wolne od błędów.',
+  'site.motto': 'Projekty oparte na kodzie. Gotowe na AI. Wolne od błędów.',
   'nav.mission': 'Misja',
   'nav.apps': 'Aplikacje',
   'nav.services': 'Usługi',

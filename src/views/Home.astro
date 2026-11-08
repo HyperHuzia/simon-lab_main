@@ -73,7 +73,7 @@ const jsonLd = [
     <div class="mission-grid">
       <header>
         <p class="hp-eyebrow">{home.mission.eyebrow}</p>
-        {/* each phrase of the motto stays on one line (no break inside "AI-Ready") */}
+        {/* each phrase of the motto stays on one line where it fits (no break inside "AI-Ready") */}
         <h2 class="hp-title" id="mission-title">
           {ui('site.motto').split(/(?<=\.)\s+/).map((part, i) => <>{i > 0 && ' '}<span class="phrase">{part}</span></>)}
         </h2>
@@ -223,8 +223,10 @@ const jsonLd = [
     margin-bottom: 0;
   }
 
+  /* a phrase moves to the next line whole, as one box (so "AI-Ready" never breaks at its hyphen); it wraps inside only
+     when it is wider than the column, as the Polish "Projekty oparte na kodzie." is on a narrow phone */
   .phrase {
-    white-space: nowrap;
+    display: inline-block;
   }
 
   .mission-body {

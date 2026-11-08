@@ -95,7 +95,6 @@ export const LIMITS = {
 export const SAME_AS = [PROFILES.youtube.url, PROFILES.linkedin.url];
 
 const COPIES: Record<Lang, ProfilesCopy> = { en, pl, de };
-const AND: Record<Lang, string> = { en: 'and', pl: 'i', de: 'und' };
 
 /** one of the site's pages in a language, as a full address */
 export const pageUrl = (route: string, lang: Lang) => `${SITE}${path(route, lang)}`;
@@ -103,23 +102,14 @@ export const filmUrl = (film: FilmId) => `https://youtu.be/${PROFILES.youtube.fi
 /** the film a reader of a language watches */
 export const filmFor = (lang: Lang): FilmId => (lang === 'pl' ? 'pl' : 'en');
 
-/** a role inside a sentence: lower case, except an acronym ("P&ID") and German nouns (only an article is lowered) */
-function inline(role: string, lang: Lang): string {
-  if (lang === 'de') return role.replace(/^(Die|Der|Das|Ein|Eine) /, (article) => article.toLowerCase());
-  return /^\p{Lu}[\p{Lu}&]/u.test(role) ? role : role[0].toLowerCase() + role.slice(1);
-}
-
-/** the applications bottom-up with their roles, as in a sentence */
-function appsLine(lang: Lang): string {
-  const items = STACK.map((a) => `${a.name} (${inline(a.copy[lang].role, lang)})`);
-  return `${items.slice(0, -1).join(', ')} ${AND[lang]} ${items.at(-1)}`;
-}
+/** the scope of work: the applications' roles bottom-up, one per line as a list, without their names (the owner's choice) */
+const scopeLines = (lang: Lang) => STACK.map((a) => `• ${a.copy[lang].role}`).join('\n');
 
 /** Fills the placeholders of src/content/profiles; one without a value here is an error. */
 export function fill(text: string, at: { lang: Lang; other?: FilmId; source?: string; film?: FilmId }): string {
   const vars: Record<string, string | undefined> = {
     motto: t(at.lang)('site.motto'),
-    apps: appsLine(at.lang),
+    scope: scopeLines(at.lang),
     site: pageUrl('/', at.lang),
     beta: pageUrl('/beta/', at.lang),
     services: pageUrl('/services/', at.lang),
@@ -164,8 +154,18 @@ export const linkedinSpecialties = () => [...shared.linkedin.specialties];
 export const linkedinServices = () => ({ items: [...shared.linkedin.services.items], description: fill(shared.linkedin.services.description, { lang: 'en' }) });
 
 /**
+ * A film uploaded to LinkedIn itself (an article's video, a sample of work), not linked: LinkedIn plays its own upload in
+ * place and keeps no stale preview of a link. What to upload: the film's master from the media repo's deliveries with its
+ * captions, or the site's own copy.
+ */
+export function filmUpload(film: FilmId): string {
+  const f = PROFILES.youtube.films[film];
+  return `the film in ${f.language} (${f.duration}): its master from the media repo's deliveries (1080p) with its SRT captions, or the site's public/media/film/film-${film}.mp4 (720p)`;
+}
+
+/**
  * The samples of work in LinkedIn's Services section: a picture per discipline, named as on the services page (its
- * file comes from `npm run social`), then the film in English as a link.
+ * file comes from `npm run social`), then the film in English, uploaded.
  */
 export function linkedinServicesMedia() {
   const pictures = shared.linkedin.services.media.map((m) => {
@@ -173,8 +173,8 @@ export function linkedinServicesMedia() {
     if (!discipline) throw new Error(`profiles: the services page has no discipline "${m.app}"`);
     return { file: `linkedin-service-${m.app}-1920.jpg`, image: m.image, title: discipline.name, description: [discipline.body, m.note].filter(Boolean).join(' ') };
   });
-  const film = youtubeFilm('en', 'en')!;
-  return { pictures, film: { url: filmUrl('en'), title: film.title } };
+  const copy = en.youtube.films.en!;
+  return { pictures, film: { upload: filmUpload('en'), title: fill(copy.title, { lang: 'en' }), description: fill(copy.lede, { lang: 'en' }) } };
 }
 
 /** the line on the YouTube banner and the LinkedIn cover */

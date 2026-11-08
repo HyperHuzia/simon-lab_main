@@ -41,9 +41,9 @@ export const profiles: ProfilesCopy = {
     about: [
       'Simon Lab macht Computational Engineering für Chemieprojekte. Die Mission: vollständige Projekte der Chemietechnik auf einer einzigen offenen Plattform zu koordinieren, mit Prozess, Maschinen, Schaltschränken, 3D-Montage, Standort und Genehmigungen und mit Import und Export aller Arten von Dokumenten.',
       'Das gelöste Problem ist die unterbrochene Kette: Die Verfahrenstechnik arbeitet noch immer mit statischen Dokumenten, die einander nicht lesen können, und jede Übergabe bringt Fehler. Die Antwort ist Projekt als Code. Das Projekt wird einmal definiert, als strukturierte und versionierte Daten, in einer Anwendung je Gewerk; die Dokumente entstehen aus diesem Modell, jede Änderung ist eine Revision, und das Modell wird bei jeder Änderung gegen Physik, Grenzwerte und Geometrie geprüft. Die Ingenieure behalten jede Entscheidung.',
-      'Die Anwendungen, von unten nach oben: {apps}. Ingenieure bringen ihren eigenen KI-Agenten mit (BYOA); Simon Lab gibt ihm die CLI, mit der er das Projekt sieht.',
-      'Simon Lab übernimmt auch Ingenieuraufträge, ein ganzes Projekt der Chemietechnik oder ein einzelnes Gewerk: Verfahrenstechnik und Prozessautomatisierung, mechanische Konstruktion, Automatisierung und Energieversorgung, 3D-Modellierung, Architektur und BIM. Die Arbeit läuft auf der Plattform, deshalb werden Aufträge schnell erledigt, und erfahrene Ingenieure prüfen jedes Ergebnis. Kunden erhalten die Dokumente zusammen mit dem Projekt als Daten, KI-nativ ab der ersten Revision: {services}',
-      'Private Beta mit Partnern unseres Vertrauens; der Start ist zur ACHEMA 2027 in Frankfurt geplant. Open Source folgt bald.',
+      'Leistungsumfang, von der Spezifikation bis zum Standort:\n{scope}',
+      'Simon Lab übernimmt Ingenieuraufträge. Die Arbeit läuft auf der Plattform, deshalb geht sie schnell, und erfahrene Ingenieure prüfen jedes Ergebnis. Kunden erhalten die Dokumente zusammen mit dem Projekt als Daten, KI-nativ ab der ersten Revision: {services}',
+      'Direkter Zugang zu den Werkzeugen der Plattform, auch für den eigenen KI-Agenten (BYOA), in einer privaten Beta mit Partnern unseres Vertrauens. Open Source folgt bald. Kontakt: {beta}',
       '{motto}',
     ],
   },

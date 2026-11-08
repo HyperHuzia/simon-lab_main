@@ -2,8 +2,9 @@ import type { Lang } from '../../i18n/config';
 
 // The copy of the organization's profiles outside the site: the YouTube channel and its films, the LinkedIn page and
 // its articles. One file per language, like the pages' copy. src/data/profiles.ts adds what the site already holds
-// and fills the placeholders: {motto} (src/i18n/ui.ts), {apps} (the applications bottom-up with their roles, from
-// src/data/apps.ts), {site}, {beta} and {services} (this language's pages), {other} (a film's version in the other
+// and fills the placeholders: {motto} (src/i18n/ui.ts), {scope} (the scope of work: the applications' roles bottom-up
+// from src/data/apps.ts, one per line as a list, without their names), {site}, {beta} and {services} (this language's
+// pages), {other} (a film's version in the other
 // language) and, in articles, {source} (the site's article) and {film} (the film in the article's language).
 // `npm run profiles` writes the texts ready to paste into docs/profiles/.
 
@@ -59,8 +60,11 @@ export interface ProfilesShared {
   imageLine: string;
 }
 
-/** One block of a LinkedIn article, in the order of its editor: headings, paragraphs, lists, quotes, embedded links. */
-export type ArticleBlock = { h2: string } | { p: string } | { ul: string[] } | { ol: string[] } | { quote: string } | { embed: string };
+/**
+ * One block of a LinkedIn article, in the order of its editor: headings, paragraphs, lists, quotes, embedded links, and a
+ * film uploaded to LinkedIn itself (Media, Video), which plays in the article instead of leading to YouTube.
+ */
+export type ArticleBlock = { h2: string } | { p: string } | { ul: string[] } | { ol: string[] } | { quote: string } | { embed: string } | { video: FilmId };
 
 /** A LinkedIn article written from one of the site's articles (src/content/profiles/articles/<id>.<lang>.ts). */
 export interface LinkedInArticle {

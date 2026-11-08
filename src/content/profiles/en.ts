@@ -62,9 +62,9 @@ export const profiles: ProfilesCopy = {
     about: [
       'Simon Lab does computational engineering for chemical projects. Its mission is to coordinate complete chemical engineering projects on one open platform: process, machines, control cabinets, 3D assembly, site and permits, with import and export of every kind of document.',
       'The problem it solves is the broken chain: process engineering still runs on static documents that cannot read each other, so every handoff introduces errors. The answer is project as code. The project is defined once, as structured and versioned data, in one application per discipline; documents are generated from that model, every change is a revision, and the model is checked against physics, limits and geometry whenever it changes. Engineers stay in charge of every decision.',
-      'The applications, bottom-up: {apps}. Engineers bring their own AI agent (BYOA); Simon Lab gives it the CLI to see the project.',
-      'Simon Lab also takes on engineering orders, a whole chemical engineering project or one discipline: process engineering and process automation, mechanical design, automation and power, 3D modeling, architecture and BIM. The work runs on the platform, so orders are delivered fast, and experienced engineers check every deliverable. Clients receive the documents together with the project as data, AI-native from the first revision: {services}',
-      'Private beta with trusted partners; the launch is planned for ACHEMA 2027 in Frankfurt. Open source coming soon.',
+      'The work, from specification to site:\n{scope}',
+      'Simon Lab takes on engineering orders. The work runs on the platform, so it moves fast, and experienced engineers check every deliverable. Clients receive the documents together with the project as data, AI-native from the first revision: {services}',
+      'Direct access to the platform’s tools, also for your own AI agent (BYOA), in a private beta with trusted partners. Open source coming soon. Get in touch: {beta}',
       '{motto}',
     ],
   },

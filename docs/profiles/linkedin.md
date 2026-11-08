@@ -35,50 +35,68 @@ Computational Engineering für Chemieprojekte. Eine offene Plattform, Projekt al
 
 ## About
 
-### English (1780/2000)
+### English (1499/2000)
 
 ```text
 Simon Lab does computational engineering for chemical projects. Its mission is to coordinate complete chemical engineering projects on one open platform: process, machines, control cabinets, 3D assembly, site and permits, with import and export of every kind of document.
 
 The problem it solves is the broken chain: process engineering still runs on static documents that cannot read each other, so every handoff introduces errors. The answer is project as code. The project is defined once, as structured and versioned data, in one application per discipline; documents are generated from that model, every change is a revision, and the model is checked against physics, limits and geometry whenever it changes. Engineers stay in charge of every decision.
 
-The applications, bottom-up: CapacityIndex (scope, capacity and economics), ProcessView (P&ID and dynamic process simulation), MechGraph (machine design from dedicated calculations), IonGrid (control cabinets from catalogue components), PlantMesh (process-unit assemblies in 3D) and Architecture (the unit in its site). Engineers bring their own AI agent (BYOA); Simon Lab gives it the CLI to see the project.
+The work, from specification to site:
+• Scope, capacity and economics
+• P&ID and dynamic process simulation
+• Machine design from dedicated calculations
+• Control cabinets from catalogue components
+• Process-unit assemblies in 3D
+• The unit in its site
 
-Simon Lab also takes on engineering orders, a whole chemical engineering project or one discipline: process engineering and process automation, mechanical design, automation and power, 3D modeling, architecture and BIM. The work runs on the platform, so orders are delivered fast, and experienced engineers check every deliverable. Clients receive the documents together with the project as data, AI-native from the first revision: https://simon-lab.org/services/
+Simon Lab takes on engineering orders. The work runs on the platform, so it moves fast, and experienced engineers check every deliverable. Clients receive the documents together with the project as data, AI-native from the first revision: https://simon-lab.org/services/
 
-Private beta with trusted partners; the launch is planned for ACHEMA 2027 in Frankfurt. Open source coming soon.
+Direct access to the platform’s tools, also for your own AI agent (BYOA), in a private beta with trusted partners. Open source coming soon. Get in touch: https://simon-lab.org/beta/
 
 Code-Native. AI-Ready. Bug-Free.
 ```
 
-### Polish (1908/2000)
+### Polish (1631/2000)
 
 ```text
 Simon Lab zajmuje się inżynierią obliczeniową dla projektów chemicznych. Jego misją jest koordynacja kompletnych projektów inżynierii chemicznej na jednej otwartej platformie: proces, maszyny, szafy sterownicze, złożenie 3D, teren i pozwolenia, z importem i eksportem wszystkich rodzajów dokumentów.
 
 Rozwiązuje problem przerwanego łańcucha: inżynieria procesowa wciąż opiera się na statycznych dokumentach, które nie potrafią się nawzajem odczytać, więc każde przekazanie projektu wprowadza błędy. Odpowiedzią jest projekt jako kod. Projekt jest definiowany raz, jako ustrukturyzowane i wersjonowane dane, w jednej aplikacji na każdą branżę; dokumenty powstają z tego modelu, każda zmiana jest rewizją, a model jest sprawdzany względem fizyki, limitów i geometrii przy każdej zmianie. Inżynierowie decydują o każdym kroku.
 
-Aplikacje, od dołu: CapacityIndex (zakres, wydajność i ekonomia), ProcessView (P&ID i dynamiczna symulacja procesu), MechGraph (konstrukcja maszyny z dedykowanych obliczeń), IonGrid (szafy sterownicze z katalogowych podzespołów), PlantMesh (złożenia węzłów technologicznych w 3D) i Architecture (węzeł w swoim zakładzie). Inżynierowie pracują z własnym agentem AI (BYOA); Simon Lab daje mu CLI, przez które widzi projekt.
+Zakres prac, od specyfikacji po zakład:
+• Zakres, wydajność i ekonomia
+• P&ID i dynamiczna symulacja procesu
+• Konstrukcja maszyny z dedykowanych obliczeń
+• Szafy sterownicze z katalogowych podzespołów
+• Złożenia węzłów technologicznych w 3D
+• Węzeł w swoim zakładzie
 
-Simon Lab przyjmuje też zlecenia projektowe, cały projekt inżynierii chemicznej albo jedną branżę: technologię i automatykę procesową, konstrukcję mechaniczną, automatykę i zasilanie, modelowanie 3D, aranżację architektoniczną i modele BIM. Praca toczy się na platformie, więc zlecenia są realizowane szybko, a doświadczeni inżynierowie sprawdzają każdy dokument. Klient dostaje dokumenty razem z projektem jako danymi, w standardzie AI-native od pierwszej rewizji: https://simon-lab.org/pl/services/
+Simon Lab realizuje zlecenia projektowe. Praca toczy się na platformie, więc idzie szybko, a doświadczeni inżynierowie sprawdzają każdy dokument. Klient dostaje dokumenty razem z projektem jako danymi, w standardzie AI-native od pierwszej rewizji: https://simon-lab.org/pl/services/
 
-Prywatna beta z zaufanymi partnerami; premiera planowana na ACHEMA 2027 we Frankfurcie. Open source wkrótce.
+Bezpośredni dostęp do narzędzi platformy, także dla własnego agenta AI (BYOA), w ramach prywatnej bety z zaufanymi partnerami. Open source wkrótce. Skontaktuj się: https://simon-lab.org/pl/beta/
 
-Oparte na kodzie. Gotowe na AI. Wolne od błędów.
+Projekty oparte na kodzie. Gotowe na AI. Wolne od błędów.
 ```
 
-### German (1990/2000)
+### German (1672/2000)
 
 ```text
 Simon Lab macht Computational Engineering für Chemieprojekte. Die Mission: vollständige Projekte der Chemietechnik auf einer einzigen offenen Plattform zu koordinieren, mit Prozess, Maschinen, Schaltschränken, 3D-Montage, Standort und Genehmigungen und mit Import und Export aller Arten von Dokumenten.
 
 Das gelöste Problem ist die unterbrochene Kette: Die Verfahrenstechnik arbeitet noch immer mit statischen Dokumenten, die einander nicht lesen können, und jede Übergabe bringt Fehler. Die Antwort ist Projekt als Code. Das Projekt wird einmal definiert, als strukturierte und versionierte Daten, in einer Anwendung je Gewerk; die Dokumente entstehen aus diesem Modell, jede Änderung ist eine Revision, und das Modell wird bei jeder Änderung gegen Physik, Grenzwerte und Geometrie geprüft. Die Ingenieure behalten jede Entscheidung.
 
-Die Anwendungen, von unten nach oben: CapacityIndex (Umfang, Kapazität und Wirtschaftlichkeit), ProcessView (R&I-Fließbild und dynamische Prozesssimulation), MechGraph (Maschinenkonstruktion aus eigenen Berechnungen), IonGrid (Schaltschränke aus Katalogkomponenten), PlantMesh (Baugruppen von Prozessanlagen in 3D) und Architecture (die Anlage an ihrem Standort). Ingenieure bringen ihren eigenen KI-Agenten mit (BYOA); Simon Lab gibt ihm die CLI, mit der er das Projekt sieht.
+Leistungsumfang, von der Spezifikation bis zum Standort:
+• Umfang, Kapazität und Wirtschaftlichkeit
+• R&I-Fließbild und dynamische Prozesssimulation
+• Maschinenkonstruktion aus eigenen Berechnungen
+• Schaltschränke aus Katalogkomponenten
+• Baugruppen von Prozessanlagen in 3D
+• Die Anlage an ihrem Standort
 
-Simon Lab übernimmt auch Ingenieuraufträge, ein ganzes Projekt der Chemietechnik oder ein einzelnes Gewerk: Verfahrenstechnik und Prozessautomatisierung, mechanische Konstruktion, Automatisierung und Energieversorgung, 3D-Modellierung, Architektur und BIM. Die Arbeit läuft auf der Plattform, deshalb werden Aufträge schnell erledigt, und erfahrene Ingenieure prüfen jedes Ergebnis. Kunden erhalten die Dokumente zusammen mit dem Projekt als Daten, KI-nativ ab der ersten Revision: https://simon-lab.org/de/services/
+Simon Lab übernimmt Ingenieuraufträge. Die Arbeit läuft auf der Plattform, deshalb geht sie schnell, und erfahrene Ingenieure prüfen jedes Ergebnis. Kunden erhalten die Dokumente zusammen mit dem Projekt als Daten, KI-nativ ab der ersten Revision: https://simon-lab.org/de/services/
 
-Private Beta mit Partnern unseres Vertrauens; der Start ist zur ACHEMA 2027 in Frankfurt geplant. Open Source folgt bald.
+Direkter Zugang zu den Werkzeugen der Plattform, auch für den eigenen KI-Agenten (BYOA), in einer privaten Beta mit Partnern unseres Vertrauens. Open Source folgt bald. Kontakt: https://simon-lab.org/de/beta/
 
 Code-Nativ. KI-Bereit. Fehlerfrei.
 ```
@@ -152,8 +170,12 @@ The unit assembled in 3D: piping isometrics, support structures, service access 
 The unit in its building and on its site: architectural arrangement and georeferenced OpenBIM models, up to the site plan. A BIM model of another project.
 ```
 
-- Link: https://youtu.be/ZyQvklua8tI
+- Video, uploaded: the film in English (2:14): its master from the media repo's deliveries (1080p) with its SRT captions, or the site's public/media/film/film-en.mp4 (720p)
 
 ```text
 Simon Lab · Bottom-up chemical engineering
+```
+
+```text
+One chemical engineering project, followed layer by layer through the Simon Lab applications: the specification in CapacityIndex, the P&ID and the dynamic process simulation in ProcessView, the machine in MechGraph and the control cabinets in IonGrid, the unit assembled in 3D in PlantMesh and placed on its site in Architecture, and the export of construction-ready documentation.
 ```

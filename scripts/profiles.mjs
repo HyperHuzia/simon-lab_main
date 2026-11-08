@@ -171,7 +171,8 @@ for (const m of media.pictures) {
   lLines.push('', `- images/${m.file}: ${m.title}`, '', ...box(m.description));
 }
 count('LinkedIn services media title (the film)', media.film.title.length, LIMITS.linkedin.servicesMediaTitle);
-lLines.push('', `- Link: ${media.film.url}`, '', ...box(media.film.title));
+count('LinkedIn services media description (the film)', media.film.description.length, LIMITS.linkedin.servicesDescription);
+lLines.push('', `- Video, uploaded: ${media.film.upload}`, '', ...box(media.film.title), '', ...box(media.film.description));
 
 // LinkedIn articles: src/content/profiles/articles/<id>.<lang>.ts; drafts stay out of the public repository
 const articlesDir = path.join(root, 'src', 'content', 'profiles', 'articles');
@@ -190,6 +191,7 @@ for (const a of articles) {
   const name = `${a.id}.${a.lang}`;
   const title = f(a.title);
   const words = a.blocks
+    .filter((b) => !('video' in b))
     .flatMap((b) => Object.values(b).flat())
     .map(f)
     .join(' ')
@@ -208,6 +210,8 @@ for (const a of articles) {
     if ('ul' in b) return [b.ul.map((x) => `- ${f(x)}`).join('\n'), `<ul>${b.ul.map((x) => `<li>${linked(f(x))}</li>`).join('')}</ul>`];
     if ('ol' in b) return [b.ol.map((x, i) => `${i + 1}. ${f(x)}`).join('\n'), `<ol>${b.ol.map((x) => `<li>${linked(f(x))}</li>`).join('')}</ol>`];
     if ('quote' in b) return [`> ${f(b.quote)}`, `<blockquote>${linked(f(b.quote))}</blockquote>`];
+    // a film uploaded in the editor (Media, Video): the HTML holds a marker paragraph, replaced by the film there
+    if ('video' in b) return [`[Video, uploaded: ${P.filmUpload(b.video)}]`, `<p>[FILM ${b.video.toUpperCase()}]</p>`];
     return [f(b.embed), `<p>${linked(f(b.embed))}</p>`];
   });
   const tags = a.hashtags.map((tag) => `#${tag}`).join(' ');

@@ -49,9 +49,9 @@ export const profiles: ProfilesCopy = {
     about: [
       'Simon Lab zajmuje się inżynierią obliczeniową dla projektów chemicznych. Jego misją jest koordynacja kompletnych projektów inżynierii chemicznej na jednej otwartej platformie: proces, maszyny, szafy sterownicze, złożenie 3D, teren i pozwolenia, z importem i eksportem wszystkich rodzajów dokumentów.',
       'Rozwiązuje problem przerwanego łańcucha: inżynieria procesowa wciąż opiera się na statycznych dokumentach, które nie potrafią się nawzajem odczytać, więc każde przekazanie projektu wprowadza błędy. Odpowiedzią jest projekt jako kod. Projekt jest definiowany raz, jako ustrukturyzowane i wersjonowane dane, w jednej aplikacji na każdą branżę; dokumenty powstają z tego modelu, każda zmiana jest rewizją, a model jest sprawdzany względem fizyki, limitów i geometrii przy każdej zmianie. Inżynierowie decydują o każdym kroku.',
-      'Aplikacje, od dołu: {apps}. Inżynierowie pracują z własnym agentem AI (BYOA); Simon Lab daje mu CLI, przez które widzi projekt.',
-      'Simon Lab przyjmuje też zlecenia projektowe, cały projekt inżynierii chemicznej albo jedną branżę: technologię i automatykę procesową, konstrukcję mechaniczną, automatykę i zasilanie, modelowanie 3D, aranżację architektoniczną i modele BIM. Praca toczy się na platformie, więc zlecenia są realizowane szybko, a doświadczeni inżynierowie sprawdzają każdy dokument. Klient dostaje dokumenty razem z projektem jako danymi, w standardzie AI-native od pierwszej rewizji: {services}',
-      'Prywatna beta z zaufanymi partnerami; premiera planowana na ACHEMA 2027 we Frankfurcie. Open source wkrótce.',
+      'Zakres prac, od specyfikacji po zakład:\n{scope}',
+      'Simon Lab realizuje zlecenia projektowe. Praca toczy się na platformie, więc idzie szybko, a doświadczeni inżynierowie sprawdzają każdy dokument. Klient dostaje dokumenty razem z projektem jako danymi, w standardzie AI-native od pierwszej rewizji: {services}',
+      'Bezpośredni dostęp do narzędzi platformy, także dla własnego agenta AI (BYOA), w ramach prywatnej bety z zaufanymi partnerami. Open source wkrótce. Skontaktuj się: {beta}',
       '{motto}',
     ],
   },

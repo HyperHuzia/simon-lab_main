@@ -34,7 +34,7 @@ Private beta with trusted partners. Code-Native. AI-Ready. Bug-Free.
 https://simon-lab.org/
 ```
 
-### Description: Polish, a translation (892/1000)
+### Description: Polish, a translation (901/1000)
 
 ```text
 Simon Lab zajmuje się inżynierią obliczeniową dla projektów chemicznych. Koordynuje kompletne projekty inżynierii chemicznej na jednej otwartej platformie: proces, maszyny, szafy sterownicze, złożenie 3D, teren i pozwolenia, z importem i eksportem wszystkich rodzajów dokumentów. Projekt jest zdefiniowany raz, jako ustrukturyzowane i wersjonowane dane; dokumenty powstają z tego modelu, a każda zmiana jest testowana jak oprogramowanie.
@@ -43,7 +43,7 @@ Filmy na tym kanale pokazują aplikacje platformy, od CapacityIndex i ProcessVie
 
 Simon Lab przyjmuje też zlecenia projektowe dla instalacji chemicznych, cały projekt albo jedną branżę: https://simon-lab.org/pl/services/
 
-Prywatna beta z zaufanymi partnerami. Oparte na kodzie. Gotowe na AI. Wolne od błędów.
+Prywatna beta z zaufanymi partnerami. Projekty oparte na kodzie. Gotowe na AI. Wolne od błędów.
 
 https://simon-lab.org/pl/
 ```

@@ -12,7 +12,7 @@
 // linkedin-service-<app>-1920.jpg (the samples of work in LinkedIn's Services section),
 // youtube-thumbnail-<film>-1280x720.jpg (the film's opening frame with a language tag) and, for every LinkedIn article
 // in src/content/profiles/articles, linkedin-article-<id>-<lang>-1920x1080.jpg (its cover, laid out like the site's
-// share images).
+// share images but light, for LinkedIn's light page).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -49,17 +49,39 @@ const mark = (size) => svg('mark.svg').replace('<svg ', `<svg width="${size}" he
 const lockup = (height) => svg('logo-header.svg').replace('<svg ', `<svg height="${height}" width="${Math.round(height * ratio('logo-header.svg'))}" `);
 const font = (pkg, file) => fileUrl('node_modules', '@fontsource-variable', pkg, 'files', file);
 
-const page = (w, h, body, transparent) => `<!doctype html><html><head><meta charset="utf-8"><style>
+// the light look of the articles' covers (the owner's choice: they sit on LinkedIn's light page): a pale ground with the
+// grid faint on it, the text in the site's dark
+const LIGHT = { bg: '#f4f5f7', grid: '#d5dae2', text: C.bg, text3: '#596273' };
+
+// a picture with a transparent background cropped to what it shows (its pixels above a faint alpha), as a data URL
+async function cropped(file) {
+  const { data, info } = await sharp(file).ensureAlpha().extractChannel(3).raw().toBuffer({ resolveWithObject: true });
+  let [left, top, right, bottom] = [info.width, info.height, -1, -1];
+  for (let y = 0; y < info.height; y++) {
+    for (let x = 0; x < info.width; x++) {
+      if (data[y * info.width + x] <= 8) continue;
+      left = Math.min(left, x);
+      right = Math.max(right, x);
+      top = Math.min(top, y);
+      bottom = Math.max(bottom, y);
+    }
+  }
+  if (right < 0) fail(`${file} shows nothing`);
+  const png = await sharp(file).extract({ left, top, width: right - left + 1, height: bottom - top + 1 }).png().toBuffer();
+  return { url: `data:image/png;base64,${png.toString('base64')}`, ratio: (right - left + 1) / (bottom - top + 1) };
+}
+
+const page = (w, h, body, transparent, light) => `<!doctype html><html><head><meta charset="utf-8"><style>
 :root { ${Object.entries(tokens).map(([name, value]) => `--${name}: ${value};`).join(' ')} }
 @font-face { font-family: Montserrat; src: url('${font('montserrat', 'montserrat-latin-wght-normal.woff2')}') format('woff2'); font-weight: 100 900; }
 @font-face { font-family: Montserrat; src: url('${font('montserrat', 'montserrat-latin-ext-wght-normal.woff2')}') format('woff2'); font-weight: 100 900; unicode-range: U+0100-024F; }
 @font-face { font-family: Noto; src: url('${font('noto-sans', 'noto-sans-latin-wght-normal.woff2')}') format('woff2'); font-weight: 100 900; }
 @font-face { font-family: Noto; src: url('${font('noto-sans', 'noto-sans-latin-ext-wght-normal.woff2')}') format('woff2'); font-weight: 100 900; unicode-range: U+0100-024F; }
 * { box-sizing: border-box; margin: 0; }
-html, body { width: ${w}px; height: ${h}px; background: ${transparent ? 'transparent' : C.bg}; overflow: hidden; }
-body { position: relative; color: ${C.text}; font-family: Noto, sans-serif; }
+html, body { width: ${w}px; height: ${h}px; background: ${transparent ? 'transparent' : light ? LIGHT.bg : C.bg}; overflow: hidden; }
+body { position: relative; color: ${light ? LIGHT.text : C.text}; font-family: Noto, sans-serif; }
 /* the film's grid, faint */
-.grid { position: absolute; inset: 0; background-image: linear-gradient(${C.line}55 1px, transparent 1px), linear-gradient(90deg, ${C.line}55 1px, transparent 1px); background-size: 64px 64px; }
+.grid { position: absolute; inset: 0; background-image: linear-gradient(${light ? LIGHT.grid : C.line}55 1px, transparent 1px), linear-gradient(90deg, ${light ? LIGHT.grid : C.line}55 1px, transparent 1px); background-size: 64px 64px; }
 /* the stack, in the style of the knowledge base's thumbnail (StackThumb) */
 .st path { vector-effect: non-scaling-stroke; }
 .st-top { fill: rgb(17 21 31 / 0.96); stroke: color-mix(in srgb, var(--c) 70%, var(--line-strong)); stroke-linejoin: round; }
@@ -131,25 +153,34 @@ for (const film of Object.keys(PROFILES.youtube.films)) {
   });
 }
 
-// the covers of the LinkedIn articles: the title and the logo on the left, the article's picture on the right, a bar
-// in the article's layer colour, as on the site's share images
+// the covers of the LinkedIn articles, light (they sit on LinkedIn's light page): the logo and the title on the left,
+// a bar in the article's layer colour under it, the article's picture on the right, cropped to what it shows so it
+// fills its half (a document page is framed as a card)
 const articlesDir = path.join(root, 'src', 'content', 'profiles', 'articles');
 const articles = fs.existsSync(articlesDir) ? fs.readdirSync(articlesDir).filter((f) => f.endsWith('.ts')).sort() : [];
 for (const file of articles) {
   const { article: a } = await load(path.join('src', 'content', 'profiles', 'articles', file));
-  const image = fileUrl('public', ...a.cover.image.split('/').filter(Boolean));
-  const picture = a.cover.card
-    ? `<img src="${image}" style="position:absolute;right:110px;top:50%;transform:translateY(-50%);width:880px;border:2px solid ${C.lineStrong};border-radius:10px;background:#fff">`
-    : `<img src="${image}" style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:1240px">`;
+  const source = path.join(root, 'public', ...a.cover.image.split('/').filter(Boolean));
+  let picture;
+  if (a.cover.card) {
+    picture = `<img src="${pathToFileURL(source).href}" style="position:absolute;right:110px;top:50%;transform:translateY(-50%);width:880px;border:2px solid ${LIGHT.grid};border-radius:10px;background:#fff">`;
+  } else {
+    // the picture as large as its half allows (up to 960×900), centred in the 928 px right of the text
+    const { url, ratio } = await cropped(source);
+    const width = Math.round(Math.min(960, 900 * ratio));
+    const right = 72 + Math.max(0, Math.round((928 - width) / 2));
+    picture = `<img src="${url}" style="position:absolute;right:${right}px;top:50%;transform:translateY(-50%);width:${width}px">`;
+  }
   shots.push({
     file: `linkedin-article-${a.id}-${a.lang}-1920x1080.jpg`,
     w: 1920,
     h: 1080,
-    body: `${picture}
-      <div style="position:absolute;left:112px;top:118px">${lockup(64)}</div>
-      <div style="position:absolute;left:112px;top:0;bottom:0;width:760px;display:flex;flex-direction:column;justify-content:center">
-        <div style="font:600 100px/1.12 Montserrat;letter-spacing:-0.015em;color:${C.text}">${a.cover.title}</div>
-        <div style="margin-top:52px;width:104px;height:7px;border-radius:4px;background:${token(a.cover.layer)}"></div>
+    light: true,
+    body: `<div class="grid"></div>${picture}
+      <div style="position:absolute;left:112px;top:104px">${lockup(108)}</div>
+      <div style="position:absolute;left:112px;top:0;bottom:0;width:800px;display:flex;flex-direction:column;justify-content:center;padding-top:80px">
+        <div style="font:700 84px/1.1 Montserrat;letter-spacing:-0.015em;color:${LIGHT.text};text-wrap:balance">${a.cover.title}</div>
+        <div style="margin-top:48px;width:104px;height:8px;border-radius:4px;background:${token(a.cover.layer)}"></div>
       </div>`,
   });
 }
@@ -157,7 +188,7 @@ for (const file of articles) {
 const browser = await chromium.launch();
 const html = path.join(out, '.render.html');
 for (const s of shots) {
-  fs.writeFileSync(html, page(s.w, s.h, s.body, s.transparent));
+  fs.writeFileSync(html, page(s.w, s.h, s.body, s.transparent, s.light));
   const p = await browser.newPage({ viewport: { width: s.w, height: s.h }, deviceScaleFactor: 1 });
   await p.goto(pathToFileURL(html).href);
   await p.evaluate(() => document.fonts.ready);
