@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projekt jako kod: projekt instalacji powinien czytać się jak program</title>
+<style>body{max-width:44rem;margin:2rem auto;padding:0 1rem;font:17px/1.6 system-ui,sans-serif;color:#1d1d1f}h1{font-size:2rem;line-height:1.2}h2{margin-top:2rem}img{max-width:100%}blockquote{margin:1rem 0;padding-left:1rem;border-left:3px solid #ccc;color:#444}</style>
+</head>
+<body>
+<p><img src="../images/linkedin-article-project-as-code-pl-1920x1080.jpg" alt=""></p>
+<h1>Projekt jako kod: projekt instalacji powinien czytać się jak program</h1>
+<article>
+<p>[FILM EN]</p>
+<p>Każdy projekt instalacji chemicznej to tysiące decyzji rozproszonych w plikach PDF, arkuszach i rysunkach, które nie potrafią się nawzajem odczytać.</p>
+<p>Utrzymanie jednego standardu rewizji i spójnej dokumentacji międzybranżowej to walka, którą toczy każdy kierownik biura projektowego. Człowiek nie wyewoluował do roli strażnika spójności dokumentów. To zadanie dla maszyny, bo oczekujemy tu maszynowej precyzji. Programiści dobrze o tym wiedzą, dlatego spójności kodu pilnują u nich narzędzia. Inżynieria została z tym problemem sama, bo dokumentacja była dotąd zbiorem osobnych artefaktów. Dzisiejsze narzędzia AI pozwalają to zmienić.</p>
+<h2>Przerwany łańcuch</h2>
+<p>Typowy projekt przechodzi przez łańcuch dokumentów: oferta, wniosek grantowy, opis procesu, schematy P&amp;ID, listy urządzeń, karty obliczeń, rejestry szaf, rysunki i wnioski o pozwolenia. Każdy z nich powstaje ręcznie na podstawie poprzednich.</p>
+<ul><li>Liczby wychodzą z oferty przygotowanej w pośpiechu jako PDF, trafiają do arkusza, potem na rysunek, a dalej do architekta, który załatwia pozwolenie na budowę.</li><li>Każda kopia to okazja do błędu, a żaden system nie prześledzi wątku od jednego pliku do następnego.</li><li>Jeden arkusz jest w rewizji C, rysunek wciąż w A, wniosek o pozwolenie gdzieś pomiędzy.</li></ul>
+<p>Projekt żyje w głowach ludzi, a nie w plikach. W plikach zostają wyniki, a uzasadnienie podjętych decyzji, przyjętych ograniczeń i zawartych kompromisów jest ulotne.</p>
+<h2>Jeden model, wiele dokumentów</h2>
+<p>Projekt jako kod odwraca tę kolejność. Projekt jest ustrukturyzowanymi danymi: urządzenia z parametrami, rurociągi z materiałami i klasami, przyrządy, logika sterowania, szafy, konstrukcje stalowe i teren. Każdy element jest zdefiniowany raz, w aplikacji swojej branży.</p>
+<p>Rurociąg ma jedną definicję: numer, medium, średnicę nominalną, materiał, klasę i urządzenia, które łączy, a także zaakceptowany przez inwestora kompromis w odporności na korozję. Ciężar rurociągu wypełnionego medium trafia do obliczeń wytrzymałościowych konstrukcji dachu, na której rurociąg jest zawieszony. Aplikacja dobierająca pompę odczytuje opory przepływu obliczone dla wszystkich kolan, a test sprawdza, czy trójniki spustowe, przez które opróżnia się rurociąg na czas serwisu, leżą faktycznie w najniższych punktach.</p>
+<p>Arkusz P&amp;ID, rejestr rurociągów i izometria czytają tę samą definicję. Klasyczne wydania dokumentacji w PDF powstają automatycznie z najnowszej wersji kodu, więc ręczne poprawianie tabel i nanoszenie zmian nie jest potrzebne.</p>
+<h2>Każda zmiana to rewizja</h2>
+<p>Skoro projekt jest danymi, zmiana jest nową rewizją modelu, a nie nową kopią pliku. Na zebraniu pytanie „który plik jest aktualny?” ustępuje pytaniu „co się zmieniło i dlaczego?”.</p>
+<p>Przykład: rośnie średnica nominalna tego samego rurociągu. Zmiana trafia na jego arkusz P&amp;ID, do rejestru rurociągów i na izometrię, bo wszystkie trzy powstają z jego definicji. Model od razu pokazuje też skutki tam, gdzie tę definicję się czyta:</p>
+<ul><li>opory przepływu spadają, a aplikacja doboru pompy pokazuje, że wystarczyłby już tańszy model,</li><li>przepływomierz jest teraz poza zakresem dla tej rury i wymaga ponownego doboru,</li><li>konstrukcja dachu jest przeliczana z nowym, większym ciężarem rurociągu.</li></ul>
+<p>Nic nie czeka, aż ktoś to zauważy.</p>
+<h2>Sprawdzenia działają jak testy</h2>
+<p>W oprogramowaniu każda zmiana uruchamia testy. Projekt zdefiniowany jako dane działa tak samo: po każdej zmianie model jest sprawdzany względem fizyki, limitów i geometrii.</p>
+<p>Program sterowania instalacją powstaje od samego początku razem z projektem procesu. Dotąd projekt procesowy często zostawał niedopowiedzianą koncepcją w duchu „jakoś to będzie”. Czy kupiono właściwą aparaturę pomiarową, czego proces oczekuje od operatorów: to wszystko ustalał programista, który procesu nie znał, i na nim spoczywało trudne zadanie spięcia tego w działający program. Teraz projekt procesu i projekt programu są nierozłączne, a wymagania wobec operacji jednostkowych i AKPiA są określane na bardzo wczesnym etapie.</p>
+<h2>Otwarte formaty na wejściu i na wyjściu</h2>
+<p>Agent AI z łatwością przyjmie dane w każdym formacie: DXF, STEP, IFC, dokumenty PDF i Word, arkusze i dane. Czego agent AI nie zrobi i zrobić nie powinien, to rozstrzygnąć, jak interpretować sprzeczności, które zwykle są zaszyte w danych projektu. Zbudowanie dobrego fundamentu, czyli warstwy zerowej projektu, wciąż należy do obowiązków zespołu projektowego: inwentaryzacja brakujących danych, ustalenia z inwestorem i wizje lokalne. Na wyjściu projektu są klasyczne dokumenty PDF oraz pliki IFC, STEP, DXF i modele 3D, zrozumiałe dla tradycyjnej inżynierii, a także pełna baza danych projektu, zrozumiała dla każdego agenta AI.</p>
+<h2>Co to zmienia dla inżynierów</h2>
+<p>Inżynier wybiera proces, dobiera maszyny i podpisuje rysunki. Odpada praca wokół tego: przepisywanie, szukanie aktualnej rewizji, zmiana, która po cichu omija jakiś dokument. Gdy zmienia się zakres albo przepis, kolejna iteracja przechodzi od razu przez cały projekt.</p>
+<p>To właśnie znaczy projekt jako kod: inżynieria, która stała się obliczalna.</p>
+<p>Simon Lab prowadzi zlecenia projektowe dla procesów chemicznych: od wczesnego, koncepcyjnego schematu P&amp;ID opracowanego na podstawie wyników prac laboratoryjnych po model BIM gotowej inwestycji na wybranej działce. Przygotowujemy też to, czego wymaga finansowanie: obliczenia biznesowe, model finansowy i dokumentację do wniosku o dofinansowanie. Wszystko na podstawie praw fizyki i jednego spójnego źródła prawdy projektu. Więcej o zleceniach: <a href="https://simon-lab.org/pl/services/">https://simon-lab.org/pl/services/</a></p>
+<p>Ile rewizji dokumentacji międzybranżowej trzeba dziś w Waszym biurze uzgodnić ręcznie, zanim projekt trafi do wykonawcy?</p>
+<p>Pełna wersja artykułu, z ilustracjami: <a href="https://simon-lab.org/pl/knowledge/project-as-code/">https://simon-lab.org/pl/knowledge/project-as-code/</a></p>
+<p>#inżynieriachemiczna #projektowanieinstalacji #agenciAI</p>
+</article>
+</body>
+</html>

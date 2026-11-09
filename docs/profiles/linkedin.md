@@ -179,3 +179,7 @@ Simon Lab · Bottom-up chemical engineering
 ```text
 One chemical engineering project, followed layer by layer through the Simon Lab applications: the specification in CapacityIndex, the P&ID and the dynamic process simulation in ProcessView, the machine in MechGraph and the control cabinets in IonGrid, the unit assembled in 3D in PlantMesh and placed on its site in Architecture, and the export of construction-ready documentation.
 ```
+
+## Articles
+
+- published: [Projekt jako kod: projekt instalacji powinien czytać się jak program](linkedin-articles/project-as-code.pl.md), https://www.linkedin.com/pulse/projekt-jako-kod-instalacji-powinien-czyta%C4%87-si%C4%99-jak-program-wh53f/

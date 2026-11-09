@@ -108,6 +108,8 @@ export interface LinkedInArticle {
   source: string;
   /** a draft stays out of the public repository until the owner approves it */
   status: 'draft' | 'approved' | 'published';
+  /** the published article's address on LinkedIn */
+  url?: string;
   title: string;
   /** Manage, Settings: the title search engines show (up to 60 characters) and the description (140 to 160) */
   seo: { title: string; description: string };

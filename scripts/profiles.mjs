@@ -221,6 +221,7 @@ for (const a of articles) {
   const html = blocks.map(([, tag]) => tag);
   const facts = [
     `| Status | ${a.status} |`,
+    ...(a.url ? [`| Address | ${a.url} |`] : []),
     `| Title (${count(`article ${name} title`, title.length, LIMITS.article.title)}) | ${title} |`,
     `| SEO title (${count(`article ${name} SEO title`, a.seo.title.length, LIMITS.article.seoTitle)}) | ${a.seo.title} |`,
     `| SEO description (${seo}, ${lo} to ${hi}) | ${a.seo.description} |`,
@@ -240,7 +241,7 @@ for (const a of articles) {
       '<style>body{max-width:44rem;margin:2rem auto;padding:0 1rem;font:17px/1.6 system-ui,sans-serif;color:#1d1d1f}h1{font-size:2rem;line-height:1.2}h2{margin-top:2rem}img{max-width:100%}blockquote{margin:1rem 0;padding-left:1rem;border-left:3px solid #ccc;color:#444}</style>\n' +
       `</head>\n<body>\n<p><img src="../${cover}" alt=""></p>\n<h1>${escape(title)}</h1>\n<article>\n${html.join('\n')}\n</article>\n</body>\n</html>\n`,
   );
-  if (a.status !== 'draft') published.push(`- ${a.status}: [${title}](linkedin-articles/${name}.md)`);
+  if (a.status !== 'draft') published.push(`- ${a.status}: [${title}](linkedin-articles/${name}.md)${a.url ? `, ${a.url}` : ''}`);
   console.log(`article ${name}: ${a.status}, ${words} words`);
 }
 // drafts stay out of the committed linkedin.md: only approved and published articles are listed
