@@ -63,9 +63,8 @@ export interface ProfilesShared {
 /**
  * A Google Ads search campaign's texts in one language (src/content/profiles/ads.<lang>.ts): ad groups, each with its own
  * responsive search ad (the shared headlines and descriptions plus its own), keywords and bids, and the assets of the
- * campaign. The ads lead to one of the site's pages with `?ref=<ref>`, which "Write to us" names in the email's subject,
- * so an inquiry from an ad can be told apart without a tag or a cookie. The budget and the account stay out of the
- * repository.
+ * campaign. The ads lead to one of the site's pages with `?ref=<ref>`. Service contact reveals only the address,
+ * without an email draft or automated source attribution. The budget and the account stay out of the repository.
  */
 export interface GoogleAdsCopy {
   lang: Lang;

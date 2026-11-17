@@ -1,0 +1,38 @@
+---
+// Reveal selectable contact text only. No navigation, mail client, clipboard or tracking.
+import { MAILBOX } from '../config';
+import Icon from './Icon.astro';
+
+interface Props { label: string }
+const { label } = Astro.props;
+const address = `${MAILBOX.code.split(',').map((code) => String.fromCharCode(Number(code))).join('')}@${MAILBOX.domain}`;
+const encodedAddress = Array.from(address).map((char) => `&#${char.codePointAt(0)};`).join('');
+---
+<p class="email-contact">
+  <button class="btn btn-solid" type="button" data-email-reveal data-code={MAILBOX.code} data-domain={MAILBOX.domain}>
+    <Icon name="mail" size={16} />
+    <span data-email-value aria-live="polite">{label}</span>
+  </button>
+</p>
+<noscript>
+  <style is:inline>.email-contact { display: none; }</style>
+  <p class="email-address" set:html={encodedAddress}></p>
+</noscript>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-email-reveal]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const value = button.querySelector<HTMLElement>('[data-email-value]');
+      if (!value) return;
+      const local = (button.dataset.code ?? '').split(',').map((code) => String.fromCharCode(Number(code))).join('');
+      value.textContent = `${local}@${button.dataset.domain}`;
+    }, { once: true });
+  });
+</script>
+
+<style>
+  .email-contact { margin: 2rem 0 0; }
+  .email-contact .btn { gap: 0.55rem; max-width: 100%; white-space: normal; text-align: left; }
+  [data-email-value] { user-select: text; overflow-wrap: anywhere; }
+  .email-address { font: 500 var(--fs-base) / 1.4 var(--font-display); overflow-wrap: anywhere; }
+</style>

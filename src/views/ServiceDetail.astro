@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import MailtoButton from '../components/MailtoButton.astro';
+import EmailReveal from '../components/EmailReveal.astro';
 import Icon from '../components/Icon.astro';
 import { offers, offerUI } from '../content/services/offers';
 import { servicesFor } from '../data/services';
@@ -16,7 +16,6 @@ const offer = offers[lang].find((item) => item.id === service)!;
 const ui = offerUI[lang];
 const copy = servicesFor(lang);
 const route = serviceRoute(service);
-const body = [offer.title, '', ui.emailFields[1], '', ...offer.inputs.flatMap((field) => [`${field}:`, ''])].join('\n');
 const site = import.meta.env.SITE ?? 'https://simon-lab.org';
 const jsonLd = {
   '@context': 'https://schema.org', '@type': 'Service', name: offer.title, description: offer.summary,
@@ -30,24 +29,22 @@ const jsonLd = {
     <p class="hp-eyebrow">{ui.eyebrow}</p>
     <h1 class="hp-title" id="service-title">{offer.title}</h1>
     <p class="hp-lede">{offer.summary}</p>
-    <MailtoButton label={ui.contact} subject={offer.subject} body={body} />
-    <p class="service-hint">{ui.emailHint}</p>
+    <EmailReveal label={ui.contact} />
   </section>
   <section class="hp-sec service-facts" aria-label={ui.details}>
-    {[{ title: ui.scope, items: offer.scope }, { title: ui.inputs, items: offer.inputs }, { title: ui.deliverables, items: offer.deliverables }].map((block) => (
+    {[{ title: ui.scope, items: offer.scope }, { title: ui.deliverables, items: offer.deliverables }].map((block) => (
       <section class="service-fact"><h2>{block.title}</h2><ul>{block.items.map((item) => <li>{item}</li>)}</ul></section>
     ))}
   </section>
   <section class="hp-sec service-quality" aria-labelledby="service-quality-title">
-    <p class="hp-eyebrow">{ui.quality}</p>
+    <p class="hp-eyebrow">{copy.checked.eyebrow}</p>
     <h2 class="hp-title" id="service-quality-title">{copy.checked.title}</h2>
     {copy.checked.body.map((paragraph) => <p class="hp-lede">{paragraph}</p>)}
   </section>
   <section class="hp-sec service-order" id="zapytanie" aria-labelledby="service-order-title">
-    <h2 class="hp-title" id="service-order-title">{ui.contact}</h2>
+    <h2 class="hp-title" id="service-order-title">{ui.contactTitle}</h2>
     <p class="hp-lede">{ui.contactBody}</p>
-    <MailtoButton label={ui.contact} subject={offer.subject} body={body} />
-    <p class="service-hint">{ui.emailHint}</p>
+    <EmailReveal label={ui.contact} />
   </section>
   <section class="hp-sec service-related" aria-label={ui.back}>
     {offers[lang].filter((item) => item.id !== service).map((item) => <a class="hp-more" href={path(serviceRoute(item.id), lang)}>{item.title}<Icon name="arrow-right" size={15} /></a>)}

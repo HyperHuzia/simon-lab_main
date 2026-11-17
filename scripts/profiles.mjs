@@ -261,9 +261,10 @@ const gLines = [
   '',
   GENERATED,
   '',
-  '- Network: Google Search only (no Display Network, no search partners); location Poland (people in it), language Polish.',
+  '- Network: Google Search only (no Display Network, no search partners); location Poland (people in it), Polish ads and landing pages. Search language matching is automatic since September 2026.',
   '- Bidding: manual CPC, a default per ad group and a bid of its own where a keyword has one; keywords in phrase and exact match only; the schedule and the budget are set in the account, not here.',
-  '- No Google tag on the site, no conversion tracking: the ads’ addresses carry `?ref=' + ga.ref + '`, and "Write to us" adds the source to the email’s subject.',
+  '- No Google tag on the site, no conversion tracking. The service contact button only reveals the email address as text; it creates no email draft, subject or body. Ask the client for the source of the inquiry.',
+  '- The ads’ addresses retain `?ref=' + ga.ref + '`; the service pages do not use it to label email.',
   `- General services URL: ${ga.url}; each ad group has its own final URL below.`,
 ];
 for (const g of ga.groups) {

@@ -16,8 +16,9 @@ for (const group of groups) {
     const html = fs.readFileSync(path.join('dist', route, 'index.html'), 'utf8');
     assert.match(html, new RegExp('rel="canonical" href="https://simon-lab\\.org' + route + '"'));
     assert.equal((html.match(/<h1\b/g) ?? []).length, 1, route + ': one main heading');
-    assert.equal((html.match(/<a\b[^>]*\bdata-mailto(?:\s|=|>)/g) ?? []).length, 2, route + ': contact before and after scope');
-    assert.match(html, /<noscript>[\s\S]*?href="&#109;/, route + ': encoded no-JS email link');
+    assert.equal((html.match(/<button\b[^>]*\bdata-email-reveal(?:\s|=|>)/g) ?? []).length, 2, route + ': address reveal before and after scope');
+    assert.match(html, /<noscript>[\s\S]*?&#105;&#110;&#102;&#111;&#64;/, route + ': encoded no-JS email text');
+    assert.doesNotMatch(html, /data-mailto|data-subject|data-body|Dane na początek|What we need to start|Angaben für den Einstieg/, route + ': no email draft or project input questionnaire');
     assert.doesNotMatch(html, /<form\b|googletagmanager\.com|google-analytics\.com/, route + ': no form or analytics');
     for (const [i, language] of languages.entries()) {
       assert.equal(switchLang(route, language), group[i], route + ': correct language destination');
@@ -26,4 +27,4 @@ for (const group of groups) {
     checked++;
   }
 }
-console.log(`service checks: ${checked} pages, language routes and contact fallbacks passed`);
+console.log(`service checks: ${checked} pages, language routes and address-only contact fallbacks passed`);

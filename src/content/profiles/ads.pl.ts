@@ -1,6 +1,6 @@
 import type { GoogleAdsCopy } from './types';
 
-// Search campaign: distinct service pages, manual CPC and source attribution in the email subject.
+// Search campaign: distinct service pages and manual CPC. Service contact only reveals the email address.
 // Account identifiers, budget and dates stay outside this public repository.
 export const ads: GoogleAdsCopy = {
   "lang": "pl",

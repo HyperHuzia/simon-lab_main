@@ -33,7 +33,7 @@ export const services: ServicesCopy = {
       {
         app: 'iongrid',
         name: 'Automation and power',
-        body: 'Control cabinets and their power supply, built from manufacturers’ catalogue components, with heat-loss data and engineering registers.',
+        body: 'Power and control cabinet design using catalogue components and instrumentation, diagrams and instrumentation schedules, PLC programs and computer applications for process supervision and management.',
       },
       {
         app: 'plantmesh',
@@ -60,7 +60,7 @@ export const services: ServicesCopy = {
     eyebrow: 'Quality',
     title: 'Checked by experienced engineers',
     body: [
-      'Engineers make the decisions: the scope, the process, the selection of every machine and component. Every deliverable is checked by an experienced engineer before it goes to the client.',
+      '15 years of experience in chemical engineering. Completed projects worth more than PLN 25 million.',
     ],
   },
   delivery: {
@@ -77,7 +77,7 @@ export const services: ServicesCopy = {
   order: {
     eyebrow: 'Orders',
     title: 'Orders by email',
-    body: 'A short description is enough to start: the plant or the part of it, the disciplines and the deadline. We reply with a proposal for the scope and the timeline.',
+    body: offerUI.en.contactBody,
     write: 'Write to us',
   },
 };

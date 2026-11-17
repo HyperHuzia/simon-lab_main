@@ -16,6 +16,6 @@ export interface ServicesCopy {
   checked: { eyebrow: string; title: string; body: string[] };
   /** what the client receives: the documents and the project as data */
   delivery: { eyebrow: string; title: string; lede: string; points: string[] };
-  /** orders by email, no form (MailtoButton) */
+  /** orders by email, no form; EmailReveal only reveals selectable address text */
   order: { eyebrow: string; title: string; body: string; write: string };
 }

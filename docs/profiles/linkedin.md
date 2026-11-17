@@ -155,7 +155,7 @@ Machines and vessels from dedicated calculations: mixing, shafts, strength calcu
 - images/linkedin-service-iongrid-1920.jpg: Automation and power
 
 ```text
-Control cabinets and their power supply, built from manufacturers’ catalogue components, with heat-loss data and engineering registers.
+Power and control cabinet design using catalogue components and instrumentation, diagrams and instrumentation schedules, PLC programs and computer applications for process supervision and management.
 ```
 
 - images/linkedin-service-plantmesh-1920.jpg: 3D modeling

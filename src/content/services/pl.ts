@@ -31,7 +31,7 @@ export const services: ServicesCopy = {
       {
         app: 'iongrid',
         name: 'Automatyka i zasilanie',
-        body: 'Szafy sterownicze i ich zasilanie z katalogowych podzespołów producentów, z danymi o stratach ciepła i rejestrami inżynierskimi.',
+        body: 'Projekty szaf zasilająco-sterowniczych z katalogowych podzespołów i aparatury, schematy i zestawienia AKPiA, programy PLC oraz aplikacje komputerowe do nadzoru i zarządzania procesem.',
       },
       {
         app: 'plantmesh',
@@ -56,9 +56,9 @@ export const services: ServicesCopy = {
   },
   checked: {
     eyebrow: 'Jakość',
-    title: 'Sprawdzane przez doświadczonych inżynierów',
+    title: 'Sprawdzone przez doświadczonych inżynierów',
     body: [
-      'Decyzje podejmują inżynierowie: zakres, proces, dobór każdej maszyny i każdego podzespołu. Każdy dokument sprawdza doświadczony inżynier, zanim trafi do klienta.',
+      '15 lat doświadczenia w inżynierii chemicznej. Zrealizowane projekty o wartości ponad 25 milionów złotych.',
     ],
   },
   delivery: {
@@ -75,7 +75,7 @@ export const services: ServicesCopy = {
   order: {
     eyebrow: 'Zlecenia',
     title: 'Zlecenia e-mailem',
-    body: 'Na początek wystarczy krótki opis: instalacja albo jej część, branże i termin. Odpowiadamy propozycją zakresu i harmonogramu.',
+    body: offerUI.pl.contactBody,
     write: 'Napisz do nas',
   },
 };

@@ -6,7 +6,7 @@
 // receives, and orders by email (no form). Copy from src/content/services (per language); the applications' names and
 // roles from src/data/apps.ts.
 import Icon from '../components/Icon.astro';
-import MailtoButton from '../components/MailtoButton.astro';
+import EmailReveal from '../components/EmailReveal.astro';
 import Slogan from '../components/Slogan.astro';
 import { appById } from '../data/apps';
 import { ogImage } from '../data/media';
@@ -25,7 +25,6 @@ interface Props {
 const { lang } = Astro.props;
 const copy = servicesFor(lang);
 const ui = offerUI[lang];
-const body = ui.emailFields.flatMap((field) => [field, '']).join('\n');
 const site = import.meta.env.SITE ?? 'https://simon-lab.org';
 const disciplines = copy.disciplines.items.map((d) => {
   const app = appById(d.app);
@@ -54,8 +53,7 @@ const jsonLd = {
       <p class="hp-eyebrow">{copy.hero.eyebrow}</p>
       <h1 class="hp-title" id="sv-title"><Slogan text={copy.hero.title} /></h1>
       <p class="hp-lede">{copy.hero.lede}</p>
-      <MailtoButton label={ui.contact} subject={copy.hero.eyebrow} body={body} />
-      <p class="service-hint">{ui.emailHint}</p>
+      <EmailReveal label={ui.contact} />
     </header>
   </section>
 
@@ -128,8 +126,7 @@ const jsonLd = {
       <h2 class="hp-title" id="sv-order-title">{copy.order.title}</h2>
       <p class="hp-lede">{copy.order.body}</p>
     </header>
-    <MailtoButton label={ui.contact} subject={copy.hero.eyebrow} body={body} />
-    <p class="service-hint">{ui.emailHint}</p>
+    <EmailReveal label={ui.contact} />
   </section>
 </Base>
 

@@ -31,7 +31,7 @@ export const services: ServicesCopy = {
       {
         app: 'iongrid',
         name: 'Automatisierung und Energieversorgung',
-        body: 'Schaltschränke und ihre Energieversorgung aus Katalogkomponenten der Hersteller, mit Verlustleistungsdaten und technischen Verzeichnissen.',
+        body: 'Planung von Energieverteilungs- und Steuerschränken mit Katalogkomponenten und Instrumentierung, Schaltplänen und MSR-Listen, SPS-Programmen und Computeranwendungen zur Prozessüberwachung und -verwaltung.',
       },
       {
         app: 'plantmesh',
@@ -58,7 +58,7 @@ export const services: ServicesCopy = {
     eyebrow: 'Qualität',
     title: 'Von erfahrenen Ingenieuren geprüft',
     body: [
-      'Die Entscheidungen treffen Ingenieure: den Umfang, den Prozess, die Auswahl jeder Maschine und jeder Komponente. Jedes Ergebnis prüft ein erfahrener Ingenieur, bevor es an den Kunden geht.',
+      '15 Jahre Erfahrung in der Chemieingenieurtechnik. Realisierte Projekte im Wert von über 25 Millionen PLN.',
     ],
   },
   delivery: {
@@ -75,7 +75,7 @@ export const services: ServicesCopy = {
   order: {
     eyebrow: 'Aufträge',
     title: 'Aufträge per E-Mail',
-    body: 'Für den Anfang genügt eine kurze Beschreibung: die Anlage oder ihr Teil, die Gewerke und der Termin. Wir antworten mit einem Vorschlag für Umfang und Zeitplan.',
+    body: offerUI.de.contactBody,
     write: 'Schreiben Sie uns',
   },
 };
