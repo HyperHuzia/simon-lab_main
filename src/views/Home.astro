@@ -15,7 +15,7 @@ import { knowledgeFor } from '../data/knowledge';
 import { ogImage } from '../data/media';
 import { SAME_AS } from '../data/profiles';
 import { servicesFor } from '../data/services';
-import { path, type Lang } from '../i18n/config';
+import { LANGS, path, type Lang } from '../i18n/config';
 import { t } from '../i18n/ui';
 import Base from '../layouts/Base.astro';
 import '../styles/home.css';
@@ -36,6 +36,8 @@ const jsonLd = [
     '@type': 'Organization',
     '@id': `${site}/#organization`,
     name: 'Simon Lab',
+    // The spelling on the logo and the domain distinguish this company from other Simon labs.
+    alternateName: ['Simon-Lab', 'simon-lab.org'],
     legalName: 'Szymon Wojciechowski Simon-Lab',
     description: home.meta.description,
     url: site,
@@ -50,8 +52,9 @@ const jsonLd = [
     '@type': 'WebSite',
     '@id': `${site}/#website`,
     name: 'Simon Lab',
+    alternateName: ['Simon-Lab', 'simon-lab.org'],
     url: `${site}/`,
-    inLanguage: lang,
+    inLanguage: LANGS,
     publisher: { '@id': `${site}/#organization` },
   },
 ];
