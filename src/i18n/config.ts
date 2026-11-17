@@ -1,5 +1,7 @@
 // Languages and localized paths. English lives at the root, Polish under /pl/, German under /de/
 // (astro.config.mjs: i18n.routing.prefixDefaultLocale = false).
+import { localizedServiceRoute } from './service-routes.ts';
+
 export const LANGS = ['en', 'pl', 'de'] as const;
 export type Lang = (typeof LANGS)[number];
 export const DEFAULT_LANG: Lang = 'en';
@@ -19,6 +21,8 @@ export function langFromPath(pathname: string): Lang {
 /** A path inside the site for a language: `path('/apps/', 'pl')` → `/pl/apps/`. */
 export function path(route: string, lang: Lang): string {
   const clean = route.startsWith('/') ? route : `/${route}`;
+  const service = localizedServiceRoute(clean, lang);
+  if (service) return service;
   if (lang === DEFAULT_LANG) return clean;
   return clean === '/' ? `/${lang}/` : `/${lang}${clean}`;
 }

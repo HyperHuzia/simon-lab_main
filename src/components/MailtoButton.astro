@@ -1,27 +1,30 @@
 ---
-// "Write to us": no form, nothing collected. The button assembles the mailbox in the browser from character codes
-// (MAILBOX in src/config.ts), opens a message with the given subject and shows the address beside the button, so the
-// HTML never carries it as text. Without JavaScript it leads to the contact details in the footer (#contact). Used by
-// the beta page and the services page. A page opened from an ad (`?ref=google-ads`, src/content/profiles/ads.pl.ts)
-// names the ad in the subject, read from the address at the click and stored nowhere: no tag, no cookie.
+// Email contact with a service-specific subject and optional questions. Campaign refs come from an allowlist,
+// are read again at the click and persist only in links between service pages. No storage, tag or request.
+// The source HTML holds character codes; the no-JS fallback uses numeric HTML entities.
 import { MAILBOX } from '../config';
 import Icon from './Icon.astro';
 
 interface Props {
   label: string;
   subject: string;
+  body?: string;
 }
 
-const { label, subject } = Astro.props;
+const { label, subject, body = '' } = Astro.props;
+const address = `${MAILBOX.code.split(',').map((code) => String.fromCharCode(Number(code))).join('')}@${MAILBOX.domain}`;
+const entities = (text: string) => Array.from(text).map((char) => `&#${char.codePointAt(0)};`).join('');
+const noJsLink = `<a href="${entities(`mailto:${address}?subject=${encodeURIComponent(subject)}`)}">${entities(address)}</a>`;
 ---
 
 <p class="write">
-  <a class="btn btn-solid" href="#contact" data-mailto data-code={MAILBOX.code} data-domain={MAILBOX.domain} data-subject={subject}>
+  <a class="btn btn-solid" href="#contact" data-mailto data-code={MAILBOX.code} data-domain={MAILBOX.domain} data-subject={subject} data-body={body}>
     <Icon name="mail" size={16} />
     <span>{label}</span>
   </a>
   <span class="address" data-address aria-live="polite"></span>
 </p>
+<noscript><p class="address" set:html={noJsLink}></p></noscript>
 
 <script>
   const decode = (codes = '') =>
@@ -30,14 +33,38 @@ const { label, subject } = Astro.props;
       .map((c) => String.fromCharCode(Number(c)))
       .join('');
 
-  // the sources a subject may name; any other ref is ignored, so an address cannot write into the email
-  const SOURCES: Record<string, string> = { 'google-ads': 'Google Ads' };
-  const source = SOURCES[new URLSearchParams(window.location.search).get('ref') ?? ''];
+  const SOURCES: Record<string, string> = {
+    'google-ads': 'Google Ads',
+    'google-ads-test100': 'Google Ads: Usługi PL Test100',
+  };
+  const campaign = () => {
+    const ref = new URLSearchParams(window.location.search).get('ref') ?? '';
+    return Object.hasOwn(SOURCES, ref) ? { ref, label: SOURCES[ref] } : undefined;
+  };
+  const currentCampaign = campaign();
+  if (currentCampaign) {
+    document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+      const url = new URL(link.href, window.location.href);
+      if (url.origin === window.location.origin && /^(\/(pl|de))?\/services\//.test(url.pathname)) {
+        url.searchParams.set('ref', currentCampaign.ref);
+        link.href = url.href;
+      }
+    });
+  }
 
   document.querySelectorAll<HTMLAnchorElement>('[data-mailto]').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
+    const prepare = () => {
       const address = `${decode(link.dataset.code)}@${link.dataset.domain}`;
+      const source = campaign();
+      const subject = [link.dataset.subject ?? '', source && `(${source.label})`].filter(Boolean).join(' ');
+      const params = new URLSearchParams({ subject });
+      if (link.dataset.body) params.set('body', link.dataset.body);
+      link.href = `mailto:${address}?${params.toString().replace(/\+/g, '%20')}`;
+      return address;
+    };
+    prepare();
+    link.addEventListener('click', () => {
+      const address = prepare();
       // the address beside the button, for readers without a mail app
       const shown = link.parentElement?.querySelector<HTMLElement>('[data-address]');
       if (shown && !shown.firstChild) {
@@ -46,8 +73,6 @@ const { label, subject } = Astro.props;
         a.textContent = address;
         shown.append(a);
       }
-      const subject = [link.dataset.subject ?? '', source && `(${source})`].filter(Boolean).join(' ');
-      window.location.href = `mailto:${address}?subject=${encodeURIComponent(subject)}`;
     });
   });
 </script>

@@ -1,6 +1,7 @@
 import type { ServicesCopy } from './types';
+import { offerUI } from './offers.ts';
 
-// German, translated from the English copy with the same claims. The slogan is the owner's (2026-11-06).
+// German, translated from the English copy with the same claims. The first screen presents the scope of services.
 export const services: ServicesCopy = {
   lang: 'de',
   meta: {
@@ -10,8 +11,8 @@ export const services: ServicesCopy = {
   },
   hero: {
     eyebrow: 'Ingenieurleistungen',
-    title: 'Machen Sie Ihre Anlage KI-nativ, schnell.',
-    lede: 'Simon Lab übernimmt Ingenieuraufträge für Chemieanlagen: ein ganzes Projekt oder ein einzelnes Gewerk. Die Arbeit läuft auf der Plattform von Simon Lab, deshalb entstehen die Dokumente schnell aus einem Modell, und erfahrene Ingenieure prüfen jedes davon, bevor es das Haus verlässt.',
+    title: offerUI.de.title,
+    lede: offerUI.de.lede,
   },
   disciplines: {
     eyebrow: 'Gewerke',

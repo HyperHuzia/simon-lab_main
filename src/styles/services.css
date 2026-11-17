@@ -1,0 +1,18 @@
+.service-hero { padding-top: clamp(2.5rem, 5vw, 5rem); }
+.service-hero .hp-title { max-width: 23ch; font-size: var(--fs-3xl); text-wrap: balance; overflow-wrap: anywhere; hyphens: auto; }
+.service-back { margin-bottom: 2.5rem; }
+.service-hint { max-width: 65ch; margin-top: 1rem; color: var(--text-3); line-height: 1.65; }
+.service-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; padding: 0; list-style: none; }
+.service-card { display: flex; flex-direction: column; padding: 1.6rem; border: 1px solid var(--line); border-radius: 0.5rem; }
+.service-card h3 { margin: 0 0 1rem; font-size: var(--fs-xl); line-height: 1.35; }
+.service-card p { margin: 0 0 1.5rem; color: var(--text-2); line-height: 1.65; }
+.service-card .hp-more { margin-top: auto; }
+.service-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
+.service-fact { border-top: 1px solid var(--line); padding-top: 1.5rem; }
+.service-fact h2 { font-size: var(--fs-xl); margin: 0 0 1rem; line-height: 1.35; }
+.service-fact ul { margin: 0; padding-left: 1.25rem; color: var(--text-2); line-height: 1.8; }
+.service-fact li { padding-left: 0.25rem; margin-bottom: 0.65rem; overflow-wrap: anywhere; hyphens: auto; }
+.service-quality { border-top: 1px solid var(--line); }
+.service-order { border-top: 1px solid var(--line); scroll-margin-top: 7rem; }
+.service-related { display: flex; flex-wrap: wrap; gap: 1.5rem 3rem; padding-bottom: 4rem; }
+@media (max-width: 850px) { .service-cards, .service-facts { grid-template-columns: 1fr; } }

@@ -77,12 +77,16 @@ export interface GoogleAdsCopy {
   descriptions: string[];
   groups: {
     name: string;
+    /** language-neutral service route, mapped to the campaign language */
+    page: string;
     /** the default maximum cost per click in the account's currency (manual CPC) */
     cpc: number;
     /** written in Google's notation: "phrase match" or [exact match] */
     keywords: string[];
     /** keywords with a bid of their own */
     bids?: Record<string, number>;
+    /** negative keywords scoped to this ad group */
+    negatives?: string[];
     /** the two parts of the display path after the domain */
     path: [string, string];
     headlines: string[];

@@ -11,6 +11,9 @@ The site is published in English (default), Polish (`/pl/`) and German (`/de/`);
 - [Bottom-up chemical engineering](https://simon-lab.org/knowledge/bottom-up/): the platform's applications followed layer by layer through an anonymized caustic soda (NaOH) batch dissolution unit
 - [Applications](https://simon-lab.org/apps/): all applications
 - [Engineering services](https://simon-lab.org/services/): engineering orders for chemical plants, a whole project or one discipline (process engineering and process automation, mechanical design, automation and power, 3D modeling, architecture and BIM), built as code on the platform, delivered fast and checked by experienced engineers; the client receives the documents and the project as data
+- [Process plant design](https://simon-lab.org/services/process-engineering/): P&ID, equipment selection, hydraulics and industrial piping
+- [Automation and control cabinets](https://simon-lab.org/services/automation/): diagrams, catalogue components and instrumentation documentation
+- [Tanks and mixing equipment](https://simon-lab.org/services/tanks-mixing/): agitator, shaft and drive selection, calculations, drawings and 3D
 - [Roadmap](https://simon-lab.org/roadmap/): the steps from the private beta to the launch with trusted partners at ACHEMA 2027 (Frankfurt, 14–18 June 2027)
 - [Join the beta](https://simon-lab.org/beta/): how to join the private beta: write an email (no forms); for companies, individual engineers and research projects
 - [Team](https://simon-lab.org/team/): Szymon (Head of Engineering) and the AI models Opus, Astra and Grok, presented as equal team members (a light page)

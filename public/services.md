@@ -2,7 +2,14 @@
 
 Summary of https://simon-lab.org/services/ (Polish: https://simon-lab.org/pl/services/, German: https://simon-lab.org/de/services/).
 
-Simon Lab takes on engineering orders for chemical plants: a whole project or one discipline of it. The work runs on the Simon Lab platform as project as code, so the documents come out of one model quickly, and experienced engineers check every deliverable before it goes to the client. The page's slogan: "Make your plant AI-native, fast."
+Simon Lab takes on engineering orders for chemical plants: a whole project or one discipline of it. The work runs on the Simon Lab platform as project as code, so the documents come out of one model quickly, and experienced engineers check every deliverable before it goes to the client. The page leads with chemical and process plant design.
+
+## Project scopes
+- Process plant design: https://simon-lab.org/services/process-engineering/ (Polish: https://simon-lab.org/pl/services/instalacje-procesowe/, German: https://simon-lab.org/de/services/verfahrenstechnik/). P&ID, equipment selection, hydraulics and industrial piping.
+- Automation and control cabinets: https://simon-lab.org/services/automation/ (Polish: https://simon-lab.org/pl/services/automatyka/, German: https://simon-lab.org/de/services/automatisierung/). Diagrams, catalogue components and instrumentation documentation.
+- Tanks and mixing equipment: https://simon-lab.org/services/tanks-mixing/ (Polish: https://simon-lab.org/pl/services/zbiorniki-mieszalniki/, German: https://simon-lab.org/de/services/behaelter-ruehrwerke/). Agitator, shaft and drive selection, calculation reports, drawings and a 3D model for the agreed scope.
+
+Each page states the scope, the inputs needed to begin and the agreed deliverables. Email contact is available at the start and after the scope. Engineers check the documents before delivery.
 
 ## Disciplines
 | Discipline | What it covers | Application on the platform |

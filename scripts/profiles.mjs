@@ -264,13 +264,14 @@ const gLines = [
   '- Network: Google Search only (no Display Network, no search partners); location Poland (people in it), language Polish.',
   '- Bidding: manual CPC, a default per ad group and a bid of its own where a keyword has one; keywords in phrase and exact match only; the schedule and the budget are set in the account, not here.',
   '- No Google tag on the site, no conversion tracking: the ads’ addresses carry `?ref=' + ga.ref + '`, and "Write to us" adds the source to the email’s subject.',
-  `- Final URL of every ad: ${ga.url}`,
+  `- General services URL: ${ga.url}; each ad group has its own final URL below.`,
 ];
 for (const g of ga.groups) {
   gLines.push(
     '',
     `## Ad group: ${g.name} (max CPC ${zl(g.cpc)})`,
     '',
+    `- Final URL: ${g.url}`,
     `- Display path: simon-lab.org/${g.path.map((p, i) => `${p} (${count(`Google Ads path ${i + 1} (${g.name})`, p.length, GL.path)})`).join('/')}`,
     '',
     `### Keywords`,
@@ -286,6 +287,7 @@ for (const g of ga.groups) {
     ...g.descriptions.map((d) => `- ${d} (${count(`Google Ads description "${d.slice(0, 30)}…"`, d.length, GL.description)})`),
   );
   for (const k of Object.keys(g.bids ?? {})) if (!g.keywords.includes(k)) problems.push(`Google Ads: the bid for ${k} names no keyword of "${g.name}"`);
+  if (g.negatives?.length) gLines.push('', '### Negative keywords (this ad group)', '', ...box(g.negatives.join('\n')));
 }
 gLines.push(
   '',

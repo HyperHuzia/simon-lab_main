@@ -32,6 +32,14 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Check types
+        run: npm run check
+      - name: Generate profile copy
+        run: npm run profiles
+      - name: Check copy
+        run: npm run check:copy
+      - name: Check service pages
+        run: npm run check:services
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

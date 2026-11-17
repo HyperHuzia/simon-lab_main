@@ -1,6 +1,7 @@
 // Lucide icons (lucide-static, ISC licence, see public/licenses.txt) used on the site, as raw SVG strings read at
 // build time. Only the icons listed here end up in the build; add a line to use another one.
 import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
+import arrowLeft from 'lucide-static/icons/arrow-left.svg?raw';
 import bookOpen from 'lucide-static/icons/book-open.svg?raw';
 import bot from 'lucide-static/icons/bot.svg?raw';
 import building2 from 'lucide-static/icons/building-2.svg?raw';
@@ -37,6 +38,7 @@ import users from 'lucide-static/icons/users.svg?raw';
 
 export const ICONS = {
   'arrow-right': arrowRight,
+  'arrow-left': arrowLeft,
   'book-open': bookOpen,
   bot,
   'building-2': building2,

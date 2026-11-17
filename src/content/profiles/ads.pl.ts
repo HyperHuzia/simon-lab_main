@@ -1,187 +1,197 @@
 import type { GoogleAdsCopy } from './types';
 
-// Próbna kampania Google Ads w sieci wyszukiwania (Polska, język polski, 9–13.11.2026): proste zlecenia, których klient
-// szuka sam (zbiornik z mieszadłem, automatyka, projekt instalacji), a nie „AI-native”. Nagłówki mówią o inżynierii
-// (decyzja właściciela z 2026-11-08), bez trybu rozkazującego i bez obietnic, których strona usług nie składa.
-// Reklamy prowadzą na /pl/services/?ref=google-ads.
+// Search campaign: distinct service pages, manual CPC and source attribution in the email subject.
+// Account identifiers, budget and dates stay outside this public repository.
 export const ads: GoogleAdsCopy = {
-  lang: 'pl',
-  page: '/services/',
-  ref: 'google-ads',
-  headlines: [
-    'Inżynieria chemiczna',
-    'Inżynieria procesowa',
-    'Konstrukcje maszyn',
-    'Złożenia linii technologicznej',
-    'Trasy kablowe i rurociągi',
-    'Obliczenia hydrauliczne',
-    'Obliczenia doborowe',
-  ],
-  descriptions: [
-    'Obliczenia doborowe i hydrauliczne, trasy kablowe i rurociągi, modele 3D i BIM.',
-    'Zmiana trafia do wszystkich dokumentów naraz. Każdy dokument sprawdza inżynier.',
-  ],
-  groups: [
+  "lang": "pl",
+  "page": "/services/",
+  "ref": "google-ads-test100",
+  "headlines": [],
+  "descriptions": [],
+  "groups": [
     {
-      name: 'Mieszalniki i zbiorniki',
-      cpc: 2,
-      keywords: [
-        '"zbiornik z mieszadłem"',
-        '"dobór mieszadła"',
-        '"dobór mieszadła do zbiornika"',
-        '"projekt mieszalnika"',
-        '"projekt zbiornika z mieszadłem"',
-        '"obliczenia mieszadła"',
+      "name": "Instalacje chemiczne i procesowe",
+      "page": "/services/process-engineering/",
+      "cpc": 5,
+      "keywords": [
+        "\"projektowanie instalacji przemysłowych\"",
+        "\"projektowanie instalacji technologicznych\"",
+        "\"projektowanie rurociągów przemysłowych\"",
+        "[projekt procesowy]"
       ],
-      path: ['uslugi', 'mieszadla'],
-      headlines: [
-        'Dobór mieszadła do zbiornika',
-        'Projekt zbiornika z mieszadłem',
-        'Projekt mieszalnika',
-        'Moc mieszania i dobór napędu',
-        'Obliczenia wału i mieszadła',
-        'Mieszadło dobrane z obliczeń',
-        'Rysunki i model 3D zbiornika',
-        'Aparaty procesowe z obliczeń',
+      "bids": {
+        "\"projektowanie instalacji przemysłowych\"": 5,
+        "\"projektowanie instalacji technologicznych\"": 4.5,
+        "\"projektowanie rurociągów przemysłowych\"": 4,
+        "[projekt procesowy]": 3.5
+      },
+      "path": [
+        "uslugi",
+        "instalacje"
       ],
-      descriptions: [
-        'Dobór mieszadła z obliczeń: moc mieszania, wał, napęd. Rysunki i model 3D zbiornika.',
-        'Projekt zbiornika z mieszadłem pod Twój proces, od obliczeń po dokumentację.',
+      "headlines": [
+        "Projekt instalacji chemicznej",
+        "Inżynieria procesowa",
+        "Schematy P&ID i dobór aparatów",
+        "Projektowanie rurociągów",
+        "Dokumentacja instalacji",
+        "Wycena zakresu projektu",
+        "Projekt procesowy instalacji",
+        "Obliczenia hydrauliczne",
+        "Model 3D instalacji",
+        "Wsparcie biur projektowych"
       ],
+      "descriptions": [
+        "Projekt procesowy instalacji chemicznej. P&ID, dobór aparatów i dokumentacja.",
+        "Cały projekt lub wybrana branża. Wycena na podstawie zakresu i terminu.",
+        "Obliczenia hydrauliczne, rurociągi i model 3D. Dokumenty sprawdzane przez inżyniera.",
+        "Wsparcie projektowe dla zakładów i firm wykonawczych. Zakres ustalany indywidualnie."
+      ],
+      "negatives": []
     },
     {
-      name: 'Automatyka instalacji chemicznych',
-      cpc: 2.5,
-      keywords: [
-        '"projekt automatyki"',
-        '"projektowanie szaf sterowniczych"',
-        '"projekt szafy sterowniczej"',
-        '"automatyka instalacji chemicznych"',
-        '"programowanie sterowników instalacji chemicznej"',
-        '"programowanie plc instalacji chemicznej"',
-        '"sterowanie procesem chemicznym"',
-        '"program sterowania instalacją"',
+      "name": "Automatyka i szafy sterownicze",
+      "page": "/services/automation/",
+      "cpc": 7.5,
+      "keywords": [
+        "\"projektowanie szaf sterowniczych\"",
+        "\"projektowanie szaf elektrycznych\""
       ],
-      path: ['uslugi', 'automatyka'],
-      headlines: [
-        'Projekt automatyki instalacji',
-        'Projekt szafy sterowniczej',
-        'Szafy sterownicze i AKPiA',
-        'Programy PLC dla chemii',
-        'Sterowanie procesem chemicznym',
-        'PLC testowany na symulacji',
-        'Automatyka dla chemii',
-        'Dokumentacja AKPiA',
+      "bids": {
+        "\"projektowanie szaf sterowniczych\"": 7.5,
+        "\"projektowanie szaf elektrycznych\"": 4
+      },
+      "path": [
+        "uslugi",
+        "automatyka"
       ],
-      descriptions: [
-        'Program sterownika PLC dla instalacji chemicznej, sprawdzony na symulacji procesu.',
-        'Projekt szafy sterowniczej z katalogowych podzespołów, ze schematami i listami.',
+      "headlines": [
+        "Projekt szafy sterowniczej",
+        "Szafy sterownicze i AKPiA",
+        "Schematy szaf sterowniczych",
+        "Dobór podzespołów automatyki",
+        "Dokumentacja AKPiA",
+        "Założenia i wycena projektu",
+        "Automatyka dla przemysłu",
+        "Dobór aparatury i sterowania",
+        "Automatyka dla chemii",
+        "Wsparcie projektowe AKPiA"
       ],
+      "descriptions": [
+        "Projekt szafy sterowniczej z katalogowych podzespołów. Schematy, listy i dokumentacja.",
+        "Dokumentacja AKPiA dla instalacji chemicznych. Zakres uzgadniany przed realizacją.",
+        "Schematy, dobór aparatury i zestawienia podzespołów. Cały projekt lub część prac.",
+        "Projekt dopasowany do procesu. Dokumentację sprawdza inżynier przed przekazaniem."
+      ],
+      "negatives": [
+        "\"nauka programowania\"",
+        "\"języki programowania\"",
+        "\"podstawy programowania\"",
+        "\"jak zaprogramować\"",
+        "\"program do projektowania\"",
+        "\"oprogramowanie do projektowania\""
+      ]
     },
     {
-      name: 'Inżynieria chemiczna i procesowa',
-      cpc: 3,
-      keywords: [
-        '"projektowanie instalacji chemicznych"',
-        '"projekt instalacji chemicznej"',
-        '"projekt procesowy"',
-        '"basic engineering"',
-        '"projekt basic engineering"',
-        '"projektowanie instalacji przemysłowych"',
-        '"biuro projektowe instalacji przemysłowych"',
-        '"projekt technologiczny zakładu"',
-        '"schemat technologiczny instalacji"',
-        '"modelowanie 3D instalacji chemicznych"',
-        '"projektowanie rurociągów przemysłowych"',
-        '"obliczenia hydrauliczne rurociągów"',
-        '"inżynieria chemiczna"',
-        '"inżynieria chemiczna i procesowa"',
-        '"usługi inżynierii chemicznej"',
+      "name": "Zbiorniki i mieszalniki",
+      "page": "/services/tanks-mixing/",
+      "cpc": 3.5,
+      "keywords": [
+        "\"projektowanie zbiorników\"",
+        "[projekt zbiornika]"
       ],
-      // bez dopisku „inżynieria chemiczna” to też nazwa kierunku studiów: niska stawka, wykluczenia niżej
-      bids: { '"inżynieria chemiczna"': 1.5, '"inżynieria chemiczna i procesowa"': 1.5, '"usługi inżynierii chemicznej"': 1.5 },
-      path: ['uslugi', 'instalacje'],
-      headlines: [
-        'Projekt instalacji chemicznej',
-        'Projekt procesowy',
-        'Basic engineering',
-        'Schemat technologiczny i P&ID',
-        'Modelowanie 3D instalacji',
-        'Projektowanie rurociągów',
-        'Od schematu P&ID po model BIM',
-        'Projekt węzła technologicznego',
+      "bids": {
+        "\"projektowanie zbiorników\"": 3.5,
+        "[projekt zbiornika]": 3.5
+      },
+      "path": [
+        "uslugi",
+        "zbiorniki"
       ],
-      descriptions: [
-        'Projekt procesowy i basic engineering: schemat technologiczny, P&ID, dobór aparatów.',
-        'Projekt instalacji chemicznej od koncepcji po model 3D i dokumentację wykonawczą.',
+      "headlines": [
+        "Projekt zbiornika z mieszadłem",
+        "Dobór mieszadła z obliczeń",
+        "Moc mieszania i dobór napędu",
+        "Obliczenia wału i mieszadła",
+        "Rysunki i model 3D zbiornika",
+        "Projekt zbiornika do wyceny",
+        "Zbiornik pod Twój proces",
+        "Dobór napędu mieszadła",
+        "Dokumentacja dla wykonawcy",
+        "Obliczenia i modele 3D"
       ],
+      "descriptions": [
+        "Dobór mieszadła, napędu i wału pod Twój proces. Obliczenia, rysunki i model 3D.",
+        "Projekt zbiornika lub wybrane obliczenia. Zakres zależny od medium i warunków pracy.",
+        "Od doboru mieszadła po dokumentację zbiornika. Cały projekt lub wybrany zakres.",
+        "Dokumenty sprawdzane przez inżyniera. Zakres i harmonogram uzgadniane przed realizacją."
+      ],
+      "negatives": [
+        "olx",
+        "allegro",
+        "używany",
+        "używane",
+        "szambo",
+        "szamba",
+        "akwarium",
+        "akwarystyczne"
+      ]
+    }
+  ],
+  "sitelinks": [
+    {
+      "text": "Instalacje procesowe",
+      "page": "/services/process-engineering/",
+      "lines": [
+        "Projekt, obliczenia i dobór",
+        "P&ID i dokumentacja instalacji"
+      ]
     },
+    {
+      "text": "Automatyka i AKPiA",
+      "page": "/services/automation/",
+      "lines": [
+        "Projekty szaf sterowniczych",
+        "Schematy i dobór podzespołów"
+      ]
+    },
+    {
+      "text": "Zbiorniki i mieszalniki",
+      "page": "/services/tanks-mixing/",
+      "lines": [
+        "Dobór mieszadła i napędu",
+        "Rysunki i model 3D"
+      ]
+    },
+    {
+      "text": "Zapytania projektowe",
+      "page": "/services/#zapytanie",
+      "lines": [
+        "Zakres i termin projektu",
+        "Cały projekt lub część prac"
+      ]
+    }
   ],
-  sitelinks: [
-    { text: 'Usługi inżynierskie', page: '/services/', lines: ['Od schematu P&ID po model BIM', 'Sprawdzane przez inżynierów'] },
-    { text: 'Projekt jako kod', page: '/knowledge/project-as-code/', lines: ['Jeden model, wiele dokumentów', 'Każda zmiana to rewizja'] },
-    { text: 'Film: projekt bottom-up', page: '/knowledge/bottom-up/', lines: ['Jeden węzeł, wszystkie warstwy', 'Dwuminutowy film o metodzie'] },
-    { text: 'Aplikacje platformy', page: '/apps/', lines: ['Proces, maszyny, szafy i 3D', 'Jeden projekt, wiele branż'] },
+  "callouts": [
+    "Projekty i obliczenia",
+    "Wybrany zakres prac",
+    "Dokumentacja 2D i 3D",
+    "Sprawdza inżynier"
   ],
-  callouts: ['Obliczenia doborowe', 'Obliczenia hydrauliczne', 'Modele 3D i BIM', 'Programy PLC'],
-  negatives: [
-    // studia: „inżynieria chemiczna i procesowa” to nazwa kierunku
-    'kierunek',
-    'czy warto',
-    'co po',
-    'zarobki',
-    'politechnika',
-    'uczelnia',
-    'przedmioty',
-    'egzamin',
-    'matura',
-    'licencjat',
-    'magisterskie',
-    'notatki',
-    // praca i nauka
-    'praca',
-    'oferty pracy',
-    'programista',
-    'rekrutacja',
-    'staż',
-    'praktyki',
-    'studia',
-    'kurs',
-    'kursy',
-    'szkolenie',
-    'nauka',
-    'podstawy',
-    'język',
-    'języki',
-    'symulator',
-    'zestaw',
-    'książka',
-    // materiały
-    'pdf',
-    'wzór',
-    'darmowy',
-    'za darmo',
-    'pobierz',
-    'download',
-    'definicja',
-    'co to jest',
-    'symbole',
-    'oznaczenia',
-    'wikipedia',
-    'chomikuj',
-    // rynek wtórny
-    'allegro',
-    'olx',
-    'używany',
-    'używane',
-    // inne mieszadła
-    'laboratoryjne',
-    'magnetyczne',
-    'do farb',
-    'do betonu',
-    'do zapraw',
-    'kuchenne',
-    'ręczne',
-    'wiertarki',
-  ],
+  "negatives": [
+    "praca",
+    "pracy",
+    "staż",
+    "studia",
+    "studiów",
+    "kurs",
+    "kursy",
+    "szkolenie",
+    "szkolenia",
+    "tutorial",
+    "tutoriale",
+    "krzyżówka",
+    "zarobki",
+    "wynagrodzenie"
+  ]
 };

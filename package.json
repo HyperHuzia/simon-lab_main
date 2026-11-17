@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "check:copy": "node scripts/check-copy.mjs",
+    "check:services": "node scripts/check-services.mjs",
     "profiles": "node scripts/profiles.mjs",
     "social": "node scripts/social-assets.mjs"
   },

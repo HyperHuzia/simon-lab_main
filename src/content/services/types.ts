@@ -2,8 +2,7 @@ import type { Lang } from '../../i18n/config';
 
 // The engineering services page (/services/): one file per language. Simon Lab takes on engineering orders for
 // chemical plants; the disciplines follow the applications bottom-up, and each is linked to its application, whose
-// name and role come from src/data/apps.ts. The slogan (hero.title) is the owner's, and the homepage's short section
-// on the services repeats it.
+// name and role come from src/data/apps.ts. The service-first hero is shared with the offers copy.
 export type DisciplineApp = 'processview' | 'mechgraph' | 'iongrid' | 'plantmesh' | 'architecture';
 
 export interface ServicesCopy {

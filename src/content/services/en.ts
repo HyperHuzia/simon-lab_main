@@ -1,6 +1,7 @@
 import type { ServicesCopy } from './types';
+import { offerUI } from './offers.ts';
 
-// English master copy of the services page. The slogan and the claims are the owner's (2026-11-06): orders for a whole
+// English master copy of the services page. The claims are the owner's: orders for a whole
 // project or one discipline, delivered fast, checked by experienced engineers, the client receives the documents and
 // the project as data. The output formats are those of "Project as code" (AGENTS.md, content rules).
 export const services: ServicesCopy = {
@@ -12,8 +13,8 @@ export const services: ServicesCopy = {
   },
   hero: {
     eyebrow: 'Engineering services',
-    title: 'Make your plant AI-native, fast.',
-    lede: 'Simon Lab takes on engineering orders for chemical plants: a whole project or one discipline of it. The work runs on the Simon Lab platform, so the documents come out of one model quickly, and experienced engineers check every one of them before it leaves.',
+    title: offerUI.en.title,
+    lede: offerUI.en.lede,
   },
   disciplines: {
     eyebrow: 'Disciplines',

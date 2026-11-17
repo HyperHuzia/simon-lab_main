@@ -186,11 +186,15 @@ export function linkedinServicesMedia() {
  */
 export function googleAds() {
   const a = polishAds;
-  const ref = (route: string) => `${pageUrl(route, a.lang)}?ref=${a.ref}`;
+  const ref = (route: string) => {
+    const url = new URL(pageUrl(route, a.lang));
+    url.searchParams.set('ref', a.ref);
+    return url.href;
+  };
   return {
     ...a,
     url: ref(a.page),
-    groups: a.groups.map((g) => ({ ...g, headlines: [...a.headlines, ...g.headlines], descriptions: [...g.descriptions, ...a.descriptions] })),
+    groups: a.groups.map((g) => ({ ...g, url: ref(g.page), headlines: [...a.headlines, ...g.headlines], descriptions: [...g.descriptions, ...a.descriptions] })),
     sitelinks: a.sitelinks.map((s) => ({ ...s, url: ref(s.page) })),
   };
 }

@@ -1,6 +1,7 @@
 ---
 // The engineering services page (/services/), where "Services" in the header leads: Simon Lab takes on engineering
-// orders for chemical plants. The owner's slogan, the disciplines (one per application, bottom-up, a dot in the
+// orders for chemical plants. A service-first introduction and three focused offers lead to the disciplines
+// (one per application, bottom-up, a dot in the
 // layer's colour and a link to the application's page), why an order is fast and who checks it, what the client
 // receives, and orders by email (no form). Copy from src/content/services (per language); the applications' names and
 // roles from src/data/apps.ts.
@@ -13,6 +14,9 @@ import { servicesFor } from '../data/services';
 import { path, type Lang } from '../i18n/config';
 import Base from '../layouts/Base.astro';
 import '../styles/home.css';
+import '../styles/services.css';
+import { offers, offerUI } from '../content/services/offers';
+import { serviceRoute } from '../i18n/service-routes';
 
 interface Props {
   lang: Lang;
@@ -20,6 +24,8 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = servicesFor(lang);
+const ui = offerUI[lang];
+const body = ui.emailFields.flatMap((field) => [field, '']).join('\n');
 const site = import.meta.env.SITE ?? 'https://simon-lab.org';
 const disciplines = copy.disciplines.items.map((d) => {
   const app = appById(d.app);
@@ -48,7 +54,16 @@ const jsonLd = {
       <p class="hp-eyebrow">{copy.hero.eyebrow}</p>
       <h1 class="hp-title" id="sv-title"><Slogan text={copy.hero.title} /></h1>
       <p class="hp-lede">{copy.hero.lede}</p>
+      <MailtoButton label={ui.contact} subject={copy.hero.eyebrow} body={body} />
+      <p class="service-hint">{ui.emailHint}</p>
     </header>
+  </section>
+
+  <section class="hp-sec" aria-labelledby="service-offers-title">
+    <header class="hp-head"><p class="hp-eyebrow">{ui.eyebrow}</p><h2 class="hp-title" id="service-offers-title">{ui.choose}</h2></header>
+    <ul class="service-cards">
+      {offers[lang].map((offer) => <li class="service-card"><h3>{offer.title}</h3><p>{offer.summary}</p><a class="hp-more" href={path(serviceRoute(offer.id), lang)}>{ui.details}<Icon name="arrow-right" size={15} /></a></li>)}
+    </ul>
   </section>
 
   <section class="hp-sec" aria-labelledby="sv-disciplines-title">
@@ -107,13 +122,14 @@ const jsonLd = {
     </div>
   </section>
 
-  <section class="hp-sec sv-order" aria-labelledby="sv-order-title">
+  <section class="hp-sec sv-order service-order" id="zapytanie" aria-labelledby="sv-order-title">
     <header class="hp-head">
       <p class="hp-eyebrow">{copy.order.eyebrow}</p>
       <h2 class="hp-title" id="sv-order-title">{copy.order.title}</h2>
       <p class="hp-lede">{copy.order.body}</p>
     </header>
-    <MailtoButton label={copy.order.write} subject={copy.hero.eyebrow} />
+    <MailtoButton label={ui.contact} subject={copy.hero.eyebrow} body={body} />
+    <p class="service-hint">{ui.emailHint}</p>
   </section>
 </Base>
 

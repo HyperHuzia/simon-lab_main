@@ -1,6 +1,7 @@
 import type { ServicesCopy } from './types';
+import { offerUI } from './offers.ts';
 
-// Polski, pisany natywnie; te same twierdzenia co wersja angielska. Hasło jest właściciela (2026-11-06).
+// Polski, pisany natywnie; te same twierdzenia co wersja angielska. Pierwszy ekran przedstawia zakres usług.
 export const services: ServicesCopy = {
   lang: 'pl',
   meta: {
@@ -10,8 +11,8 @@ export const services: ServicesCopy = {
   },
   hero: {
     eyebrow: 'Usługi inżynierskie',
-    title: 'Twój zakład w standardzie AI-native, szybko.',
-    lede: 'Simon Lab przyjmuje zlecenia projektowe dla instalacji chemicznych: cały projekt albo jedną jego branżę. Pracujemy na platformie Simon Lab, więc dokumenty powstają szybko z jednego modelu, a doświadczeni inżynierowie sprawdzają każdy z nich przed wysłaniem.',
+    title: offerUI.pl.title,
+    lede: offerUI.pl.lede,
   },
   disciplines: {
     eyebrow: 'Branże',
