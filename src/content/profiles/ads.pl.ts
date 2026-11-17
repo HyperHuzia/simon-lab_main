@@ -136,6 +136,34 @@ export const ads: GoogleAdsCopy = {
         "akwarium",
         "akwarystyczne"
       ]
+    },
+    {
+      "name": "Marka | Simon Lab",
+      "page": "/",
+      "cpc": 0.5,
+      "keywords": [
+        "[simon lab]",
+        "[simonlab]",
+        "[simon-lab.org]"
+      ],
+      "bids": {
+        "[simon lab]": 0.5,
+        "[simonlab]": 0.5,
+        "[simon-lab.org]": 0.5
+      },
+      "path": ["", ""],
+      "headlines": [
+        "Simon Lab | Oficjalna strona",
+        "Inżynieria chemiczna",
+        "Projekty instalacji i aparatów",
+        "Dokumentacja i modele 3D",
+        "Poznaj Simon Lab"
+      ],
+      "descriptions": [
+        "Simon Lab: projekty instalacji chemicznych i procesowych, aparatury i automatyki.",
+        "Poznaj usługi i platformę Simon Lab. Skontaktuj się z nami w sprawie projektu."
+      ],
+      "negatives": ["gra", "gry", "game", "games", "yale", "stanford"]
     }
   ],
   "sitelinks": [

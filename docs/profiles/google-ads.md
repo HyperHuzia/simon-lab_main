@@ -130,6 +130,43 @@ akwarium
 akwarystyczne
 ```
 
+## Ad group: Marka | Simon Lab (max CPC 0,50 zł)
+
+- Final URL: https://simon-lab.org/pl/?ref=google-ads-test100
+- Display path: simon-lab.org/ (0/15)/ (0/15)
+
+### Keywords
+
+```text
+[simon lab]   max CPC 0,50 zł
+[simonlab]   max CPC 0,50 zł
+[simon-lab.org]   max CPC 0,50 zł
+```
+
+### Headlines (5, 3 to 15)
+
+- Simon Lab | Oficjalna strona (28/30)
+- Inżynieria chemiczna (20/30)
+- Projekty instalacji i aparatów (30/30)
+- Dokumentacja i modele 3D (24/30)
+- Poznaj Simon Lab (16/30)
+
+### Descriptions (2, 2 to 4)
+
+- Simon Lab: projekty instalacji chemicznych i procesowych, aparatury i automatyki. (81/90)
+- Poznaj usługi i platformę Simon Lab. Skontaktuj się z nami w sprawie projektu. (78/90)
+
+### Negative keywords (this ad group)
+
+```text
+gra
+gry
+game
+games
+yale
+stanford
+```
+
 ## Sitelinks
 
 - Instalacje procesowe (20/25): https://simon-lab.org/pl/services/instalacje-procesowe/?ref=google-ads-test100
