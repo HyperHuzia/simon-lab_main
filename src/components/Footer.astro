@@ -3,7 +3,7 @@
 // "Contact" link): the name, then the address, email and phone behind one button in their own place (ContactDetails:
 // character codes, no plain text in the HTML), then the tax numbers as a table, each with a button that copies only
 // the number. Strings carry data-ui keys for the 404 page.
-import { PLATFORM_URL, SIGN_IN } from '../config';
+import { ADS_ON, PLATFORM_URL, SIGN_IN } from '../config';
 import { APPS } from '../data/apps';
 import { path, type Lang } from '../i18n/config';
 import { t } from '../i18n/ui';
@@ -66,6 +66,9 @@ const ids = [
         <li><a href="#contact" data-ui="nav.contact">{ui('nav.contact')}</a></li>
         {SIGN_IN && <li><a href={PLATFORM_URL} data-ui="nav.signin">{ui('nav.signin')}</a></li>}
         <li><a href="/licenses.txt" data-no-prefix data-ui="footer.licenses">{ui('footer.licenses')}</a></li>
+        <li><a href={path('/privacy/', lang)} data-ui="footer.privacy">{ui('footer.privacy')}</a></li>
+        {/* opens the cookie banner again (src/components/Consent.astro), so consent is withdrawn as easily as given */}
+        {ADS_ON && <li><button type="button" class="link" data-consent-open data-ui="footer.cookies">{ui('footer.cookies')}</button></li>}
       </ul>
     </nav>
 
@@ -166,6 +169,28 @@ const ids = [
     color: var(--text);
     text-decoration: underline;
     text-decoration-color: var(--text-3);
+  }
+
+  /* "Cookie settings": a button that reads as one of the links */
+  .link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-2);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .link:hover {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--text-3);
+  }
+
+  /* without JavaScript there is no banner to open */
+  :global(html:not(.js)) .link {
+    display: none;
   }
 
   /* the slate variant of the logo (scripts/make-logos.mjs) */

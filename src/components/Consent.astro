@@ -1,0 +1,234 @@
+---
+// The cookie banner and the Google Ads tag in basic consent mode: a small card in a bottom corner (no backdrop, no
+// scroll lock, no focus trap; fixed, so it moves nothing), one sentence, a privacy link and two buttons of equal weight.
+// Before consent nothing is requested from Google: the gtag stub only queues commands. After "Accept" (now or stored)
+// the tag loads with ad storage granted and personalization and analytics denied, and one delegated listener sends the
+// contact conversion, at most once per page view, on a click on a mailto link or on a control marked
+// data-conversion="contact", or on copying the address. The choice is kept in localStorage (sl-consent) for 12
+// months; anything marked data-consent-open (the footer's "Cookie settings", the privacy page) opens the banner again,
+// and "Decline" after consent removes the _gcl_ cookies and reloads the page, so the tag stops.
+// Rendered only when GOOGLE_ADS holds a real tag id (ADS_ON in src/config.ts). Strings carry data-ui keys for the 404
+// page; without JavaScript the banner stays hidden, as nothing can load.
+import { path, type Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang);
+---
+
+<section class="consent" aria-label={ui('consent.label')} data-ui-aria="consent.label" data-consent hidden>
+  <p>
+    <span data-ui="consent.text">{ui('consent.text')}</span>
+    <a href={path('/privacy/', lang)} data-ui="consent.privacy">{ui('consent.privacy')}</a>
+  </p>
+  <div class="consent-actions">
+    <button type="button" class="btn btn-primary" data-consent-choice="granted" data-ui="consent.accept">{ui('consent.accept')}</button>
+    <button type="button" class="btn btn-primary" data-consent-choice="denied" data-ui="consent.decline">{ui('consent.decline')}</button>
+  </div>
+</section>
+
+<script>
+  import { ADS_ON, GOOGLE_ADS, MAILBOX } from '../config';
+
+  type Choice = 'granted' | 'denied';
+  const KEY = 'sl-consent';
+  const YEAR = 365 * 24 * 60 * 60 * 1000;
+
+  const w = window as unknown as { dataLayer: unknown[] };
+
+  /** the stored choice, unless it is older than 12 months */
+  function read(): Choice | undefined {
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null') as { choice?: string; date?: string } | null;
+      const age = Date.now() - Date.parse(saved?.date ?? '');
+      if ((saved?.choice === 'granted' || saved?.choice === 'denied') && age >= 0 && age < YEAR) return saved.choice;
+    } catch {
+      // no storage (private mode, blocked): the choice lasts for this page view
+    }
+    return undefined;
+  }
+
+  function save(choice: Choice) {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ choice, date: new Date().toISOString() }));
+    } catch {
+      // see read()
+    }
+  }
+
+  // gtag.js reads the arguments objects from the queue, so the stub pushes `arguments`, not an array
+  function gtag(..._args: unknown[]) {
+    w.dataLayer.push(arguments);
+  }
+
+  /** the cookies Google Ads sets on this domain (_gcl_au, _gcl_aw and the like), on every level of the host name */
+  function clearAdsCookies() {
+    const host = location.hostname.split('.');
+    document.cookie
+      .split(';')
+      .map((c) => c.split('=')[0].trim())
+      .filter((name) => name.startsWith('_gcl_'))
+      .forEach((name) => {
+        const gone = `${name}=; Max-Age=0; path=/`;
+        document.cookie = gone;
+        for (let i = 0; i < host.length - 1; i++) document.cookie = `${gone}; domain=.${host.slice(i).join('.')}`;
+      });
+  }
+
+  if (ADS_ON) {
+    const denied = { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' };
+    w.dataLayer = w.dataLayer || [];
+    gtag('consent', 'default', denied);
+
+    let choice = read();
+    let loaded = false;
+    let sent = false;
+
+    const load = () => {
+      if (loaded) return;
+      loaded = true;
+      gtag('consent', 'update', { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'denied', analytics_storage: 'denied' });
+      gtag('js', new Date());
+      gtag('config', GOOGLE_ADS.id);
+      const tag = document.createElement('script');
+      tag.async = true;
+      tag.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GOOGLE_ADS.id)}`;
+      document.head.append(tag);
+    };
+
+    const convert = () => {
+      if (sent || choice !== 'granted' || GOOGLE_ADS.contactLabel === 'PENDING') return;
+      sent = true;
+      gtag('event', 'conversion', { send_to: `${GOOGLE_ADS.id}/${GOOGLE_ADS.contactLabel}` });
+    };
+
+    const banner = document.querySelector<HTMLElement>('[data-consent]');
+    let opener: HTMLElement | null = null;
+
+    const show = (from?: HTMLElement) => {
+      if (!banner) return;
+      banner.hidden = false;
+      // opened on purpose (Cookie settings): the first button takes the focus; on arrival the page keeps it
+      if (from) {
+        opener = from;
+        banner.querySelector<HTMLButtonElement>('[data-consent-choice]')?.focus();
+      }
+    };
+
+    banner?.querySelectorAll<HTMLButtonElement>('[data-consent-choice]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const next: Choice = button.dataset.consentChoice === 'granted' ? 'granted' : 'denied';
+        save(next);
+        choice = next;
+        if (banner) banner.hidden = true;
+        if (next === 'granted') load();
+        else {
+          clearAdsCookies();
+          // the tag already runs on this page: stop it by reloading without it
+          if (loaded) {
+            gtag('consent', 'update', denied);
+            location.reload();
+            return;
+          }
+        }
+        opener?.focus();
+        opener = null;
+      });
+    });
+
+    if (choice === 'granted') load();
+    if (!choice) show();
+
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const open = target?.closest<HTMLElement>('[data-consent-open]');
+      if (open) {
+        event.preventDefault();
+        show(open);
+        return;
+      }
+      if (target?.closest('a[href^="mailto:"], [data-conversion="contact"]')) convert();
+    });
+
+    // copying the address once it is shown
+    document.addEventListener('copy', () => {
+      if (String(document.getSelection() ?? '').includes(`@${MAILBOX.domain}`)) convert();
+    });
+  }
+</script>
+
+<style>
+  /* a small card in the bottom-left corner, above the page but under the header's menu; no backdrop */
+  .consent {
+    position: fixed;
+    z-index: 45;
+    left: max(1rem, env(safe-area-inset-left));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    width: min(23rem, 100vw - 2rem);
+    padding: 0.9rem 1rem 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.45);
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-2);
+    animation: consent-in var(--dur) var(--ease-out);
+  }
+
+  .consent[hidden] {
+    display: none;
+  }
+
+  .consent p {
+    margin: 0 0 0.8rem;
+  }
+
+  .consent a {
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  /* two buttons of one size and one weight: declining is as easy as accepting */
+  .consent-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .consent .btn {
+    justify-content: center;
+    padding: 0.62em 1em;
+  }
+
+  @keyframes consent-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .consent {
+      animation: none;
+    }
+  }
+
+  /* phones: across the bottom with small margins */
+  @media (max-width: 560px) {
+    .consent {
+      left: max(0.5rem, env(safe-area-inset-left));
+      right: max(0.5rem, env(safe-area-inset-right));
+      bottom: max(0.5rem, env(safe-area-inset-bottom));
+      width: auto;
+      padding: 0.75rem 0.85rem 0.85rem;
+    }
+
+    .consent p {
+      margin-bottom: 0.65rem;
+    }
+  }
+</style>

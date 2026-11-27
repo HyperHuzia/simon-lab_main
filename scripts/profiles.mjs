@@ -263,7 +263,8 @@ const gLines = [
   '',
   '- Network: Google Search only (no Display Network, no search partners); location Poland (people in it), Polish ads and landing pages. Search language matching is automatic since September 2026.',
   '- Bidding: manual CPC, a default per ad group and a bid of its own where a keyword has one; keywords in phrase and exact match only; the schedule and the budget are set in the account, not here.',
-  '- No Google tag on the site, no conversion tracking. The service contact button only reveals the email address as text; it creates no email draft, subject or body. Ask the client for the source of the inquiry.',
+  '- The Google tag loads only after a visitor accepts the cookie banner (basic consent mode: before consent nothing is requested from Google; ad personalization and analytics stay denied). One conversion, “Kontakt e-mail (strona)” (category Contact, counted once per click): a click on an email link or on a button that shows the address, or copying the address, at most once per page view. The tag ID and the conversion label are `GOOGLE_ADS` in `src/config.ts`; while the ID is `AW-PENDING` the site shows no banner and loads nothing.',
+  '- The service contact button only reveals the email address as text; it creates no email draft, subject or body. Ask the client for the source of the inquiry.',
   '- The ads’ addresses retain `?ref=' + ga.ref + '`; the service pages do not use it to label email.',
   `- General services URL: ${ga.url}; each ad group has its own final URL below.`,
 ];

@@ -36,7 +36,7 @@ const ui = t(lang);
       <dd data-kind="phone" data-code={CONTACT.phone} aria-hidden="true"></dd>
     </div>
   </dl>
-  <button type="button" class="cd-cover" data-contact-show aria-controls={`cd-${uid}`}>
+  <button type="button" class="cd-cover" data-contact-show data-conversion="contact" aria-controls={`cd-${uid}`}>
     <Icon name="mail" size={16} />
     <span data-ui="footer.details">{ui('footer.details')}</span>
   </button>

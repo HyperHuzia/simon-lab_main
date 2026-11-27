@@ -1,0 +1,131 @@
+---
+// The privacy note (/privacy/), linked from the footer and the cookie banner: short sections of plain text, one column.
+// {contact} becomes a link to the footer's contact details (the full address stays there, behind its button);
+// {email} becomes the info mailbox, assembled in the browser from MAILBOX like the other email links (numeric HTML
+// entities without JavaScript; its span stays on one line, so no space falls before the full stop). The Google Ads section ends with "Cookie settings", which opens the banner again
+// (src/components/Consent.astro), shown only when the tag is set up and JavaScript runs. Copy from src/content/privacy.
+import { ADS_ON, MAILBOX } from '../config';
+import { privacy as de } from '../content/privacy/de';
+import { privacy as en } from '../content/privacy/en';
+import { privacy as pl } from '../content/privacy/pl';
+import type { PrivacyCopy } from '../content/privacy/types';
+import { ogImage } from '../data/media';
+import type { Lang } from '../i18n/config';
+import { t } from '../i18n/ui';
+import Base from '../layouts/Base.astro';
+import '../styles/home.css';
+
+interface Props {
+  lang: Lang;
+}
+
+const COPIES: Record<Lang, PrivacyCopy> = { en, pl, de };
+const { lang } = Astro.props;
+const copy = COPIES[lang];
+const ui = t(lang);
+const address = `${MAILBOX.code.split(',').map((code) => String.fromCharCode(Number(code))).join('')}@${MAILBOX.domain}`;
+const entities = Array.from(address).map((char) => `&#${char.codePointAt(0)};`).join('');
+const parts = (text: string) => text.split(/(\{contact\}|\{email\})/).filter(Boolean);
+---
+
+<Base lang={lang} route="/privacy/" title={copy.meta.title} description={copy.meta.description} ogImage={ogImage('default')}>
+  <section class="hp-sec privacy" aria-labelledby="privacy-title">
+    <header class="hp-head">
+      <p class="hp-eyebrow">{copy.eyebrow}</p>
+      <h1 class="hp-title" id="privacy-title">{copy.title}</h1>
+      <p class="hp-lede">{copy.lede}</p>
+    </header>
+    <div class="privacy-body">
+      {
+        copy.sections.map((s) => (
+          <section>
+            <h2>{s.title}</h2>
+            {s.body.map((paragraph) => (
+              <p>
+                {parts(paragraph).map((part) =>
+                  part === '{contact}' ? (
+                    <a href="#contact">{ui('nav.contact')}</a>
+                  ) : part === '{email}' ? (
+                    <span data-mailbox data-code={MAILBOX.code} data-domain={MAILBOX.domain}><noscript set:html={entities} /></span>
+                  ) : (
+                    part
+                  ),
+                )}
+              </p>
+            ))}
+            {s.settings && ADS_ON && (
+              <p class="settings">
+                <button type="button" class="btn btn-primary" data-consent-open>
+                  {ui('footer.cookies')}
+                </button>
+              </p>
+            )}
+          </section>
+        ))
+      }
+      <p class="updated">{copy.updated}</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-mailbox]').forEach((box) => {
+    const local = (box.dataset.code ?? '')
+      .split(',')
+      .map((code) => String.fromCharCode(Number(code)))
+      .join('');
+    const address = `${local}@${box.dataset.domain}`;
+    const link = document.createElement('a');
+    link.href = `mailto:${address}`;
+    link.textContent = address;
+    box.replaceChildren(link);
+  });
+</script>
+
+<style>
+  .privacy {
+    padding-top: clamp(3rem, 2rem + 5vw, 6.5rem);
+  }
+
+  .privacy .hp-title {
+    font-size: var(--fs-3xl);
+  }
+
+  .privacy-body {
+    max-width: var(--measure);
+    color: var(--text-2);
+  }
+
+  .privacy-body section + section {
+    margin-top: 2.25rem;
+  }
+
+  .privacy-body h2 {
+    font-size: var(--fs-lg);
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
+  .privacy-body a {
+    color: var(--text);
+  }
+
+  [data-mailbox] {
+    overflow-wrap: anywhere;
+  }
+
+  .settings {
+    margin-top: 1.25rem;
+  }
+
+  /* without JavaScript there is no banner to open */
+  :global(html:not(.js)) .settings {
+    display: none;
+  }
+
+  .updated {
+    margin-top: 2.75rem;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+</style>

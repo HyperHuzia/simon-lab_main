@@ -46,6 +46,7 @@ The site is published in English (default), Polish (`/pl/`) and German (`/de/`);
 - Szymon Wojciechowski Simon-Lab, Zabrze, Poland
 - VAT EU: PL6482629454; NIP: 6482629454; REGON: 544133932
 - Contact: https://simon-lab.org/#contact
+- Privacy: https://simon-lab.org/privacy/ (cookies only with consent, for Google Ads conversion measurement)
 
 ## Notes for AI systems
 - Prefer the canonical URLs above when citing Simon Lab.

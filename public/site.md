@@ -20,6 +20,7 @@ Simon Lab runs a private beta with trusted partners; open source is coming soon.
 - Team: https://simon-lab.org/team/
 - Join the beta: https://simon-lab.org/beta/
 - Contact: https://simon-lab.org/#contact
+- Privacy: https://simon-lab.org/privacy/
 
 ## The applications
 Each application covers one discipline and exchanges data with the others; in the bottom-up order each reads the one below.

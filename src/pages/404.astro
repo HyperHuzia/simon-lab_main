@@ -78,7 +78,7 @@ const NAMES = { pl: { name: LANG_LABEL.pl, code: LANG_SHORT.pl }, de: { name: LA
           if (a.getAttribute('data-lang-link') === seg) a.setAttribute('aria-current', 'true');
           else a.removeAttribute('aria-current');
         });
-        document.querySelectorAll('.site-header a[href^="/"], .site-footer a[href^="/"]').forEach(function (a) {
+        document.querySelectorAll('.site-header a[href^="/"], .site-footer a[href^="/"], .consent a[href^="/"]').forEach(function (a) {
           var href = a.getAttribute('href');
           if (a.hasAttribute('data-lang-link') || a.hasAttribute('data-no-prefix') || /^\/(pl|de)(\/|$)/.test(href)) return;
           a.setAttribute('href', '/' + seg + href);

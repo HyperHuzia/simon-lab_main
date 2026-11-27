@@ -18,6 +18,16 @@ export const CONTACT = {
   address: ['74,117,108,105,97,110,97,32,84,117,119,105,109,97,32,52,47,56', '52,49,45,56,48,48,32,90,97,98,114,122,101,44,32,80,79,76,65,78,68'],
 };
 
+/**
+ * The Google Ads tag and its one conversion (a visitor reaching the email address), behind the cookie banner
+ * (src/components/Consent.astro, basic consent mode: before consent nothing is requested from Google). Public values:
+ * they end up in the page source anyway. While `id` is 'AW-PENDING' the site shows no banner and loads nothing; while
+ * `contactLabel` is 'PENDING' the tag sends no conversion.
+ */
+export const GOOGLE_ADS = { id: 'AW-996587943', contactLabel: 'gMPPCNqr08AdEKfzmtsD' };
+/** the banner, the tag and the "Cookie settings" links exist only with a real tag id */
+export const ADS_ON = GOOGLE_ADS.id !== 'AW-PENDING';
+
 /** The platform's sign-in page ("Sign in" in the header and footer). The host is offline while the platform is rebuilt. */
 export const PLATFORM_URL = 'https://auth.simon-lab.org';
 /** "Sign in" is off while the platform is rebuilt; its place in the header and footer is kept: set true to bring it back. */

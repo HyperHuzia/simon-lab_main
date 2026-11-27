@@ -10,8 +10,10 @@ import montserratPl from '../assets/fonts/montserrat-pl-wght-normal.woff2?url';
 import notoSansPl from '../assets/fonts/noto-sans-pl-wght-normal.woff2?url';
 import monoLatin from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
 import monoPl from '../assets/fonts/jetbrains-mono-pl-wght-normal.woff2?url&no-inline';
+import Consent from '../components/Consent.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import { ADS_ON } from '../config';
 import { LANGS, OG_LOCALE, path, type Lang } from '../i18n/config';
 import { t } from '../i18n/ui';
 
@@ -131,6 +133,9 @@ const mono = [
   </head>
   <body class={bodyClass}>
     <a class="skip-link" href="#main" data-ui="skip">{ui('skip')}</a>
+    {/* the cookie banner and the consent-gated Google Ads tag, only with a real tag id (src/config.ts); early in the
+        order of the page, so the keyboard reaches it before the header, though it sits in the bottom-left corner */}
+    {ADS_ON && <Consent lang={lang} />}
     <Header lang={lang} route={route} />
     <main id="main">
       <slot />

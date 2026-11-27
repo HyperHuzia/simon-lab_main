@@ -1,5 +1,6 @@
 ---
-// Reveal selectable contact text only. No navigation, mail client, clipboard or tracking.
+// Reveal selectable contact text only. No navigation, mail client or clipboard; data-conversion="contact" lets the
+// consent-gated Google Ads conversion count the click (src/components/Consent.astro), nothing more.
 import { MAILBOX } from '../config';
 import Icon from './Icon.astro';
 
@@ -9,7 +10,7 @@ const address = `${MAILBOX.code.split(',').map((code) => String.fromCharCode(Num
 const encodedAddress = Array.from(address).map((char) => `&#${char.codePointAt(0)};`).join('');
 ---
 <p class="email-contact">
-  <button class="btn btn-solid" type="button" data-email-reveal data-code={MAILBOX.code} data-domain={MAILBOX.domain}>
+  <button class="btn btn-solid" type="button" data-email-reveal data-conversion="contact" data-code={MAILBOX.code} data-domain={MAILBOX.domain}>
     <Icon name="mail" size={16} />
     <span data-email-value aria-live="polite">{label}</span>
   </button>
